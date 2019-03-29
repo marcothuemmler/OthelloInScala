@@ -1,3 +1,5 @@
+package de.htwg.se.othello
+
 case class Board() {
 
   val field: Array[Array[Cell]] = Array.tabulate(8, 8)((i, j) => {
