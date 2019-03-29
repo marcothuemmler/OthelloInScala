@@ -19,4 +19,5 @@ val field1 = Field(Array.ofDim[Cell](1))
 field1.cells(0)=cell1
 
 field1.cells(0).value
-val x = 5
+
+val x = 15
