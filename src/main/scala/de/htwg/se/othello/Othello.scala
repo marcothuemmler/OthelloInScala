@@ -9,6 +9,7 @@ object Othello {
     val player2 = Player("Player2", 2)
     println(game)
     println(f"$player1%s \n$player2%s")
-    game.field(0)(0) = Cell(5)
+    game.flip(7,2,1)
+    println(game)
   }
 }

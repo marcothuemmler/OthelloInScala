@@ -9,8 +9,17 @@ case class Board() {
 
   override def toString: String = {
     val sb = new StringBuilder(" -----------------\n")
-    for (i <- field.indices)
-      sb ++= "| " + field(i).mkString(" ") + " |\n"
+      for (j <- field.indices.indices) {
+        sb ++="| "
+        for (i <- field.indices) {
+          sb ++= field(i)(j).toString + " "
+        }
+        sb ++= "|\n"
+    }
     sb.append(" -----------------").toString
+  }
+
+  def flip(x: Int, y: Int, z: Int): Unit = {
+    field(x)(y) = Cell(z)
   }
 }
