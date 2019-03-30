@@ -19,7 +19,7 @@ case class Board() {
     sb.append(" -----------------").toString
   }
 
-  def flip(x: Int, y: Int, z: Int): Unit = {
-    field(x)(y) = Cell(z)
+  def flip(x: Int, y: Int, player: Player): Unit = {
+    field(x)(y) = Cell(player.value)
   }
 }
