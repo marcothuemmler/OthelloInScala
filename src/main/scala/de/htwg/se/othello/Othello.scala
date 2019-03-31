@@ -7,7 +7,9 @@ object Othello {
     val board = new Board
     val player1 = Player("Player1", 1)
     val player2 = Player("Player2", 2)
+    val game = Logic(board)
     println(board)
     println(f"$player1%s \n$player2%s")
+    println(game.validMoves(player1))
   }
 }
