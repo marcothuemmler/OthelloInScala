@@ -1,6 +1,6 @@
 package de.htwg.se.othello
 
-case class Board() {
+class Board {
 
   val field: Array[Array[Cell]] = Array.tabulate(8, 8)((i, j) => {
     if ((i == 4 || i == 3) && i == j) Cell(2)
@@ -12,13 +12,13 @@ case class Board() {
   def flip(x: Int, y: Int, newVal: Int): Unit = field(x)(y) = Cell(newVal)
 
   override def toString: String = {
-    val sb = new StringBuilder(" -----------------\n")
-      for (y <- field.indices) {
-        sb ++= "| "
-        for (x <- field.indices)
-          sb ++= field(x)(y).toString
-        sb ++= "|\n"
+    val sb = new StringBuilder("\n    A B C D E F G H\n    _______________\n")
+    for (i <- field.indices) {
+      sb ++= (i + 1) + "  |"
+      for (j <- field.indices)
+        sb ++= field(j)(i).toString
+      sb ++= "\n"
     }
-    sb.append(" -----------------").toString
+    sb.append("    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺").toString
   }
 }
