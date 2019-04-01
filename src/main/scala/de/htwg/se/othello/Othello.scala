@@ -4,11 +4,11 @@ object Othello {
 
   def main(args: Array[String]): Unit = {
 
-    val game = Logic(new Board)
+    val game = new Game
     val p1 = Player("Player1", 1)
     val p2 = Player("Player2", 2)
-    game.flip(2, 3, p1)
-    game.board.flip(3,3, 1)
-    println(game)
+    game.update()
+    game.flip(2,3,p1)
+    game.flip(2,2,p2)
   }
 }
