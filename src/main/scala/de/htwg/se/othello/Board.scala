@@ -8,7 +8,9 @@ class Board {
   })
 
   def isSet(x: Int, y: Int): Boolean = field(x)(y).isSet
+
   def getValue(x: Int, y: Int): Int = field(x)(y).value
+
   def flip(x: Int, y: Int, newVal: Int): Unit = field(x)(y) = Cell(newVal)
 
   override def toString: String = {
