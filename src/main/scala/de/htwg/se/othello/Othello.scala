@@ -10,5 +10,7 @@ object Othello {
     game.update()
     game.flip(2,3,p1)
     game.flip(2,2,p2)
+    game.flip(5,4,p1)
+    game.flip(3,5,p2)
   }
 }
