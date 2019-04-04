@@ -7,12 +7,6 @@ class Board {
     else if (i == 4 && j == 3 || i == 3 && j == 4) Cell(1) else Cell(0)
   })
 
-  def isSet(x: Int, y: Int): Boolean = field(x)(y).isSet
-
-  def getValue(x: Int, y: Int): Int = field(x)(y).value
-
-  def flip(x: Int, y: Int, newVal: Int): Unit = field(x)(y) = Cell(newVal)
-
   override def toString: String = {
     val sb = new StringBuilder("\n    A B C D E F G H\n    _______________\n")
     for (i <- field.indices) {
