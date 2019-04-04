@@ -1,14 +1,23 @@
-import de.htwg.se.othello.{Board, Logic, Player}
+case class Cell(value: Int) {
+  def isSet: Boolean = value != 0
+  if (value < 0 || value > 2) {
+    throw new IllegalArgumentException("Wrong value. Valid values are 0, one and 2")
+  }
 
-val board = new Board
-val player1 = Player("Player1", 1)
-val player2 = Player("Player2", 2)
-println(f"$player1%s \n$player2%s")
-board.flip(5, 3, player1.value)
-board.flip(3, 3, player1.value)
+}
 
-val game = Logic(board)
-println("game.checkTile(3,4, player1): " + game.checkMoves(3,4, player1))
-println("game.checkTile(4,4, player2): " + game.checkMoves(4,4, player2))
-println("game.checkTile(3,3, player2): " + game.checkMoves(3,3, player2))
-println(board)
+val cell1 = Cell(2)
+cell1.isSet
+
+val cell2 = Cell(0)
+cell2.isSet
+
+case class Field(cells: Array[Cell])
+
+val field1 = Field(Array.ofDim[Cell](1))
+
+field1.cells(0)=cell1
+
+field1.cells(0).value
+
+val x = 15
