@@ -19,10 +19,12 @@ sealed trait CellState{
 }
 
 object CellState {
-  case object Black extends CellState
-  case object White extends CellState
-  case object NoCell extends CellState
 
+  case object Black extends CellState
+
+  case object White extends CellState
+
+  case object NoCell extends CellState
 
 
 }
