@@ -4,14 +4,15 @@ sealed trait Color
 case object Black extends Color()
 case object White extends Color()
 
-case class Cell(color: Option[Color]) {
-
-
+case class Cell(value: Int) {
+  def isSet: Boolean = value != 0
+  override def toString: String = f"$value%d "
 }
+
 object  Cell {
-  val BlackCell = Cell(Some(Black))
-  val WhiteCell = Cell(Some(White))
-  val NoCell = Cell(None)
+  val BlackCell = Cell(2)
+  val WhiteCell = Cell(1)
+  val NoCell = Cell(0)
 }
 sealed trait CellState{
 
