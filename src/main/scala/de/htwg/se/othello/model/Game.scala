@@ -18,12 +18,14 @@ case class Game(board: Board) {
         flip(i, n._2, value)
       }
     } else {
-      if (x == y) {
-        for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y if i - n._1 == j - n._2) {
+      if (x == y) { // up-left || down-right
+        for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y
+             if i - n._1 == j - n._2) {
           flip(i, j, value)
         }
-      } else {
-        for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y if i - o._1 == o._2 - j) {
+      } else { // up-right || down-left
+        for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y
+             if i - n._1 == n._2 - j) {
           flip(i, j, value)
         }
       }
