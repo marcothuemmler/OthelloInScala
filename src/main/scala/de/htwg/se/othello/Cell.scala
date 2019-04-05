@@ -5,8 +5,15 @@ case object Black extends Color()
 case object White extends Color()
 
 case class Cell(value: Int) {
-  def isSet: Boolean = value != 0
-  override def toString: String = f"$value%d "
+  override def toString: String = {
+    if (value > 0) {
+      f"$value%d|"
+    } else if (value == 0) {
+      "_|"
+    } else {
+      "x "
+    }
+  }
 }
 
 object  Cell {
