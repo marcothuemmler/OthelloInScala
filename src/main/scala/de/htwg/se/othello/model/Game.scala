@@ -17,17 +17,15 @@ case class Game(board: Board) {
       for (i <- n._1 until o._1 by x) {
         flip(i, n._2, value)
       }
-    } else {
-      if (x == y) { // up-left || down-right
-        for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y
-             if i - n._1 == j - n._2) {
-          flip(i, j, value)
-        }
-      } else { // up-right || down-left
-        for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y
-             if i - n._1 == n._2 - j) {
-          flip(i, j, value)
-        }
+    } else if (x == y) { // up-left || down-right
+      for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y
+           if i - n._1 == j - n._2) {
+        flip(i, j, value)
+      }
+    } else { // up-right || down-left
+      for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y
+           if i - n._1 == n._2 - j) {
+        flip(i, j, value)
       }
     }
   }
