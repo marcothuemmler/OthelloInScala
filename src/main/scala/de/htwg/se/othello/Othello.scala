@@ -1,5 +1,7 @@
 package de.htwg.se.othello
 
+import de.htwg.se.othello.model.{Board, Game, Player}
+
 object Othello {
 
   def main(args: Array[String]): Unit = {
