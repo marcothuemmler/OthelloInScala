@@ -15,23 +15,3 @@ case class Cell(value: Int) {
     }
   }
 }
-
-object  Cell {
-  val BlackCell = Cell(2)
-  val WhiteCell = Cell(1)
-  val NoCell = Cell(0)
-}
-sealed trait CellState{
-
-}
-
-object CellState {
-
-  case object Black extends CellState
-
-  case object White extends CellState
-
-  case object NoCell extends CellState
-
-
-}
