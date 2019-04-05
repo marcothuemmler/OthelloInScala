@@ -1,4 +1,4 @@
-package de.htwg.se.othello
+package de.htwg.se.othello.model
 
 class Board {
 
