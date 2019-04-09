@@ -6,13 +6,17 @@ class Player(name: String, value: Int, game: Game) {
 
   val board: Board = game.board
 
+  def setByPl(x: Int, y: Int): Boolean = {
+    board.field(x)(y).value == this.value
+  }
+
   def setByOpp(x: Int, y: Int): Boolean = {
-    board.field(x)(y).value > 0 && board.field(x)(y).value != this.value
+    board.field(x)(y).value > 0 && !setByPl(x, y)
   }
 
   def moves(): Map[(Int, Int), List[(Int, Int)]] = {
     val moves = new ListBuffer[((Int, Int), List[(Int, Int)])]
-    for (i <- 0 to 7; j <- 0 to 7 if board.field(i)(j).value == value) {
+    for (i <- 0 to 7; j <- 0 to 7 if setByPl(i, j)) {
       moves += checkMoves(i, j)
     }
     moves.toMap
@@ -25,7 +29,7 @@ class Player(name: String, value: Int, game: Game) {
     game.update()
   }
 
-  def set(x: Int, y: Int): Unit = {
+  def set(x: Int, y: Int): Boolean = {
     val allMoves = moves()
     val valid = allMoves.filter(_._2.contains((x, y)))
     if (valid.nonEmpty) {
@@ -36,6 +40,7 @@ class Player(name: String, value: Int, game: Game) {
         game.flip(tile._1, tile._2, 0)
       }
       game.update()
+      true
     } else {
       println(f"Please try again. Possible moves for $name%s:")
       val possible = allMoves.values.flatten.toSet
@@ -43,6 +48,7 @@ class Player(name: String, value: Int, game: Game) {
         printf(f"$move ")
       }
       println
+      false
     }
   }
 
@@ -67,8 +73,7 @@ class Player(name: String, value: Int, game: Game) {
   def checkRec(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val nX = x + direction._1
     val nY = y + direction._2
-    if (nX < 0 || nX > 7 || nY < 0 || nY > 7
-      || board.field(nX)(nY).value == value) {
+    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setByPl(nX, nY)) {
       (-1, -1)
     } else if (setByOpp(nX, nY)) {
       checkRec(nX, nY, direction)
