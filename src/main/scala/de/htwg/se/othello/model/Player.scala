@@ -4,33 +4,31 @@ import scala.collection.mutable.ListBuffer
 
 class Player(name: String, value: Int, game: Game) {
 
-  val board: Board = game.board
-
   def setByPl(x: Int, y: Int): Boolean = {
-    board.field(x)(y).value == this.value
+    game.board.valueOf(x, y) == this.value
   }
 
   def setByOpp(x: Int, y: Int): Boolean = {
-    board.field(x)(y).value > 0 && !setByPl(x, y)
+    game.board.valueOf(x, y) > 0 && !setByPl(x, y)
   }
 
-  def moves(): Map[(Int, Int), List[(Int, Int)]] = {
+  def moves: Map[(Int, Int), List[(Int, Int)]] = {
     val moves = new ListBuffer[((Int, Int), List[(Int, Int)])]
-    for (i <- 0 to 7; j <- 0 to 7 if setByPl(i, j)) {
+    for (i <- 0 to 7; j <- 0 to 7
+         if setByPl(i, j) && checkMoves(i,j)._2.nonEmpty) {
       moves += checkMoves(i, j)
     }
     moves.toMap
   }
 
   def highlight(): Unit = {
-    for (v <- moves().values.flatten) {
+    for (v <- moves.values.flatten) {
       game.flip(v._1, v._2, -1)
     }
-    game.update()
   }
 
   def set(x: Int, y: Int): Boolean = {
-    val allMoves = moves()
+    val allMoves = moves
     val valid = allMoves.filter(_._2.contains((x, y)))
     if (valid.nonEmpty) {
       for (tile <- valid.keys) {
@@ -39,15 +37,8 @@ class Player(name: String, value: Int, game: Game) {
       for (tile <- allMoves.values.flatten.filter(_ != (x,y))) {
         game.flip(tile._1, tile._2, 0)
       }
-      game.update()
       true
     } else {
-      println(f"Please try again. Possible moves for $name%s:")
-      val possible = allMoves.values.flatten.toSet
-      for (move <- possible) {
-        printf(f"$move ")
-      }
-      println
       false
     }
   }
@@ -66,7 +57,7 @@ class Player(name: String, value: Int, game: Game) {
     if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || !setByOpp(nX, nY)) {
       (-1, -1)
     } else {
-      checkRec(x, y, direction)
+      checkRec(nX, nY, direction)
     }
   }
 
@@ -81,4 +72,16 @@ class Player(name: String, value: Int, game: Game) {
       (nX, nY)
     }
   }
+
+  def count(): Int = {
+    var tiles = 0
+    for (i <- 0 to 7; j <- 0 to 7) {
+      if (game.board.field(i)(j).value == this.value) {
+        tiles += 1
+      }
+    }
+    tiles
+  }
+
+  override def toString: String = name
 }

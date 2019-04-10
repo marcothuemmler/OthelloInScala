@@ -7,6 +7,10 @@ class Board {
     else if (i == 4 && j == 3 || i == 3 && j == 4) Cell(1) else Cell(0)
   })
 
+  def valueOf(x: Int, y: Int): Int = {
+    field(x)(y).value
+  }
+
   override def toString: String = {
     val sb = new StringBuilder("\n    A B C D E F G H\n    _______________\n")
     for (i <- field.indices) {

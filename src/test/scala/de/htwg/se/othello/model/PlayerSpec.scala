@@ -4,7 +4,12 @@ import org.scalatest.{Matchers, WordSpec}
 
 class PlayerSpec extends WordSpec with Matchers {
 
-  val player = new Player("Player1", 1, Game(new Board))
+  val game = Game(new Board)
+  val player = new Player("Player1", 1, game)
+
+  "A player have a toString method" in {
+    player.toString should be("Player1")
+  }
   "setByOpp" should {
     "Be true if set by opponent" in {
       player.setByOpp(4, 4) should be(true)
@@ -29,14 +34,30 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "moves" should {
     "not be empty if there are valid moves" in {
-      player.moves().keys should not be empty
-      player.moves().values should not be empty
+      player.moves.keys should not be empty
+      player.moves.values should not be empty
+    }
+    "be empty if there are no valid moves" in {
+      for (i <- 0 to 7; j <- 0 to 7) {
+        game.flip(i, j, 0)
+      }
+      player.moves.keys should be(empty)
+      player.moves.values should be(empty)
+      game.flip(3,3, 2)
+      game.flip(4,4, 2)
+      game.flip(3,4, 1)
+      game.flip(4,3, 1)
+    }
+  }
+  "count "should {
+    "return the amount of tiles set by player" in {
+      player.count() should be(2)
     }
   }
   "highlight " should {
-    "set highlighted cells to" in {
+    "flip settable cells to -1" in {
       player.highlight()
-      player.board.field(2)(3).value should be(-1)
+      game.board.valueOf(2, 3) should be(-1)
     }
   }
   "set" should {
