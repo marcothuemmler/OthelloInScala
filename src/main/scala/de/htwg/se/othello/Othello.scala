@@ -10,7 +10,7 @@ object Othello {
   def main(args: Array[String]): Unit = {
     val game = Game(new Board)
     val p1 = new Player("Player1", 1, game)
-    val p2 = new Player("Bot", 2, game)
+    val p2 = new Player("Player2", 2, game)
     val player = Array(p1, p2)
     var input = ""
     var i = 0
@@ -50,14 +50,16 @@ object Othello {
         println
       }
     }
-    val p1tiles = p1.count()
-    val p2tiles = p2.count()
-    if (p1tiles > p2tiles) {
-      println(f"${p1.toString} won by $p1tiles:$p2tiles!")
-    }else if (p1.count() == p2.count()) {
-      println("Draw")
-    } else {
-      println(f"${p2.toString} won by $p2tiles:$p1tiles!")
+    if (player(0).moves.isEmpty && player(1).moves.isEmpty) {
+      val p1tiles = p1.count
+      val p2tiles = p2.count
+      if (p1tiles > p2tiles) {
+        println(f"${p1.toString} won by $p1tiles:$p2tiles!")
+      }else if (p1tiles == p2tiles) {
+        println("Draw")
+      } else {
+        println(f"${p2.toString} won by $p2tiles:$p1tiles!")
+      }
     }
   }
 

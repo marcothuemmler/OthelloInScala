@@ -73,14 +73,12 @@ class Player(name: String, value: Int, game: Game) {
     }
   }
 
-  def count(): Int = {
-    var tiles = 0
-    for (i <- 0 to 7; j <- 0 to 7) {
-      if (game.board.field(i)(j).value == this.value) {
-        tiles += 1
-      }
+  def count: Int = {
+    val tiles = new ListBuffer[Cell]
+    for (i <- 0 to 7; j <- 0 to 7 if game.board.valueOf(i ,j) == this.value) {
+      tiles += game.board.field(i)(j)
     }
-    tiles
+    tiles.toList.length
   }
 
   override def toString: String = name

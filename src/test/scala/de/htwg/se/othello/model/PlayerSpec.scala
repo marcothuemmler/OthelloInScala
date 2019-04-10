@@ -51,7 +51,7 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "count "should {
     "return the amount of tiles set by player" in {
-      player.count() should be(2)
+      player.count should be(2)
     }
   }
   "highlight " should {
@@ -61,11 +61,13 @@ class PlayerSpec extends WordSpec with Matchers {
     }
   }
   "set" should {
-    "return true if the move is possible" in {
+    "return true if the move is possible and the tile was set" in {
       player.set(2, 3) should be(true)
+      game.board.valueOf(2, 3) should be(1)
     }
     "return false if the move is not possible" in {
       player.set(0, 0) should be(false)
+      game.board.valueOf(0 ,0) should be(0)
     }
   }
   "checkMoves._2" should {
