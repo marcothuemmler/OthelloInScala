@@ -4,7 +4,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 class PlayerSpec extends WordSpec with Matchers {
 
-  val game = Game(new Board)
+  val game = new Game
   val player = new Player("Player1", 1, game)
 
   "A player have a toString method" in {
@@ -57,17 +57,17 @@ class PlayerSpec extends WordSpec with Matchers {
   "highlight " should {
     "flip settable cells to -1" in {
       player.highlight()
-      game.board.valueOf(2, 3) should be(-1)
+      game.valueOf(2, 3) should be(-1)
     }
   }
   "set" should {
     "return true if the move is possible and the tile was set" in {
       player.set(2, 3) should be(true)
-      game.board.valueOf(2, 3) should be(1)
+      game.valueOf(2, 3) should be(1)
     }
     "return false if the move is not possible" in {
       player.set(0, 0) should be(false)
-      game.board.valueOf(0 ,0) should be(0)
+      game.valueOf(0 ,0) should be(0)
     }
   }
   "checkMoves._2" should {

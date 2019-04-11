@@ -4,12 +4,10 @@ import scala.collection.mutable.ListBuffer
 
 class Player(name: String, value: Int, game: Game) {
 
-  def setByPl(x: Int, y: Int): Boolean = {
-    game.board.valueOf(x, y) == this.value
-  }
+  def setByPl(x: Int, y: Int): Boolean = game.valueOf(x, y) == this.value
 
   def setByOpp(x: Int, y: Int): Boolean = {
-    game.board.valueOf(x, y) > 0 && !setByPl(x, y)
+    game.valueOf(x, y) > 0 && !setByPl(x, y)
   }
 
   def moves: Map[(Int, Int), List[(Int, Int)]] = {
@@ -28,19 +26,17 @@ class Player(name: String, value: Int, game: Game) {
   }
 
   def set(x: Int, y: Int): Boolean = {
-    val allMoves = moves
-    val valid = allMoves.filter(_._2.contains((x, y)))
+    val valid = moves.filter(_._2.contains((x, y)))
     if (valid.nonEmpty) {
       for (tile <- valid.keys) {
         game.flip((x, y), tile, value)
       }
-      for (tile <- allMoves.values.flatten.filter(_ != (x,y))) {
+      for (tile <- moves.values.flatten.filter(_ != (x, y))) {
         game.flip(tile._1, tile._2, 0)
       }
-      true
-    } else {
-      false
+      return true
     }
+    false
   }
 
   def checkMoves(x: Int, y: Int): ((Int, Int), List[(Int, Int)]) = {
@@ -73,13 +69,7 @@ class Player(name: String, value: Int, game: Game) {
     }
   }
 
-  def count: Int = {
-    val tiles = new ListBuffer[Cell]
-    for (i <- 0 to 7; j <- 0 to 7 if game.board.valueOf(i ,j) == this.value) {
-      tiles += game.board.field(i)(j)
-    }
-    tiles.toList.length
-  }
+  def count: Int = game.board.field.flatten.count(_.value == value)
 
   override def toString: String = name
 }

@@ -1,10 +1,14 @@
 package de.htwg.se.othello.model
 
-case class Game(board: Board) {
+class Game {
 
-  def flip(x: Int, y: Int, newVal: Int): Unit = board.field(x)(y) = Cell(newVal)
+  val board = new Board
 
   def update(): Unit = println(board)
+
+  def valueOf(x: Int, y: Int): Int = {
+    board.field(x)(y).value
+  }
 
   def flip(n: (Int, Int), o: (Int, Int), value: Int): Unit = {
     val x = if (n._1 < o._1) 1 else -1
@@ -29,4 +33,6 @@ case class Game(board: Board) {
       }
     }
   }
+
+  def flip(x: Int, y: Int, newVal: Int): Unit = board.field(x)(y) = Cell(newVal)
 }
