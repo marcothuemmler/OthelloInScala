@@ -6,19 +6,6 @@ case class Game(board: Board) {
 
   def update(): Unit = println(board)
 
-
-
-  def getFlip(n: (Int, Int), o: (Int, Int) ): Int = {
-
-    val x = n._1 - o._1
-    val y = n._2 - o._2
-    val getFlipTipps : Int = 0
-    if (x == y) {
-      var getFlipNr: Int = x - 1
-    }
-    getFlipTipps
-  }
-
   def flipline(n: (Int, Int), o: (Int, Int), value: Int): Unit = {
     val x = if (n._1 < o._1) 1 else -1
     val y = if (n._2 < o._2) 1 else -1

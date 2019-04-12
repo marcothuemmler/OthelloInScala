@@ -27,16 +27,6 @@ class Player(name: String, value: Int, game: Game) {
     }
   }
 
-  def highlightTipps() : Unit = {
-    for (v <- moves.values.flatten) {
-      val flipTipps : Int = game.getFlip(v._1, v._2)
-      game.flipline()
-    }
-
-
-
-  }
-
   def set(x: Int, y: Int): Boolean = {
     val allMoves = moves
     val valid = allMoves.filter(_._2.contains((x, y)))
