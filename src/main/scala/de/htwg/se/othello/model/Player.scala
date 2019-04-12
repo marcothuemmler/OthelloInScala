@@ -15,7 +15,7 @@ class Player(name: String, value: Int, game: Game) {
   }
 
   def highlight(): Unit = {
-    moves.values.flatten.foreach(e => game.flip(e._1, e._2, -1))
+    moves.values.flatten.foreach(tile => game.flip(tile._1, tile._2, -1))
   }
 
   def set(x: Int, y: Int): Boolean = {
