@@ -4,6 +4,8 @@ import scala.collection.mutable.ListBuffer
 
 class Player(name: String, value: Int, game: Game) {
 
+  def this(value: Int, game: Game) = this(f"Player$value", value, game)
+
   def setByPl(x: Int, y: Int): Boolean = game.valueOf(x, y) == this.value
 
   def setByOpp(x: Int, y: Int): Boolean = {
@@ -26,12 +28,13 @@ class Player(name: String, value: Int, game: Game) {
   }
 
   def set(x: Int, y: Int): Boolean = {
-    val valid = moves.filter(_._2.contains((x, y)))
+    val allMoves = moves
+    val valid = allMoves.filter(_._2.contains((x, y)))
     if (valid.nonEmpty) {
       for (tile <- valid.keys) {
         game.flip((x, y), tile, value)
       }
-      for (tile <- moves.values.flatten.filter(_ != (x, y))) {
+      for (tile <- allMoves.values.flatten.filter(_ != (x, y))) {
         game.flip(tile._1, tile._2, 0)
       }
       return true

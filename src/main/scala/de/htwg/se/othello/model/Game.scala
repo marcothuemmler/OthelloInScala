@@ -4,6 +4,8 @@ class Game {
 
   val board = new Board
 
+  def flip(x: Int, y: Int, newVal: Int): Unit = board.field(x)(y) = Cell(newVal)
+
   def update(): Unit = println(board)
 
   def valueOf(x: Int, y: Int): Int = {
@@ -33,6 +35,4 @@ class Game {
       }
     }
   }
-
-  def flip(x: Int, y: Int, newVal: Int): Unit = board.field(x)(y) = Cell(newVal)
 }

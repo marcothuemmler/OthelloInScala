@@ -5,10 +5,18 @@ import org.scalatest.{Matchers, WordSpec}
 class PlayerSpec extends WordSpec with Matchers {
 
   val game = new Game
-  val player = new Player("Player1", 1, game)
+  val player = new Player("Otto", 1, game)
+  val p = new Player(2, game)
 
-  "A player have a toString method" in {
-    player.toString should be("Player1")
+  "A player" should {
+    "have a toString method" in {
+      player.toString should be("Otto")
+    }
+  }
+  "A Player without name parameter" should {
+    "have a default name" in {
+      p.toString should be("Player2")
+    }
   }
   "setByOpp" should {
     "Be true if set by opponent" in {
