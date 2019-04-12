@@ -25,19 +25,16 @@ case class MVCRun() {
           game.update()
           val input = StdIn.readLine
           if (input == "q") return
-          val tokens = input
+          val tokens = input.split(" ")
           if (tokens.length == 2) {
-            val tile = tokens.split(" ")
-            x = tile(0).toInt
-            y = tile(1).toInt
+            x = tokens(0).toInt
+            y = tokens(1).toInt
           }
       }
       if (!players(i).set(x, y)) {
         println(f"Please try again. Possible moves for ${players(i)}:")
         val possible = players(i).moves.values.flatten.toSet
-        for (option <- possible) {
-          print(f"$option ")
-        }
+        possible.foreach(e => print(f"$e "))
         println
       } else {
         i = if (i == 1) 0 else 1
