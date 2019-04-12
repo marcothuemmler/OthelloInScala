@@ -15,23 +15,23 @@ class GameSpec extends WordSpec with Matchers {
       }
       "set the value of the cell vertically" in {
 
-        game.flipline((5,4), (3,4), 1 )
+        game.flipLine((5,4), (3,4), 1 )
         game.board.field(4)(4).value should be (1)
       }
       "set the value of the cell horizontally " in{
 
-        game.flipline((4,3),(4,5),1)
+        game.flipLine((4,3),(4,5),1)
         game.board.field(4)(4).value should be (1)
       }
       "set the value from up-left to down-right" in {
 
-        game.flipline((2,2), (5,5),1)
+        game.flipLine((2,2), (5,5),1)
         game.board.field(3)(3).value should be (1)
         game.board.field(4)(4).value should be (1)
       }
       "set the value from up-right to down-left" in{
 
-        game.flipline((2,5),(5,2),2)
+        game.flipLine((2,5),(5,2),2)
         game.board.field(4)(3).value should be (2)
         game.board.field(3)(4).value should be (2)
       }

@@ -8,7 +8,7 @@ case class Game(board: Board) {
 
   def valueOf(x: Int, y: Int): Int = board.field(x)(y).value
 
-  def flipline(n: (Int, Int), o: (Int, Int), value: Int): Unit = {
+  def flipLine(n: (Int, Int), o: (Int, Int), value: Int): Unit = {
     val x = if (n._1 < o._1) 1 else -1
     val y = if (n._2 < o._2) 1 else -1
     if (n._1 == o._1 && n._2 != o._2) { // vertical
