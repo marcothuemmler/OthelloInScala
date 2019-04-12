@@ -4,7 +4,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 class PlayerSpec extends WordSpec with Matchers {
 
-  val game = new Game
+  val game = Game(new Board)
   val player = new Player("Otto", 1, game)
   val p = new Player(2, game)
 

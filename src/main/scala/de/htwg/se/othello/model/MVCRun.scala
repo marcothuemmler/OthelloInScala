@@ -4,7 +4,7 @@ import scala.io.StdIn
 
 case class MVCRun() {
 
-  val game = new Game
+  val game: Game = Game(new Board)
 
   def playGame(players: Array[Player]): Unit = {
     var x, y = -1

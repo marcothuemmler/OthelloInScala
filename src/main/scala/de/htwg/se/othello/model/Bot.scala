@@ -5,7 +5,7 @@ import scala.util.Random
 class Bot(name: String, value: Int, game: Game) extends Player(name, value, game) {
 
   def this(value: Int, game: Game) {
-    this(s"Bot$value", value, game)
+    this(f"Bot$value", value, game)
   }
 
   def getMove: (Int, Int) = {
