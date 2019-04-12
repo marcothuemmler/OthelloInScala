@@ -11,10 +11,6 @@ class BoardSpec extends WordSpec with Matchers{
       board.field(1)(1).value should be (0)
 
     }
-    "the field should have the value" in {
-      board.valueOf(3, 3) should be (2)
-
-    }
     "the board should be printed" in  {
 
       board.toString shouldBe a [String]

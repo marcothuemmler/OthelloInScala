@@ -1,30 +1,23 @@
 package de.htwg.se.othello.model
 
-import scala.collection.mutable.ListBuffer
-
 class Player(name: String, value: Int, game: Game) {
 
-  def setByPl(x: Int, y: Int): Boolean = {
-    game.board.valueOf(x, y) == this.value
-  }
+  def setByPl(x: Int, y: Int): Boolean = game.valueOf(x, y) == this.value
 
-  def setByOpp(x: Int, y: Int): Boolean = {
-    game.board.valueOf(x, y) > 0 && !setByPl(x, y)
-  }
+  def setByOpp(x: Int, y: Int): Boolean = game.valueOf(x, y) > 0 && !setByPl(x, y)
 
   def moves: Map[(Int, Int), List[(Int, Int)]] = {
-    val moves = new ListBuffer[((Int, Int), List[(Int, Int)])]
-    for (i <- 0 to 7; j <- 0 to 7
-         if setByPl(i, j) && checkMoves(i,j)._2.nonEmpty) {
-      moves += checkMoves(i, j)
-    }
-    moves.toMap
+    val sequence: Seq[((Int, Int), List[(Int, Int)])] = for {
+      i <- 0 to 7; j <- 0 to 7 if setByPl(i, j) && checkMoves(i, j)._2.nonEmpty
+      item = checkMoves(i, j)
+      tile = item._1
+      list = item._2
+    } yield (tile, list)
+    sequence.toMap
   }
 
   def highlight(): Unit = {
-    for (v <- moves.values.flatten) {
-      game.flip(v._1, v._2, -1)
-    }
+    for (v <- moves.values.flatten) game.flip(v._1, v._2, -1)
   }
 
   def set(x: Int, y: Int): Boolean = {
@@ -44,10 +37,9 @@ class Player(name: String, value: Int, game: Game) {
   }
 
   def checkMoves(x: Int, y: Int): ((Int, Int), List[(Int, Int)]) = {
-    val list = new ListBuffer[(Int, Int)]
-    for (i <- -1 to 1; j <- -1 to 1) {
-      list += check(x, y, (i, j))
-    }
+    val list: Seq[(Int, Int)] = for { i <- -1 to 1; j <- -1 to 1
+      element = check(x, y, (i, j))
+    } yield element
     ((x, y), list.filter(_ != (-1, -1)).toList)
   }
 

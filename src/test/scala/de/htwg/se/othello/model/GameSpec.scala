@@ -10,6 +10,9 @@ class GameSpec extends WordSpec with Matchers {
         game.flip(7, 7, 2)
         game.board.field(7)(7).value should be(2)
       }
+      "the field should have the value" in {
+        game.valueOf(3, 3) should be (2)
+      }
       "set the value of the cell vertically" in {
 
         game.flipline((5,4), (3,4), 1 )
@@ -32,13 +35,5 @@ class GameSpec extends WordSpec with Matchers {
         game.board.field(4)(3).value should be (2)
         game.board.field(3)(4).value should be (2)
       }
-
-
-
-
-
-
-
-
     }
 }
