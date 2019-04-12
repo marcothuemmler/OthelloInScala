@@ -29,7 +29,7 @@ object Othello {
       }
       players(i) match {
         case bot: Bot =>
-          val move = bot.getMove(players(i).moves)
+          val move = bot.getMove
           x = move._1
           y = move._2
           Thread.sleep(500)
