@@ -32,7 +32,7 @@ class Player(name: String, value: Int, game: Game) {
     val valid = allMoves.filter(_._2.contains((x, y)))
     if (valid.nonEmpty) {
       for (tile <- valid.keys) {
-        game.flip((x, y), tile, value)
+        game.flipline((x, y), tile, value)
       }
       for (tile <- allMoves.values.flatten.filter(_ != (x,y))) {
         game.flip(tile._1, tile._2, 0)

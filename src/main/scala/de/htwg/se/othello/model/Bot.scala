@@ -8,4 +8,7 @@ class Bot(name: String, value: Int, game: Game) extends Player(name, value, game
     val tile = map.toList(Random.nextInt(map.keySet.size))
     tile._2(Random.nextInt(tile._2.size))
   }
+
+
+
 }
