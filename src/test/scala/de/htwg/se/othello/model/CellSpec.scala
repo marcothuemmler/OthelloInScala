@@ -9,4 +9,5 @@ class CellSpec extends WordSpec with Matchers {
       emptyCell.value should be(0)
     }
   }
+
 }
