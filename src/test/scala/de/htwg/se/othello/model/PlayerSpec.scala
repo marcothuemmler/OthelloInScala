@@ -4,7 +4,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 class PlayerSpec extends WordSpec with Matchers {
 
-  val game = Game(new Board)
+  val game = new Game
   val player = new Player("Otto", 1, game)
   val p = new Player(2, game)
 
@@ -47,14 +47,14 @@ class PlayerSpec extends WordSpec with Matchers {
     }
     "be empty if there are no valid moves" in {
       for (i <- 0 to 7; j <- 0 to 7) {
-        game.flip(i, j, 0)
+        game.flipCell(i, j, 0)
       }
       player.moves.keys should be(empty)
       player.moves.values should be(empty)
-      game.flip(3,3, 2)
-      game.flip(4,4, 2)
-      game.flip(3,4, 1)
-      game.flip(4,3, 1)
+      game.flipCell(3,3, 2)
+      game.flipCell(4,4, 2)
+      game.flipCell(3,4, 1)
+      game.flipCell(4,3, 1)
     }
   }
   "count "should {
@@ -80,10 +80,10 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "checkMoves._2" should {
     "be empty if there is no valid move for the tile" in {
-      player.checkMoves(0, 0)._2 should be(empty)
+      player.getMoves(0, 0)._2 should be(empty)
     }
     "not be empty if there are valid moves for the tile" in {
-      player.checkMoves(4, 3)._2 should not be empty
+      player.getMoves(4, 3)._2 should not be empty
     }
   }
   "checkRec" should {

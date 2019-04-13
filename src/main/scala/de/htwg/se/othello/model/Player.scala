@@ -6,11 +6,11 @@ class Player(name: String, value: Int, game: Game) {
 
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
     (for { i <- 0 to 7; j <- 0 to 7 if setByPl(i, j)
-      item = checkMoves(i, j)
-    } yield (item._1, item._2)).filter(_._2.nonEmpty).toMap
+      move = getMoves(i, j)
+    } yield move).filter(_._2.nonEmpty).toMap
   }
 
-  def checkMoves(x: Int, y: Int): ((Int, Int), Seq[(Int, Int)]) = {
+  def getMoves(x: Int, y: Int): ((Int, Int), Seq[(Int, Int)]) = {
     ((x, y), (for { i <- -1 to 1; j <- -1 to 1
       tile = check(x, y, (i, j))
     } yield tile).filter(_ != (-1, -1)))
@@ -44,21 +44,21 @@ class Player(name: String, value: Int, game: Game) {
     if (valid.nonEmpty) {
       valid.keys.foreach(tile => game.flipLine((x, y), tile, value))
       allMoves.values.flatten.filter(_ != (x, y))
-        .foreach(e => game.flip(e._1, e._2, 0))
+        .foreach(e => game.flipCell(e._1, e._2, 0))
       return true
     }
     false
   }
 
   def highlight(): Unit = {
-    moves.values.flatten.foreach(e => game.flip(e._1, e._2, -1))
+    moves.values.flatten.foreach(e => game.flipCell(e._1, e._2, -1))
   }
 
   def setByPl(x: Int, y: Int): Boolean = game.valueOf(x, y) == this.value
 
   def setByOpp(x: Int, y: Int): Boolean = game.valueOf(x, y) > 0 && !setByPl(x, y)
 
-  def count: Int = game.board.field.flatten.count(_.value == value)
+  def count: Int = game.field.flatten.count(_.value == value)
 
   override def toString: String = name
 }

@@ -1,34 +1,38 @@
 package de.htwg.se.othello.model
 
-case class Game(board: Board) {
+case class Game(field: Array[Array[Cell]]) {
 
-  def flip(x: Int, y: Int, newVal: Int): Unit = board.field(x)(y) = Cell(newVal)
+  def this() = {
+    this(Array.tabulate(8, 8)((i, j) => {
+      if ((i == 4 || i == 3) && i == j) Cell(2)
+      else if (i == 4 && j == 3 || i == 3 && j == 4) Cell(1) else Cell(0)
+    }))
+  }
 
-  def flipLine(n: (Int, Int), o: (Int, Int), value: Int): Unit = {
-    val x = if (n._1 < o._1) 1 else -1
-    val y = if (n._2 < o._2) 1 else -1
-    if (n._1 == o._1 && n._2 != o._2) { // vertical
-      for (i <- n._2 until o._2 by y) {
-        flip(n._1, i, value)
-      }
-    } else if (n._1 != o._1 && n._2 == o._2) { // flip
-      for (i <- n._1 until o._1 by x) {
-        flip(i, n._2, value)
-      }
-    } else if (x == y) { // up-left || down-right
-      for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y
-           if i - n._1 == j - n._2) {
-        flip(i, j, value)
-      }
-    } else { // up-right || down-left
-      for (i <- n._1 to o._1 by x; j <- n._2 to o._2 by y
-           if i - n._1 == n._2 - j) {
-        flip(i, j, value)
-      }
+  override def toString: String = {
+    val sb = new StringBuilder("\n    A B C D E F G H\n    _______________\n")
+    for (i <- field.indices) {
+      sb ++= (i + 1) + "  |"
+      for (j <- field.indices)
+        sb ++= field(j)(i).toString
+      sb ++= "\n"
+    }
+    sb.append("    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺").toString
+  }
+
+  def flipLine(cur: (Int, Int), last: (Int, Int), value: Int): Unit = {
+    val next = {
+      (cur._1 - cur._1.compareTo(last._1), cur._2 - cur._2.compareTo(last._2))
+    }
+    flipCell(cur._1, cur._2, value)
+    if (cur != last) {
+      flipLine(next, last, value)
     }
   }
 
-  def update(): Unit = println(board)
+  def flipCell(x: Int, y: Int, newVal: Int): Unit = field(x)(y) = Cell(newVal)
 
-  def valueOf(x: Int, y: Int): Int = board.field(x)(y).value
+  def update(): Unit = println(this)
+
+  def valueOf(x: Int, y: Int): Int = field(x)(y).value
 }

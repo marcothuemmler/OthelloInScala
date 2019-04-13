@@ -4,12 +4,13 @@ import scala.io.StdIn
 
 case class MVCRun() {
 
-  val game: Game = Game(new Board)
+  val game = new Game
 
   def playGame(players: Vector[Player]): Unit = {
     var x, y = -1
     var i = 0
     var input = ""
+    game.update()
     while (players(0).moves.nonEmpty || players(1).moves.nonEmpty) {
       if (players(i).moves.isEmpty) {
         print(f"No possible moves for ${players(i)}. ")
@@ -21,8 +22,8 @@ case class MVCRun() {
           val move = bot.getMove
           x = move._1
           y = move._2
+          println(f"${players(i)} is setting ${mapOut(x)}${y + 1}")
         case _ =>
-          game.update()
           input = StdIn.readLine
           if (input == "q") return
           if (input == "h") {
