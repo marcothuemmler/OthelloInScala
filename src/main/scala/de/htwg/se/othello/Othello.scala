@@ -6,7 +6,7 @@ object Othello {
 
   def main(args: Array[String]): Unit = {
     val mvc = new MVCRun
-      mvc.playGame(Vector(mvc.player(1),
+      mvc.playGame(Vector(mvc.player("bot",1),
       mvc.player("bot",2)))
   }
 }

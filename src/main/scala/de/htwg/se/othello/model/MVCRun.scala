@@ -22,7 +22,6 @@ case class MVCRun() {
           x = move._1
           y = move._2
         case _ =>
-          //players(i).highlight()
           game.update()
           input = StdIn.readLine
           if (input == "q") return
@@ -30,70 +29,67 @@ case class MVCRun() {
             players(i).highlight()
             game.update()
             input = StdIn.readLine()
+            if (input == "q") return
           }
           if (input.length == 2) {
-            x = matchInput(input(0))
+            x = mapIn(input(0))
             y = input(1).asDigit - 1
           }
       }
-      if (!players(i).set(x, y)) {
-        println(f"Please try again. Possible moves for ${players(i)}:")
-        val possible = players(i).moves.values.flatten.toSet.toList
-        val sorted = possible.sorted
-        sorted.foreach(e => print(f"${matchInput(e._1)}${e._2 + 1} "))
-        println
-      } else {
+      if (players(i).set(x, y)) {
         i = if (i == 1) 0 else 1
         game.update()
+      } else {
+        println(f"Please try again. Possible moves for ${players(i)}:")
+        suggestions(players(i)).foreach(move => print(s"$move "))
       }
     }
     println(winner(players))
   }
 
-  def winner(p: Vector[Player]): String = {
-    val winner = if (p(0).count > p(1).count) p(0) else p(1)
-    val loser = if (winner == p(0)) p(1) else p(0)
-    if (p(0).count != p(1).count) {
-      s"$winner wins by ${winner.count}:${loser.count}!"
+  def winner(player: Vector[Player]): String = {
+    val winner = if (player(0).count > player(1).count) player(0) else player(1)
+    val loser = if (winner == player(0)) player(1) else player(0)
+    val winnerCount = winner.count
+    val loserCount = loser.count
+    if (winnerCount != loserCount) {
+      s"$winner wins by $winnerCount:$loserCount!"
     } else {
-      s"Draw. ${p(0).count}:${p(1).count}"
+      s"Draw. $winnerCount:$loserCount"
     }
   }
 
-  def matchInput(index: Int): Char = index match {
-    case 0 => 'A'
-    case 1 => 'B'
-    case 2 => 'C'
-    case 3 => 'D'
-    case 4 => 'E'
-    case 5 => 'F'
-    case 6 => 'G'
-    case 7 => 'H'
-    case _ => 'x'
-  }
-
-  def matchInput(index: Char): Int = index match {
-    case 'a' => 0
-    case 'A' => 0
-    case 'b' => 1
-    case 'B' => 1
-    case 'c' => 2
-    case 'C' => 2
-    case 'd' => 3
-    case 'D' => 3
-    case 'e' => 4
-    case 'E' => 4
-    case 'f' => 5
-    case 'F' => 5
-    case 'g' => 6
-    case 'G' => 6
-    case 'h' => 7
-    case 'H' => 7
-    case _ => 9
+  def suggestions(p: Player): List[String] = {
+    for { e <- p.moves.values.flatten.toSet.toList.sorted
+          move = mapOut(e._1) + (e._2 + 1)
+    } yield move
   }
 
   def player(kind: String, value: Int): Player = {
     if (kind == "bot") new Bot(value, game) else new Player(value, game)
   }
-  def player(value: Int): Player = new Player(value, game)
+
+  def mapOut(out: Int): String = out match {
+    case 0 => "A"
+    case 1 => "B"
+    case 2 => "C"
+    case 3 => "D"
+    case 4 => "E"
+    case 5 => "F"
+    case 6 => "G"
+    case 7 => "H"
+    case _ => "_"
+  }
+
+  def mapIn(in: Char): Int = in match {
+    case 'a' | 'A' => 0
+    case 'b' | 'B' => 1
+    case 'c' | 'C' => 2
+    case 'd' | 'D' => 3
+    case 'e' | 'E' => 4
+    case 'f' | 'F' => 5
+    case 'g' | 'G' => 6
+    case 'h' | 'H' => 7
+    case _ => 9
+  }
 }

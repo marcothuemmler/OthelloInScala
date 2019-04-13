@@ -4,30 +4,10 @@ class Player(name: String, value: Int, game: Game) {
 
   def this(value: Int, game: Game) = this(f"Player$value", value, game)
 
-  def setByPl(x: Int, y: Int): Boolean = game.valueOf(x, y) == this.value
-
-  def setByOpp(x: Int, y: Int): Boolean = game.valueOf(x, y) > 0 && !setByPl(x, y)
-
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
     (for { i <- 0 to 7; j <- 0 to 7 if setByPl(i, j)
       item = checkMoves(i, j)
     } yield (item._1, item._2)).filter(_._2.nonEmpty).toMap
-  }
-
-  def highlight(): Unit = {
-    moves.values.flatten.foreach(tile => game.flip(tile._1, tile._2, -1))
-  }
-
-  def set(x: Int, y: Int): Boolean = {
-    val allMoves = moves
-    val valid = allMoves.filter(_._2.contains((x, y)))
-    if (valid.nonEmpty) {
-      valid.keys.foreach(tile => game.flipLine((x, y), tile, value))
-      allMoves.values.flatten.filter(_ != (x, y))
-        .foreach(e => game.flip(e._1, e._2, 0))
-      return true
-    }
-    false
   }
 
   def checkMoves(x: Int, y: Int): ((Int, Int), Seq[(Int, Int)]) = {
@@ -57,6 +37,26 @@ class Player(name: String, value: Int, game: Game) {
       (nX, nY)
     }
   }
+
+  def set(x: Int, y: Int): Boolean = {
+    val allMoves = moves
+    val valid = allMoves.filter(_._2.contains((x, y)))
+    if (valid.nonEmpty) {
+      valid.keys.foreach(tile => game.flipLine((x, y), tile, value))
+      allMoves.values.flatten.filter(_ != (x, y))
+        .foreach(e => game.flip(e._1, e._2, 0))
+      return true
+    }
+    false
+  }
+
+  def highlight(): Unit = {
+    moves.values.flatten.foreach(e => game.flip(e._1, e._2, -1))
+  }
+
+  def setByPl(x: Int, y: Int): Boolean = game.valueOf(x, y) == this.value
+
+  def setByOpp(x: Int, y: Int): Boolean = game.valueOf(x, y) > 0 && !setByPl(x, y)
 
   def count: Int = game.board.field.flatten.count(_.value == value)
 
