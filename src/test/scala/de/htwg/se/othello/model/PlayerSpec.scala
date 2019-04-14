@@ -42,19 +42,19 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "moves" should {
     "not be empty if there are valid moves" in {
-      player.moves.keys should not be empty
+      player.moves.keys should be (Set((3,4), (4,3)))
       player.moves.values should not be empty
     }
     "be empty if there are no valid moves" in {
-      for (i <- 0 to 7; j <- 0 to 7) {
-        game.flipCell(i, j, 0)
+      for (i <- 0 to 7) {
+        game.flipLine((i, 0), (i, 7), 0)
       }
       player.moves.keys should be(empty)
       player.moves.values should be(empty)
-      game.flipCell(3,3, 2)
-      game.flipCell(4,4, 2)
-      game.flipCell(3,4, 1)
-      game.flipCell(4,3, 1)
+      game.flip(3,3,2)
+      game.flip(4,4,2)
+      game.flip(3,4,1)
+      game.flip(4,3,1)
     }
   }
   "count "should {

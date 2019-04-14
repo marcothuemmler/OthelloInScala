@@ -1,12 +1,13 @@
 package de.htwg.se.othello
 
-import de.htwg.se.othello.model.MVCRun
+import de.htwg.se.othello.model.{Bot, MVCRun, Player}
 
 object Othello {
 
   def main(args: Array[String]): Unit = {
     val mvc = new MVCRun
-      mvc.playGame(Vector(mvc.player("bot",1),
-      mvc.player("bot",2)))
+    mvc.playGame(Vector(
+      new Player(1, mvc.game),
+      new Bot(2, mvc.game)))
   }
 }
