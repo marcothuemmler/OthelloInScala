@@ -22,35 +22,37 @@ class PlayerSpec extends WordSpec with Matchers {
     "Be true if set by opponent" in {
       player.setByOpp(4, 4) should be(true)
     }
-    "when not set be false" in {
+    "be false if not set" in {
       player.setByOpp(0, 0) should be(false)
     }
-    "when set by Player be false " in {
+    "be false if set by Player" in {
       player.setByOpp(3, 4) should be(false)
     }
   }
   "setByPl" should {
-    "Be false if set by opponent" in {
+    "be false if set by opponent" in {
       player.setByPl(4, 4) should be(false)
     }
-    "be false when not set" in {
+    "be false if not set" in {
       player.setByPl(0, 0) should be(false)
     }
-    "when set by Player be true " in {
+    "be true if set by Player " in {
       player.setByPl(3, 4) should be(true)
     }
   }
   "moves" should {
     "not be empty if there are valid moves" in {
-      player.moves.keys should be (Set((3,4), (4,3)))
-      player.moves.values should not be empty
+        val moves = player.moves
+      moves.keys should be (Set((3,4), (4,3)))
+      moves.values should not be empty
     }
     "be empty if there are no valid moves" in {
       for (i <- 0 to 7) {
         game.flipLine((i, 0), (i, 7), 0)
       }
-      player.moves.keys should be(empty)
-      player.moves.values should be(empty)
+      val moves = player.moves
+      moves.keys should be(empty)
+      moves.values should be(empty)
       game.flip(3,3,2)
       game.flip(4,4,2)
       game.flip(3,4,1)
@@ -71,19 +73,17 @@ class PlayerSpec extends WordSpec with Matchers {
   "set" should {
     "return true if the move is possible and the tile was set" in {
       player.set(2, 3) should be(true)
-      game.valueOf(2, 3) should be(1)
     }
     "return false if the move is not possible" in {
       player.set(0, 0) should be(false)
-      game.valueOf(0 ,0) should be(0)
     }
   }
-  "checkMoves._2" should {
-    "be empty if there is no valid move for the tile" in {
-      player.getMoves(0, 0)._2 should be(empty)
+  "getMoves" should {
+    "return the checked square and an empty list if there are no valid moves" in {
+      player.getMoves(0, 0) should be((0, 0), List())
     }
-    "not be empty if there are valid moves for the tile" in {
-      player.getMoves(4, 3)._2 should not be empty
+    "return the checked square and a list with possible moves" in {
+      player.getMoves(4, 3) should be(((4, 3), List((4,5))))
     }
   }
   "checkRec" should {

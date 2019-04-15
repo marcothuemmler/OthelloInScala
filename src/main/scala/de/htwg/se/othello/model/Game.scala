@@ -10,6 +10,19 @@ case class Game(field: Array[Array[Cell]]) {
     }))
   }
 
+  def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Unit = {
+    val nextH = current._1 - current._1.compare(end._1)
+    val nextV = current._2 - current._2.compare(end._2)
+    flip(current._1, current._2, value)
+    if (current != end) {
+      flipLine((nextH, nextV), end, value)
+    }
+  }
+
+  def flip(x: Int, y: Int, newVal: Int): Unit = field(x)(y) = Cell(newVal)
+
+  def update(): Unit = println(stringRep)
+
   def stringRep: String = {
     val sb = new StringBuilder("\n    A B C D E F G H\n    _______________\n")
     for (i <- 0 to 7) {
@@ -20,20 +33,6 @@ case class Game(field: Array[Array[Cell]]) {
     }
     sb.append("    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺").toString
   }
-
-  def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Unit = {
-    val nHorizontal = current._1 - current._1.compareTo(end._1)
-    val nVertical = current._2 - current._2.compareTo(end._2)
-    val next = (nHorizontal, nVertical)
-    flip(current._1, current._2, value)
-    if (current != end) {
-      flipLine(next, end, value)
-    }
-  }
-
-  def flip(x: Int, y: Int, newVal: Int): Unit = field(x)(y) = Cell(newVal)
-
-  def update(): Unit = println(stringRep)
 
   def isSet(x: Int, y: Int): Boolean = field(x)(y).value > 0
 

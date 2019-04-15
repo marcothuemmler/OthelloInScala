@@ -5,14 +5,18 @@ import org.scalatest.{Matchers, WordSpec}
 class GameSpec extends WordSpec with Matchers {
   var game = new Game
 
-  "flipCell" should {
+  "flip" should {
     "set the value of the cell to new value" in {
       game.flip(7, 7, 2)
-      game.field(7)(7).value should be(2)
+      game.field(7)(7) should be(Cell(2))
     }
-    "the field should have the value" in {
-      game.valueOf(3, 3) should be (2)
+  }
+  "valueOf" should {
+    "return the value of the cell" in {
+      game.valueOf(3, 3) should be(2)
     }
+  }
+  "flipLine" should {
     "set the value of the cell vertically" in {
       game.flipLine((5,4), (3,4), 1 )
       game.field(3)(4).value should be (1)
@@ -46,8 +50,8 @@ class GameSpec extends WordSpec with Matchers {
       game.isSet(0,0) should be(false)
     }
   }
-  "toString" should {
-    "give back a nice String representation of the game" in {
+  "stringRep" should {
+    "return a nice String representation of the game" in {
       game.stringRep shouldBe a [String]
     }
   }

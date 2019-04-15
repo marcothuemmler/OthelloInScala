@@ -7,7 +7,7 @@ class MVCRunSpec extends WordSpec with Matchers {
   var game = new Game
   val players: Vector[Player] = Vector(new Player(1, game), new Player(2, game))
   "Suggestions" should {
-    "Show us possible moves correctly formatted" in {
+    "return possible moves correctly mapped to board layout" in {
       mvc.suggestions(players(0)) should be(List("C4", "D3", "E6", "F5"))
     }
   }
@@ -46,7 +46,8 @@ class MVCRunSpec extends WordSpec with Matchers {
       mvc.mapInput('H') should be(7)
     }
     "return an invalid value if the input does not match" in {
-      mvc.mapInput('z') should be(9)
+      mvc.mapInput('z') should be(42)
+      mvc.mapInput(0) should be (42)
     }
   }
 }

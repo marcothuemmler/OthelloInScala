@@ -2,11 +2,11 @@ package de.htwg.se.othello.model
 
 import scala.io.StdIn.readLine
 
-case class MVCRun() {
+class MVCRun() {
 
-  val game = new Game
-
-  def playGame(players: Vector[Player]): Unit = {
+  def playGame(): Unit = {
+    val game = new Game
+    val players = Vector(new Player(1, game), new Bot(2, game))
     var x, y = -1
     var i = 0
     var in = ""
@@ -22,16 +22,16 @@ case class MVCRun() {
           val move = bot.getMove
           x = move._1
           y = move._2
-          Thread.sleep(750)
-          println(f"${players(i)} sets ${mapOutput(x)}${y + 1}")
+          Thread.sleep(500)
+          println(f"$bot sets ${mapOutput(x)}${y + 1}")
         case _ =>
           in = readLine
           if (in == "q") return
           if (in == "h") {
             players(i).highlight()
             game.update()
-            if (in == "q") return
             in = readLine
+            if (in == "q") return
           }
           if (in.length == 2) {
             x = mapInput(in(0))
@@ -47,7 +47,10 @@ case class MVCRun() {
         println
       }
     }
-    println(winner(players))
+    println(f"${winner(players)}\n")
+    Thread.sleep(500)
+    println("Press \"y\" for new game")
+    if (readLine == "y") playGame()
   }
 
   def winner(p: Vector[Player]): String = {
@@ -62,17 +65,15 @@ case class MVCRun() {
   }
 
   def suggestions(p: Player): List[String] = {
-    for { e <- p.moves.values.flatten.toSet.toList.sorted
-          move = mapOutput(e._1) + (e._2 + 1)
+    for {e <- p.moves.values.flatten.toSet.toList.sorted
+         move = mapOutput(e._1) + (e._2 + 1)
     } yield move
   }
 
   def mapOutput(out: Int): String = (out + 65).toChar.toString
 
-  def mapInput(in: Char): Int =  {
-    val u = 'A' to 'H'
-    val l = 'a' to 'h'
-    if (u.contains(in) || l.contains(in)) in.toUpper.toInt - 65
-    else 9
+  def mapInput(in: Char): Int = {
+    if (('A' to 'H').contains(in.toUpper)) in.toUpper.toInt - 65
+    else 42  // Wrong input returns value outside of board indices
   }
 }

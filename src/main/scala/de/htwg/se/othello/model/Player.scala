@@ -4,16 +4,16 @@ class Player(name: String, value: Int, game: Game) {
 
   def this(value: Int, game: Game) = this(f"Player$value", value, game)
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
-    (for { i <- 0 to 7; j <- 0 to 7 if setByPl(i, j)
-           move = getMoves(i, j)
+  def moves: Map[(Int, Int), List[(Int, Int)]] = {
+    (for {i <- 0 to 7; j <- 0 to 7 if setByPl(i, j)
+          move = getMoves(i, j)
     } yield move).filter(_._2.nonEmpty).toMap
   }
 
-  def getMoves(x: Int, y: Int): ((Int, Int), Seq[(Int, Int)]) = {
-    ((x, y), (for { i <- -1 to 1; j <- -1 to 1
-                    tile = check(x, y, (i, j))
-    } yield tile).filter(_ != (-1, -1)))
+  def getMoves(x: Int, y: Int): ((Int, Int), List[(Int, Int)]) = {
+    ((x, y), (for {i <- -1 to 1; j <- -1 to 1
+                   tile = check(x, y, (i, j))
+    } yield tile).filter(_ != (-1, -1)).toList)
   }
 
   def check(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
