@@ -13,7 +13,7 @@ class MVCRunSpec extends WordSpec with Matchers {
   }
   "mapOut" should {
     "take an Integer and give us back a String" in {
-      mvc.mapOutput(0) should be("A")
+      mvc.mapOutput(0, 0) should be("A1")
     }
   }
   "Winner" should {
@@ -46,8 +46,8 @@ class MVCRunSpec extends WordSpec with Matchers {
       mvc.mapInput('H') should be(7)
     }
     "return an invalid value if the input does not match" in {
-      mvc.mapInput('z') should be(42)
-      mvc.mapInput(0) should be (42)
+      mvc.mapInput('z') should be(25)
+      mvc.mapInput(0) should be (-65)
     }
   }
 }

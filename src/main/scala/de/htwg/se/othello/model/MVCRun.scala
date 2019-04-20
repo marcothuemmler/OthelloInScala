@@ -23,7 +23,7 @@ class MVCRun() {
           x = move._1
           y = move._2
           Thread.sleep(500)
-          println(f"$bot sets ${mapOutput(x)}${y + 1}")
+          println(f"$bot sets ${mapOutput(x, y)}")
         case _ =>
           in = readLine
           if (in == "q") return
@@ -54,26 +54,24 @@ class MVCRun() {
   }
 
   def winner(p: Vector[Player]): String = {
-    val winner = if (p(0).count >= p(1).count) p(0) else p(1)
+    val p1count = p(0).count
+    val p2count = p(1).count
+    val winner = if (p1count >= p2count) p(0) else p(1)
     val loser = if (winner == p(0)) p(1) else p(0)
-    val winnerCount = winner.count
-    val loserCount = loser.count
-    if (winnerCount != loserCount) {
-      return f"$winner wins by $winnerCount:$loserCount!"
+    if (p1count != p2count) {
+      f"$winner wins by ${winner.count}:${loser.count}!"
+    } else {
+      f"Draw. $p1count:$p2count"
     }
-    f"Draw. $winnerCount:$loserCount"
   }
 
   def suggestions(p: Player): List[String] = {
     for {e <- p.moves.values.flatten.toSet.toList.sorted
-         move = mapOutput(e._1) + (e._2 + 1)
+         move = mapOutput(e._1, e._2)
     } yield move
   }
 
-  def mapOutput(out: Int): String = (out + 65).toChar.toString
+  def mapOutput(x: Int, y: Int): String = (x + 65).toChar.toString + (y + 1)
 
-  def mapInput(in: Char): Int = {
-    if (('A' to 'H').contains(in.toUpper)) in.toUpper.toInt - 65
-    else 42  // Wrong input returns value outside of board indices
-  }
+  def mapInput(in: Char): Int = in.toUpper.toInt - 65
 }
