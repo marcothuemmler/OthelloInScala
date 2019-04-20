@@ -10,6 +10,23 @@ case class Game(field: Array[Array[Cell]]) {
     }))
   }
 
+  /*
+  def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Game = {
+    val nextH = current._1 - current._1.compare(end._1)
+    val nextV = current._2 - current._2.compare(end._2)
+    val newGame = flip(current._1, current._2, value)
+    if (current != end) {
+      newGame.flipLine((nextH, nextV), end, value)
+    } else {
+      newGame
+    }
+  }
+
+  def flip(x: Int, y: Int, newVal: Int): Game = {
+    copy(field.updated(x, field(x).updated(y, Cell(newVal))))
+  }
+  */
+
   def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Unit = {
     val nextH = current._1 - current._1.compare(end._1)
     val nextV = current._2 - current._2.compare(end._2)
