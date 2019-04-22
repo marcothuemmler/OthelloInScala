@@ -4,9 +4,9 @@ import org.scalatest.{Matchers, WordSpec}
 
 class PlayerSpec extends WordSpec with Matchers {
 
-  val game = new Game
-  val player = new Player("Otto", 1, game)
-  val p = new Player(2, game)
+  val board = new Board
+  val player = new Player("Otto", 1, board)
+  val p = new Player(2, board)
 
   "A player" should {
     "have a toString method" in {
@@ -42,36 +42,33 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "moves" should {
     "not be empty if there are valid moves" in {
-        val moves = player.moves
-      moves.keys should be (Set((3,4), (4,3)))
-      moves.values should not be empty
+      player.moves should be(
+        Map((3,4) -> List((3,2), (5,4)), (4,3) -> List((2,3), (4,5))))
     }
     "be empty if there are no valid moves" in {
       for (i <- 0 to 7) {
-        game.flipLine((i, 0), (i, 7), 0)
+        board.flipLine((i, 0), (i, 7), 0)
       }
-      val moves = player.moves
-      moves.keys should be(empty)
-      moves.values should be(empty)
-      game.flip(3,3,2)
-      game.flip(4,4,2)
-      game.flip(3,4,1)
-      game.flip(4,3,1)
+      player.moves should be(Map())
+      board.flip((3, 3), 2)
+      board.flip((4, 4), 2)
+      board.flip((3, 4), 1)
+      board.flip((4, 3), 1)
     }
   }
-  "count "should {
-    "return the amount of tiles set by player" in {
+  "count " should {
+    "return the amount of disks set by player" in {
       player.count should be(2)
     }
   }
   "highlight " should {
-    "flip settable cells to -1" in {
+    "highlight settable squares" in {
       player.highlight()
-      game.valueOf(2, 3) should be(-1)
+      board.grid(2)(3).value should be(-1)
     }
   }
   "set" should {
-    "return true if the move is possible and the tile was set" in {
+    "return true if the move is possible and the disk was set" in {
       player.set(2, 3) should be(true)
     }
     "return false if the move is not possible" in {
@@ -83,7 +80,7 @@ class PlayerSpec extends WordSpec with Matchers {
       player.getMoves(0, 0) should be((0, 0), List())
     }
     "return the checked square and a list with possible moves" in {
-      player.getMoves(4, 3) should be(((4, 3), List((4,5))))
+      player.getMoves(4, 3) should be(((4, 3), List((4, 5))))
     }
   }
   "checkRec" should {

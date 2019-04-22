@@ -2,16 +2,16 @@ package de.htwg.se.othello.model
 
 import scala.io.StdIn.readLine
 
-class MVCRun() {
+class Controller() {
 
   def playGame(): Unit = {
-    val game = new Game
-    val players = Vector(new Player(1, game), new Bot(2, game))
+    val board = new Board
+    val players = Vector(new Player(1, board), new Bot(2, board))
     var x, y = -1
     var i = 0
-    var in = ""
-    game.update()
-    while (players(0).moves.nonEmpty || players(1).moves.nonEmpty) {
+    var input = ""
+    println(board)
+    while (!gameOver(players) && input != "q") {
       if (players(i).moves.isEmpty) {
         print(f"No possible moves for ${players(i)}. ")
         i = if (i == 1) 0 else 1
@@ -25,35 +25,32 @@ class MVCRun() {
           Thread.sleep(500)
           println(f"$bot sets ${mapOutput(x, y)}")
         case _ =>
-          in = readLine
-          if (in == "q") return
-          if (in == "h") {
-            players(i).highlight()
-            game.update()
-            in = readLine
-            if (in == "q") return
-          }
-          if (in.length == 2) {
-            x = mapInput(in(0))
-            y = in(1).asDigit - 1
+          input = readLine
+            if (input == "h") {
+              println(board)
+              input = readLine
+            }
+          if (input.length == 2) {
+            x = mapToBoard(input)._1
+            y = mapToBoard(input)._2
           }
       }
       if (players(i).set(x, y)) {
         i = if (i == 1) 0 else 1
-        game.update()
-      } else {
+        println(board)
+      } else if (input != "q") {
         println(f"Please try again. Possible moves for ${players(i)}:")
         suggestions(players(i)).foreach(move => print(f"$move "))
         println
       }
     }
-    println(f"${winner(players)}\n")
-    Thread.sleep(500)
-    println("Press \"y\" for new game")
-    if (readLine == "y") playGame()
+    if (gameOver(players)) {
+      println(f"${result(players)}\n")
+      if (readLine("Press \"y\" for new game\n") == "y") playGame()
+    }
   }
 
-  def winner(p: Vector[Player]): String = {
+  def result(p: Vector[Player]): String = {
     val p1count = p(0).count
     val p2count = p(1).count
     val winner = if (p1count >= p2count) p(0) else p(1)
@@ -65,13 +62,18 @@ class MVCRun() {
     }
   }
 
+  def gameOver(players:Vector[Player]): Boolean = {
+    players(0).moves.isEmpty && players(1).moves.isEmpty
+  }
+
   def suggestions(p: Player): List[String] = {
     for {e <- p.moves.values.flatten.toSet.toList.sorted
-         move = mapOutput(e._1, e._2)
-    } yield move
+    } yield mapOutput(e._1, e._2)
   }
 
   def mapOutput(x: Int, y: Int): String = (x + 65).toChar.toString + (y + 1)
 
-  def mapInput(in: Char): Int = in.toUpper.toInt - 65
+  def mapToBoard(input: String): (Int, Int) = {
+    (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
+  }
 }
