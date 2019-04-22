@@ -52,9 +52,7 @@ class Player(name: String, value: Int, var board: Board) {
     }
   }
 
-  def highlight(): Unit = {
-    moves.values.flatten.foreach(board.flip(_, -1))
-  }
+  def highlight(): Unit = moves.values.flatten.foreach(board.flip(_, -1))
 
   def setByPl(x: Int, y: Int): Boolean = board.grid(x)(y).value == this.value
 

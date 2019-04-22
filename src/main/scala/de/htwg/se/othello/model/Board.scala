@@ -32,11 +32,11 @@ case class Board(grid: Array[Array[Square]]) {
 
   override def toString: String = {
     val top = "\n    A B C D E F G H\n    _______________"
-    var board = ("\na  |" + ("X" * 8)) * 8 + "\n"
+    var board = ("\nrow  |" + ("X" * 8)) * 8 + "\n"
     for {
       row <- 0 to 7
       column <- 0 to 7
-    } board = board.replaceFirst("a", (column + 1).toString)
+    } board = board.replaceFirst("row", (column + 1).toString)
       .replaceFirst("X", grid(column)(row).toString)
     top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
   }

@@ -27,6 +27,7 @@ class Controller() {
         case _ =>
           input = readLine
             if (input == "h") {
+              players(i).highlight()
               println(board)
               input = readLine
             }
