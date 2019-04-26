@@ -1,25 +1,5 @@
 package de.htwg.se.othello.model
 
-import scala.util.Random
-
-class Bot(name: String, value: Int, board: Board) extends Player(name, value, board) {
-
-  def this(value: Int, board: Board) = this(f"Bot$value", value, board)
-
-  def getMove: (Int, Int) = {
-    val move = moves.toList(Random.nextInt(moves.keySet.size))
-    move._2(Random.nextInt(move._2.size))
-  }
-
-  val pruningBoard: Vector[Vector[Int]] = Vector(
-    Vector(99,  -8,  8,  6,     6,  8,  -8, 99),
-    Vector(-8, -24, -4, -3     -3, -4, -24, -8),
-    Vector( 8,  -4,  7,  4,     4,  7,  -4,  8),
-    Vector( 6,  -3,  4,  0,     0,  4,  -3,  6),
-
-    Vector( 6,  -3,  4,  0,     0,  4,  -3,  6),
-    Vector( 8,  -4,  7,  4,     4,  7,  -4,  8),
-    Vector(-8, -24, -4, -3,    -3, -4, -24, -8),
-    Vector(99,  -8,  8,  6,     6,  8,  -8, 99)
-  )
+class Bot(name: String, value: Int) extends Player(name, value) {
+  def this(value: Int) = this(f"Bot$value", value)
 }
