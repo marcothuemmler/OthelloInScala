@@ -1,43 +1,99 @@
 package de.htwg.se.othello.model
 
+import de.htwg.se.othello.controller.Controller
 import org.scalatest.{Matchers, WordSpec}
 
 class ControllerSpec extends WordSpec with Matchers {
-  val mvc = new Controller
-  var board = new Board
-  val player1 = new Player(1, board)
-  val players: Vector[Player] = Vector(player1, new Player(2, board))
-  "Suggestions" should {
-    "return possible moves correctly mapped to board layout" in {
-      mvc.suggestions(player1) should be(List("C4", "D3", "E6", "F5"))
+  var c = new Controller(new Board, Vector(new Player(1), new Player(2)))
+  "boardToString" should {
+    "return a nice String representation of the board" in {
+      c.boardToString shouldBe a[String]
     }
   }
-  "mapOut" should {
+  "mapToBoard" should {
+    "return a tuple" in {
+      c.mapToBoard("a1") should be(0, 0)
+    }
+  }
+  "mapOutput" should {
     "take an Integer and give us back a String" in {
-      mvc.mapOutput(0, 0) should be("A1")
+      c.mapOutput(0, 0) should be("A1")
     }
   }
-  "Winner" should {
-    "declare a draw if the amount of tiles are equal" in {
-      mvc.result(players) should be("Draw. 2:2")
-    }
-    "declare a winner in the amount of tiles are not equal" in {
-      player1.set(2, 3)
-      mvc.result(players) should be("Player1 wins by 4:1!")
+  "changeCurrent" should {
+    "change the value of i" in {
+      c.changeCurrent(1) should be(0)
     }
   }
-  "mapInput" should {
-    "take a Char and give back the correct matching Integer" in {
-      mvc.mapToBoard("A1") should be(0, 0)
-      mvc.mapToBoard("H8") should be(7, 7)
+  "setByOpp" should {
+    "Be true if set by opponent" in {
+      c.setByOpp(4, 4) should be(true)
     }
-    "return an invalid value if the input does not match" in {
-      mvc.mapToBoard("z9") should be(25,8)
+    "be false if not set" in {
+      c.setByOpp(0, 0) should be(false)
+    }
+    "be false if set by Player" in {
+      c.setByOpp(3, 4) should be(false)
     }
   }
-  "end" should {
-    "be false if a least one player still has moves left" in {
-      mvc.gameOver(players) should be (false)
+  "setByPl" should {
+    "be false if set by opponent" in {
+      c.setByPl(4, 4) should be(false)
+    }
+    "be false if not set" in {
+      c.setByPl(0, 0) should be(false)
+    }
+    "be true if set by Player " in {
+      c.setByPl(3, 4) should be(true)
+    }
+  }
+  "moves" should {
+    "not be empty if there are valid moves" in {
+      c.moves should be(
+        Map((3, 4) -> Seq((3, 2), (5, 4)), (4, 3) -> Seq((2, 3), (4, 5))))
+    }
+    "be empty if there are no valid moves" in {
+      for (i <- 0 to 7) {
+        c.board = c.board.flipLine((i, 0), (i, 7), 0)
+      }
+      c.moves should be(Map())
+      c.board = new Board
+    }
+  }
+  "count " should {
+    "return the amount of disks set by player" in {
+      c.count should be(2)
+    }
+  }
+  "highlight " should {
+    "highlight settable squares" in {
+      c.highlight()
+      c.board.grid(2)(3).value should be(-1)
+    }
+  }
+  "set" should {
+    "return true if the move is possible and the disk was set" in {
+      c.set("c4") should be(true)
+    }
+    "return false if the move is not possible" in {
+      c.set("a1") should be(false)
+    }
+  }
+  "getMoves" should {
+    "return the checked square and an empty list if there are no valid moves" in {
+      c.getMoves(0, 0) should be((0, 0), Seq())
+    }
+    "return the checked square and a list with possible moves" in {
+      c.current = c.players(0)
+      c.getMoves(4, 3) should be(((4, 3), Seq((4, 5))))
+    }
+  }
+  "checkRec" should {
+    "return a tuple with values between 0 and 7 if there is a valid move" in {
+      c.checkRec(3, 4, (1, 0)) should be(5, 4)
+    }
+    "return (-1, -1) if there is no valid move in this direction" in {
+      c.checkRec(0, 0, (-1, 0)) should be(-1, -1)
     }
   }
 }
