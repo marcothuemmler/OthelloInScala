@@ -16,6 +16,21 @@ case class Board(grid: Array[Array[Square]]) {
     }))
   }
 
+  /* def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
+   val nextH = current._1 - current._1.compare(end._1)
+   val nextV = current._2 - current._2.compare(end._2)
+   val newBoard = flip(current._1, current._2, value)
+   if (current != end) {
+     newBoard.flipLine((nextH, nextV), end, value)
+   } else {
+     newBoard
+   }
+  } */
+
+  /*def flip(x: Int, y: Int, newVal: Int): Board = {
+    copy(grid.updated(x, grid(x).updated(y, Square(newVal))))
+  }*/
+
   def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Unit = {
     val nextH = current._1 - current._1.compare(end._1)
     val nextV = current._2 - current._2.compare(end._2)

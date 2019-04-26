@@ -52,6 +52,32 @@ class Player(name: String, value: Int, board: Board) {
     }
   }
 
+  // Copy game
+  /*def set(x: Int, y: Int): Game = {
+    val valid = moves.filter(_._2.contains((x, y)))
+    newGame = if (valid.nonEmpty) {
+      (for { e <- valid.keys
+        g = game.flipLine((x,y), e, value)
+      } yield g).last
+    } else {
+      game
+    }
+    newGame
+  }*/
+
+  // Copy player
+  /*def set(x: Int, y: Int): Player = {
+    val valid = moves.filter(_._2.contains((x, y)))
+    copy(game = {
+      if (valid.nonEmpty) {
+        (for {e <- valid.keys
+              g = game.flipLine((x, y), e, value)
+        } yield g).last
+      }
+      game
+    })
+  }*/
+
   def highlight(): Unit = moves.values.flatten.foreach(board.flip(_, -1))
 
   def setByPl(x: Int, y: Int): Boolean = board.grid(x)(y).value == this.value
