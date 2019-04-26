@@ -43,7 +43,7 @@ class PlayerSpec extends WordSpec with Matchers {
   "moves" should {
     "not be empty if there are valid moves" in {
       player.moves should be(
-        Map((3,4) -> List((3,2), (5,4)), (4,3) -> List((2,3), (4,5))))
+        Map((3,4) -> Seq((3,2), (5,4)), (4,3) -> Seq((2,3), (4,5))))
     }
     "be empty if there are no valid moves" in {
       for (i <- 0 to 7) {
@@ -77,10 +77,10 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "getMoves" should {
     "return the checked square and an empty list if there are no valid moves" in {
-      player.getMoves(0, 0) should be((0, 0), List())
+      player.getMoves(0, 0) should be((0, 0), Seq())
     }
     "return the checked square and a list with possible moves" in {
-      player.getMoves(4, 3) should be(((4, 3), List((4, 5))))
+      player.getMoves(4, 3) should be(((4, 3), Seq((4, 5))))
     }
   }
   "checkRec" should {
