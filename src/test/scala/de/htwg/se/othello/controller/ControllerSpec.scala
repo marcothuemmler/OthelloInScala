@@ -1,10 +1,11 @@
-package de.htwg.se.othello.model
+package de.htwg.se.othello.controller
 
-import de.htwg.se.othello.controller.Controller
+import de.htwg.se.othello.model.{Board, Player}
 import org.scalatest.{Matchers, WordSpec}
 
 class ControllerSpec extends WordSpec with Matchers {
-  var c = new Controller(new Board, Vector(new Player(1), new Player(2)))
+  val players: Vector[Player] = Vector(new Player(1), new Player(2))
+  var c = new Controller(new Board, players)
   "boardToString" should {
     "return a nice String representation of the board" in {
       c.boardToString shouldBe a[String]
@@ -20,9 +21,9 @@ class ControllerSpec extends WordSpec with Matchers {
       c.mapOutput(0, 0) should be("A1")
     }
   }
-  "changeCurrent" should {
-    "change the value of i" in {
-      c.changeCurrent(1) should be(0)
+  "switchPlayer" should {
+    "switch the player" in {
+      c.switchPlayer should be(c.players(1))
     }
   }
   "setByOpp" should {
@@ -84,7 +85,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.getMoves(0, 0) should be((0, 0), Seq())
     }
     "return the checked square and a list with possible moves" in {
-      c.current = c.players(0)
+      c.player = c.players(0)
       c.getMoves(4, 3) should be(((4, 3), Seq((4, 5))))
     }
   }

@@ -7,10 +7,13 @@ import scala.util.Random
 
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
 
-  var i = 0
-  var current: Player = players(i)
+  var player: Player = players(0)
 
-  def newGame(): Unit = notifyObservers()
+  def newGame(): Unit = {
+    board = new Board
+    player = players(0)
+    notifyObservers()
+  }
 
   def boardToString: String = board.toString
 
@@ -18,7 +21,13 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
   }
 
-  def changeCurrent(i: Int): Int = if (i == 0) 1 else 0
+  def gameOver: Boolean = {
+    val a = moves.isEmpty
+    player = switchPlayer
+    val b = moves.isEmpty
+    player = switchPlayer
+    a && b
+  }
 
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
@@ -56,67 +65,93 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     }
   }
 
-  def set(input: String): Boolean = {
-    val square = mapToBoard(input)
-    val allMoves = moves
-    val valid = allMoves.filter(_._2.contains(square))
-    if (valid.nonEmpty) {
-      for {
-        disk <- valid.keys
-      } board = board.flipLine(square, disk, current.value)
-      for {
-        e <- allMoves.values.flatten.filter(_ != square)
-      } board = board.flip(e, 0)
-      i = changeCurrent(i)
-      current = players(i)
-      notifyObservers()
-      true
+  def botSet(): Unit = {
+    if (moves.isEmpty) {
+      switchNoMoves()
     } else {
-      false
+      val move = moves.toList(Random.nextInt(moves.keySet.size))
+      val square = move._2(Random.nextInt(move._2.size))
+      println(f"$player sets ${mapOutput(square._1, square._2)}")
+      set(mapOutput(square._1, square._2))
     }
   }
 
-  def highlight(): Unit = {
-    for {disk <- moves.values.flatten} board = board.flip(disk, -1)
+  def set(input: String): Boolean = {
+    if (moves.isEmpty) {
+      switchNoMoves()
+      false
+    } else if (input.length != 2) {
+      false
+    } else {
+      val square = mapToBoard(input)
+      val valid = moves.filter(_._2.contains(square))
+      if (valid.nonEmpty) {
+        for {disk <- valid.keys
+        } board = board.flipLine(square, disk, player.value)
+        deHighlight()
+        player = switchPlayer
+        notifyObservers()
+        true
+      } else {
+        false
+      }
+    }
+  }
+
+  def switchNoMoves(): Unit = {
+    print(f"No possible moves for $player. ")
+    player = switchPlayer
+    println(f"$player's turn")
     notifyObservers()
   }
 
-  def setByPl(x: Int, y: Int): Boolean = board.grid(x)(y).value == current.value
-
-  def setByOpp(x: Int, y: Int): Boolean = {
-    board.grid(x)(y).value > 0 && board.grid(x)(y).value != current.value
+  def deHighlight(): Unit = {
+    for {
+      x <- 0 to 7
+      y <- 0 to 7 if board.grid(x)(y).value < 0
+    } board = board.flip((x, y), 0)
   }
 
-  def count: Int = board.grid.flatten.count(_.value == current.value)
+  def highlight(): Unit = {
+    for {disk <- moves.values.flatten
+    } board = board.flip(disk, -1)
+    notifyObservers()
+  }
 
-  def botSet: String = {
-    val move = moves.toList(Random.nextInt(moves.keySet.size))
-    val square = move._2(Random.nextInt(move._2.size))
-    val out = mapOutput(square._1, square._2)
-    println(f"$current sets ${mapOutput(square._1, square._2)}")
-    out
+  def setByPl(x: Int, y: Int): Boolean = board.grid(x)(y).value == player.value
+
+  def setByOpp(x: Int, y: Int): Boolean = {
+    board.grid(x)(y).value > 0 && board.grid(x)(y).value != player.value
   }
 
   def suggestions: String = {
-    var s = f"Possible moves for $current: "
-    for {e <- moves.values.flatten.toSet.toList.sorted}
-      s += mapOutput(e._1, e._2) + " "
-    s
+    s"Possible moves for $player: " +
+      (for {e <- moves.values.flatten.toSet.toList.sorted
+      } yield mapOutput(e._1, e._2)).mkString(" ")
   }
 
-  def mapOutput(x: Int, y: Int): String = (x + 65).toChar.toString + (y + 1)
-
-  /*
-  def result(p: Vector[Player]): String = {
-    val p1count = p(0).count
-    val p2count = p(1).count
-    val winner = if (p1count >= p2count) p(0) else p(1)
-    val loser = if (winner == p(0)) p(1) else p(0)
-    if (p1count != p2count) {
-      f"$winner wins by ${winner.count}:${loser.count}!"
+  def result: String = {
+    val p1 = player
+    val p1count = count
+    player = switchPlayer
+    val p2 = player
+    val p2count = count
+    val winner = if (p1count >= p2count) p1 else p2
+    val wCount = if (p1count > p2count) p1count else p2count
+    val lCount = if (wCount == p1count) p2count else p1count
+    val str = if (p1count != p2count) {
+      f"$winner wins by $wCount:$lCount!"
     } else {
       f"Draw. $p1count:$p2count"
     }
+    str + "\nPress \"n\" for new game"
   }
- */
+
+  def switchPlayer: Player = {
+    if (player == players(0)) players(1) else players(0)
+  }
+
+  def count: Int = board.grid.flatten.count(_.value == player.value)
+
+  def mapOutput(x: Int, y: Int): String = (x + 65).toChar.toString + (y + 1)
 }
