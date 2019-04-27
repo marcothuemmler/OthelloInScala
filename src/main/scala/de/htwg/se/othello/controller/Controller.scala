@@ -27,7 +27,6 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     val b = moves.isEmpty
     player = switchPlayer
     a && b
-
   }
 
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
@@ -134,23 +133,25 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def result: String = {
     val p1 = player
     val p1count = count
-    val p2 = switchPlayer
+    player = switchPlayer
+    val p2 = player
     val p2count = count
     val winner = if (p1count >= p2count) p1 else p2
-    val winnercount = if (p1count > p2count) p1count else p2count
-    val losercount = if (winnercount == p1count) p2count else p1count
-    if (p1count != p2count) {
-      f"$winner wins by $winnercount:$losercount!"
+    val wCount = if (p1count > p2count) p1count else p2count
+    val lCount = if (wCount == p1count) p2count else p1count
+    val str = if (p1count != p2count) {
+      f"$winner wins by $wCount:$lCount!"
     } else {
       f"Draw. $p1count:$p2count"
     }
+    str + "\nPress \"n\" for new game"
   }
 
   def switchPlayer: Player = {
     if (player == players(0)) players(1) else players(0)
   }
 
-  def mapOutput(x: Int, y: Int): String = (x + 65).toChar.toString + (y + 1)
-
   def count: Int = board.grid.flatten.count(_.value == player.value)
+
+  def mapOutput(x: Int, y: Int): String = (x + 65).toChar.toString + (y + 1)
 }

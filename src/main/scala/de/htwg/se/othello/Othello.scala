@@ -19,7 +19,6 @@ object Othello {
     do {
       if (controller.gameOver) {
         println(controller.result)
-        println("Press \"n\" for new game")
       }
       input = readLine
       tui.processInputLine(input)

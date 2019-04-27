@@ -21,8 +21,8 @@ class ControllerSpec extends WordSpec with Matchers {
       c.mapOutput(0, 0) should be("A1")
     }
   }
-  "changeCurrent" should {
-    "change the value of i" in {
+  "switchPlayer" should {
+    "switch the player" in {
       c.switchPlayer should be(c.players(1))
     }
   }
