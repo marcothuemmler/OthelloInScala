@@ -16,9 +16,9 @@ class Tui(controller: Controller) extends Observer {
       case "s" => println(controller.suggestions)
       case _ =>
         if (controller.set(input)) {
-          if (controller.players.count(_.isInstanceOf[Bot]) == 1) {
+          if (controller.player.isInstanceOf[Bot]) {
             Thread.sleep(500)
-            controller.set(controller.botSet)
+            controller.botSet()
           }
         } else {
           println(f"Please try again. ${controller.suggestions}")

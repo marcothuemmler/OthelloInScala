@@ -1,9 +1,9 @@
 package de.htwg.se.othello.model
 
-case class Board(grid: Array[Array[Square]]) {
+case class Board(grid: Vector[Vector[Square]]) {
 
   def this() = {
-    this(Array.tabulate(8, 8)((i, j) => {
+    this(Vector.tabulate(8, 8)((i, j) => {
       if ((i == 4 || i == 3) && i == j) {
         Square(2)
       }
