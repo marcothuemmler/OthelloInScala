@@ -2,26 +2,26 @@ package de.htwg.se.othello.model
 
 import org.scalatest.{Matchers, WordSpec}
 
-class BoardSpec extends WordSpec with Matchers{
-  val board = new Board
-  "the Board ist the playfield of Othello" when {
-    "the field be initialized" in {
-      board.field(3)(3).value should be (2)
-      board.field(3)(4).value should be (1)
-      board.field(1)(1).value should be (0)
+class BoardSpec extends WordSpec with Matchers {
+  var board = new Board
 
+  "flip" should {
+    "set the value of the cell to new value" in {
+      board = board.flip((7, 7), 2)
+      board.grid(7)(7) should be(Square(2))
     }
-    "the field should have the value" in {
-      board.valueOf(3, 3) should be (2)
-
-    }
-    "the board should be printed" in  {
-
-      board.toString shouldBe a [String]
-
-
-    }
-
   }
-
+  "flipLine" should {
+    "change the value of a connected line to the new value" in {
+      board = board.flipLine((5, 4), (3, 4), 1)
+      board.grid(5)(4).value should be(1)
+      board.grid(4)(4).value should be(1)
+      board.grid(3)(4).value should be(1)
+    }
+  }
+  "toString" should {
+    "return a nice String representation of the game" in {
+      board.toString shouldBe a[String]
+    }
+  }
 }
