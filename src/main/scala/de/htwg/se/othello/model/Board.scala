@@ -4,15 +4,9 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   def this() = {
     this(Vector.tabulate(8, 8)((i, j) => {
-      if ((i == 4 || i == 3) && i == j) {
-        Square(2)
-      }
-      else if (i == 4 && j == 3 || i == 3 && j == 4) {
-        Square(1)
-      }
-      else {
-        Square(0)
-      }
+      if ((i == 4 || i == 3) && i == j) Square(2)
+      else if (i == 4 && j == 3 || i == 3 && j == 4) Square(1)
+      else Square(0)
     }))
   }
 
@@ -27,10 +21,25 @@ case class Board(grid: Vector[Vector[Square]]) {
     }
   }
 
-  def flip(square: (Int, Int), newVal: Int): Board = {
-    val (x, y) = square
-    copy(grid.updated(x, grid(x).updated(y, Square(newVal))))
+  def flip(square: (Int, Int), value: Int): Board = {
+    copy(grid.updated(square._1, grid(square._1).updated(square._2, Square(value))))
   }
+
+  def valueOf(x: Int, y: Int): Int = grid(x)(y).value
+
+  def isSet(x: Int, y: Int): Boolean = grid(x)(y).isSet
+
+  def isHighlighted(x: Int, y:Int): Boolean = grid(x)(y).isHighlighted
+
+  def count(value: Int): Int = grid.flatten.count(_.value == value)
+
+  def countHighlighted: Int = grid.flatten.count(_.isHighlighted)
+
+  def countAll(v1: Int, v2: Int): (Int, Int) = (count(v1), count(v2))
+
+  def highlight(square: (Int, Int)): Board = flip(square, -1)
+
+  def deHighlight(square: (Int, Int)): Board = flip(square, 0)
 
   override def toString: String = {
     val top = "\n    A B C D E F G H\n    _______________"

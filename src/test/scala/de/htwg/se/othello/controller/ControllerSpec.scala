@@ -12,40 +12,40 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "mapToBoard" should {
-    "return a tuple" in {
+    "return a tuple of Ints" in {
       c.mapToBoard("a1") should be(0, 0)
     }
   }
   "mapOutput" should {
-    "take an Integer and give us back a String" in {
+    "take a tuple of Ints and return a String" in {
       c.mapOutput(0, 0) should be("A1")
     }
   }
   "switchPlayer" should {
     "switch the player" in {
-      c.switchPlayer should be(c.players(1))
+      c.switchPlayer should be(c.p(1))
     }
   }
   "setByOpp" should {
-    "Be true if set by opponent" in {
-      c.setByOpp(4, 4) should be(true)
+    "be true if set by opponent" in {
+      c.setByOpponent(4, 4) should be(true)
     }
     "be false if not set" in {
-      c.setByOpp(0, 0) should be(false)
+      c.setByOpponent(0, 0) should be(false)
     }
     "be false if set by Player" in {
-      c.setByOpp(3, 4) should be(false)
+      c.setByOpponent(3, 4) should be(false)
     }
   }
   "setByPl" should {
     "be false if set by opponent" in {
-      c.setByPl(4, 4) should be(false)
+      c.setByPlayer(4, 4) should be(false)
     }
     "be false if not set" in {
-      c.setByPl(0, 0) should be(false)
+      c.setByPlayer(0, 0) should be(false)
     }
     "be true if set by Player " in {
-      c.setByPl(3, 4) should be(true)
+      c.setByPlayer(3, 4) should be(true)
     }
   }
   "moves" should {
@@ -59,11 +59,6 @@ class ControllerSpec extends WordSpec with Matchers {
       }
       c.moves should be(Map())
       c.board = new Board
-    }
-  }
-  "count " should {
-    "return the amount of disks set by player" in {
-      c.count should be(2)
     }
   }
   "highlight " should {
@@ -85,7 +80,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.getMoves(0, 0) should be((0, 0), Seq())
     }
     "return the checked square and a list with possible moves" in {
-      c.player = c.players(0)
+      c.player = c.p(0)
       c.getMoves(4, 3) should be(((4, 3), Seq((4, 5))))
     }
   }
