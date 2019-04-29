@@ -10,36 +10,34 @@ case class Board(grid: Vector[Vector[Square]]) {
     }))
   }
 
+  def valueOf(x: Int, y: Int): Int = grid(x)(y).value
+
+  def isSet(x: Int, y: Int): Boolean = grid(x)(y).isSet
+
+  def isHighlighted(x: Int, y: Int): Boolean = grid(x)(y).isHighlighted
+
+  def countHighlighted: Int = grid.flatten.count(o => o.isHighlighted)
+
+  def countAll(v1: Int, v2: Int): (Int, Int) = (count(v1), count(v2))
+
+  def count(value: Int): Int = grid.flatten.count(o => o.value == value)
+
+  def highlight(square: (Int, Int)): Board = flip(square, -1)
+
+  def deHighlight(square: (Int, Int)): Board = flip(square, 0)
+
+  def flip(sq: (Int, Int), value: Int): Board = {
+    copy(grid.updated(sq._1, grid(sq._1).updated(sq._2, Square(value))))
+  }
+
   def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
     val nextH = current._1 - current._1.compare(end._1)
     val nextV = current._2 - current._2.compare(end._2)
     val newBoard = flip(current, value)
     if (current != end) {
       newBoard.flipLine((nextH, nextV), end, value)
-    } else {
-      newBoard
-    }
+    } else newBoard
   }
-
-  def flip(square: (Int, Int), value: Int): Board = {
-    copy(grid.updated(square._1, grid(square._1).updated(square._2, Square(value))))
-  }
-
-  def valueOf(x: Int, y: Int): Int = grid(x)(y).value
-
-  def isSet(x: Int, y: Int): Boolean = grid(x)(y).isSet
-
-  def isHighlighted(x: Int, y:Int): Boolean = grid(x)(y).isHighlighted
-
-  def count(value: Int): Int = grid.flatten.count(_.value == value)
-
-  def countHighlighted: Int = grid.flatten.count(_.isHighlighted)
-
-  def countAll(v1: Int, v2: Int): (Int, Int) = (count(v1), count(v2))
-
-  def highlight(square: (Int, Int)): Board = flip(square, -1)
-
-  def deHighlight(square: (Int, Int)): Board = flip(square, 0)
 
   override def toString: String = {
     val top = "\n    A B C D E F G H\n    _______________"

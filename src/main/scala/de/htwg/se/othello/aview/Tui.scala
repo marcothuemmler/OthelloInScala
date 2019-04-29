@@ -10,18 +10,20 @@ class Tui(controller: Controller) extends Observer {
 
   def processInputLine(input: String): Unit = {
     input match {
-      case "q" => println("Goodbye!")
+      case "q" =>
       case "n" => controller.newGame()
       case "h" => controller.highlight()
       case "s" => println(s"Valid moves: ${controller.suggestions}")
       case _ =>
-        if (controller.set(input)) {
-          if (controller.player.isInstanceOf[Bot]) {
-            Thread.sleep(500)
-            if (!controller.gameOver) controller.botSet()
-          }
-        } else {
-          println(f"Please try again. Valid moves: ${controller.suggestions}")
+        input.length match {
+          case 2 =>
+            controller.set(controller.mapToBoard(input))
+            if (controller.player.isInstanceOf[Bot] && !controller.gameOver) {
+              Thread.sleep(500)
+              controller.botSet()
+            }
+          case _ =>
+            println(s"Please try again. Valid moves: ${controller.suggestions}")
         }
     }
   }

@@ -6,9 +6,7 @@ import scala.util.Random
 
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
-  var player: Player = p(0)
-
-  def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
+  def this(p: Vector[Player]) = this(new Board, p)
 
   def newGame(): Unit = {
     board = new Board
@@ -16,9 +14,25 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     notifyObservers()
   }
 
+  var player: Player = p(0)
+
+  var notValid = false
+
+  def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
+
+  def noMoves: Boolean = moves.isEmpty
+
   def boardToString: String = {
-    if (!gameOver) board.toString
-    else board.toString + "\n" + result + "\n\nPress \"n\" for new game"
+    if (noMoves && !gameOver) {
+      val str = s"No moves for $player. "
+      player = switchPlayer
+      str + s"$player's turn.\n ${board.toString}"
+    } else if (notValid) {
+      notValid = false
+      s"Please try again. Valid moves for $player: $suggestions\n ${board.toString}"
+    } else if (gameOver) {
+      board.toString + "\n" + result + "\n\nPress \"n\" for new game"
+    } else board.toString
   }
 
   def mapToBoard(input: String): (Int, Int) = {
@@ -38,7 +52,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
       i <- 0 to 7
-      j <- 0 to 7 if setByPlayer(i, j)
+      j <- 0 to 7 if setByPl(i, j)
     } yield getMoves(i, j)).filter(_._2.nonEmpty).toMap
   }
 
@@ -52,44 +66,34 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def check(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val nX = x + direction._1
     val nY = y + direction._2
-    if (nX > -1 && nX < 8 && nY > -1 && nY < 8 && setByOpponent(nX, nY)) {
+    if (nX > -1 && nX < 8 && nY > -1 && nY < 8 && setByOpp(nX, nY)) {
       checkRec(nX, nY, direction)
-    } else {
-      (-1, -1)
-    }
+    } else (-1, -1)
   }
 
   def checkRec(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val nX = x + direction._1
     val nY = y + direction._2
-    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setByPlayer(nX, nY)) {
+    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setByPl(nX, nY)) {
       (-1, -1)
-    } else if (setByOpponent(nX, nY)) {
+    } else if (setByOpp(nX, nY)) {
       checkRec(nX, nY, direction)
-    } else {
-      (nX, nY)
-    }
+    } else (nX, nY)
   }
 
   def botSet(): Unit = {
-    if (moves.isEmpty) {
-      switchNoMoves()
-    } else {
+    if (noMoves) notifyObservers()
+    else {
       val move = moves.toList(Random.nextInt(moves.keySet.size))
       val square = move._2(Random.nextInt(move._2.size))
       println(f"$player sets ${mapOutput(square._1, square._2)}")
-      set(mapOutput(square._1, square._2))
+      set(square)
     }
   }
 
-  def set(input: String): Boolean = {
-    if (moves.isEmpty) {
-      switchNoMoves()
-      false
-    } else if (input.length != 2) {
-      false
-    } else {
-      val square = mapToBoard(input)
+  def set(square: (Int, Int)): Unit = {
+    if (noMoves) notifyObservers()
+    else {
       val valid = moves.filter(_._2.contains(square))
       if (valid.nonEmpty) {
         for {disk <- valid.keys
@@ -97,28 +101,18 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
         deHighlight()
         player = switchPlayer
         notifyObservers()
-        true
       } else {
-        false
+        notValid = true
+        notifyObservers()
       }
     }
   }
 
-  def switchNoMoves(): Unit = {
-    print(f"No valid moves for $player. ")
-    player = switchPlayer
-    println(f"$player's turn")
-    notifyObservers()
-  }
-
   def highlight(): Unit = {
     if (board.countHighlighted == 0) {
-      for {
-        square <- moves.values.flatten
+      for {square <- moves.values.flatten
       } board = board.highlight(square)
-    } else {
-      deHighlight()
-    }
+    } else deHighlight()
     notifyObservers()
   }
 
@@ -129,15 +123,12 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     } board = board.deHighlight((x, y))
   }
 
-  def setByPlayer(x: Int, y: Int): Boolean = board.valueOf(x, y) == player.value
+  def setByPl(x: Int, y: Int): Boolean = board.valueOf(x, y) == player.value
 
-  def setByOpponent(x: Int, y: Int): Boolean = {
-    board.isSet(x, y) && board.valueOf(x, y) != player.value
-  }
+  def setByOpp(x: Int, y: Int): Boolean = board.isSet(x, y) && !setByPl(x, y)
 
   def suggestions: String = {
-    (for {
-      e <- moves.values.flatten.toSet.toList.sorted
+    (for {e <- moves.values.flatten.toSet.toList.sorted
     } yield mapOutput(e._1, e._2)).mkString(" ")
   }
 
@@ -146,8 +137,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     player = switchPlayer
     val p2 = player
     val count = board.countAll(p1.value, p2.value)
-    val wCount = count._1 max count._2
-    val lCount = count._1 min count._2
+    val (wCount, lCount) = (count._1 max count._2, count._1 min count._2)
     val winner = if (wCount == count._1) p1 else p2
     if (wCount != lCount) f"$winner wins by $wCount:$lCount!"
     else f"Draw. $wCount:$lCount"

@@ -19,6 +19,7 @@ class ControllerSpec extends WordSpec with Matchers {
   "mapOutput" should {
     "take a tuple of Ints and return a String" in {
       c.mapOutput(0, 0) should be("A1")
+      c.mapOutput(7, 7) should be("H8")
     }
   }
   "switchPlayer" should {
@@ -28,24 +29,24 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "setByOpp" should {
     "be true if set by opponent" in {
-      c.setByOpponent(4, 4) should be(true)
+      c.setByOpp(4, 4) should be(true)
     }
     "be false if not set" in {
-      c.setByOpponent(0, 0) should be(false)
+      c.setByOpp(0, 0) should be(false)
     }
     "be false if set by Player" in {
-      c.setByOpponent(3, 4) should be(false)
+      c.setByOpp(3, 4) should be(false)
     }
   }
   "setByPl" should {
     "be false if set by opponent" in {
-      c.setByPlayer(4, 4) should be(false)
+      c.setByPl(4, 4) should be(false)
     }
     "be false if not set" in {
-      c.setByPlayer(0, 0) should be(false)
+      c.setByPl(0, 0) should be(false)
     }
     "be true if set by Player " in {
-      c.setByPlayer(3, 4) should be(true)
+      c.setByPl(3, 4) should be(true)
     }
   }
   "moves" should {
@@ -67,21 +68,13 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board.grid(2)(3).value should be(-1)
     }
   }
-  "set" should {
-    "return true if the move is possible and the disk was set" in {
-      c.set("c4") should be(true)
-    }
-    "return false if the move is not possible" in {
-      c.set("a1") should be(false)
-    }
-  }
   "getMoves" should {
     "return the checked square and an empty list if there are no valid moves" in {
       c.getMoves(0, 0) should be((0, 0), Seq())
     }
     "return the checked square and a list with possible moves" in {
       c.player = c.p(0)
-      c.getMoves(4, 3) should be(((4, 3), Seq((4, 5))))
+      c.getMoves(4, 3) should be(((4, 3), Vector((2, 3),(4, 5))))
     }
   }
   "checkRec" should {
