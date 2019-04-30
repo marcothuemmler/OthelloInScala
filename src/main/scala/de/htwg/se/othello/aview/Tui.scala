@@ -13,15 +13,18 @@ class Tui(controller: Controller) extends Observer {
       case "q" =>
       case "n" => controller.newGame()
       case "h" => controller.highlight()
-      case "s" => println(controller.suggestions)
+      case "s" => println(s"Valid moves: ${controller.suggestions}")
       case _ =>
-        if (controller.set(input)) {
-          if (controller.players.count(_.isInstanceOf[Bot]) == 1) {
-            Thread.sleep(500)
-            controller.set(controller.botSet)
-          }
-        } else {
-          println(f"Please try again. ${controller.suggestions}")
+        input.toList.map(in => in.toString) match {
+          case col :: row :: Nil =>
+            val square = controller.mapToBoard(col + row)
+            controller.set(square)
+            if (controller.player.isInstanceOf[Bot] && !controller.gameOver) {
+              Thread.sleep(500)
+              controller.botSet()
+            }
+          case _ =>
+            println(s"Please try again. Valid moves: ${controller.suggestions}")
         }
     }
   }

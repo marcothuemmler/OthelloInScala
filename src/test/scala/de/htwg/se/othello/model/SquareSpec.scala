@@ -13,9 +13,9 @@ class SquareSpec extends WordSpec with Matchers {
     }
     "have a nice toString representation" in {
       square0.toString should be("_|")
-      square_1.toString should be("x|")
-      square2.toString should be("2|")
-      square1.toString should be(f"\u001B[34m${Square(1).value}%d\u001B[0m|")
+      square_1.toString should be("○|")
+      square2.toString should be("●|")
+      square1.toString should be(f"\u001B[34m●\u001B[0m|")
     }
   }
   "isSet" should {
