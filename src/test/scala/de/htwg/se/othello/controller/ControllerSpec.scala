@@ -29,24 +29,24 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "setByOpp" should {
     "be true if set by opponent" in {
-      c.setByOpp(4, 4) should be(true)
+      c.setByOpponent(4, 4) should be(true)
     }
     "be false if not set" in {
-      c.setByOpp(0, 0) should be(false)
+      c.setByOpponent(0, 0) should be(false)
     }
     "be false if set by Player" in {
-      c.setByOpp(3, 4) should be(false)
+      c.setByOpponent(3, 4) should be(false)
     }
   }
   "setByPl" should {
     "be false if set by opponent" in {
-      c.setByPl(4, 4) should be(false)
+      c.setByPlayer(4, 4) should be(false)
     }
     "be false if not set" in {
-      c.setByPl(0, 0) should be(false)
+      c.setByPlayer(0, 0) should be(false)
     }
     "be true if set by Player " in {
-      c.setByPl(3, 4) should be(true)
+      c.setByPlayer(3, 4) should be(true)
     }
   }
   "moves" should {
@@ -79,10 +79,10 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "checkRec" should {
     "return a tuple with values between 0 and 7 if there is a valid move" in {
-      c.checkRec(3, 4, (1, 0)) should be(5, 4)
+      c.checkRecursive(3, 4, (1, 0)) should be(5, 4)
     }
     "return (-1, -1) if there is no valid move in this direction" in {
-      c.checkRec(0, 0, (-1, 0)) should be(-1, -1)
+      c.checkRecursive(0, 0, (-1, 0)) should be(-1, -1)
     }
   }
 }

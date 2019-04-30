@@ -15,9 +15,10 @@ class Tui(controller: Controller) extends Observer {
       case "h" => controller.highlight()
       case "s" => println(s"Valid moves: ${controller.suggestions}")
       case _ =>
-        input.length match {
-          case 2 =>
-            controller.set(controller.mapToBoard(input))
+        input.toList.map(in => in.toString) match {
+          case col :: row :: Nil =>
+            val square = controller.mapToBoard(col + row)
+            controller.set(square)
             if (controller.player.isInstanceOf[Bot] && !controller.gameOver) {
               Thread.sleep(500)
               controller.botSet()
