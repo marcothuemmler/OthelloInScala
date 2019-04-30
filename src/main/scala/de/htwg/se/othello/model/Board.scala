@@ -26,27 +26,27 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   def deHighlight(square: (Int, Int)): Board = flip(square, 0)
 
-  def flip(sq: (Int, Int), value: Int): Board = {
-    copy(grid.updated(sq._1, grid(sq._1).updated(sq._2, Square(value))))
+  def flip(square: (Int, Int), value: Int): Board = {
+    copy(grid.updated(square._1, grid(square._1).updated(square._2, Square(value))))
   }
 
   def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
     val nextH = current._1 - current._1.compare(end._1)
     val nextV = current._2 - current._2.compare(end._2)
-    val newBoard = flip(current, value)
+    val board = flip(current, value)
     if (current != end) {
-      newBoard.flipLine((nextH, nextV), end, value)
-    } else newBoard
+      board.flipLine((nextH, nextV), end, value)
+    } else board
   }
 
   override def toString: String = {
     val top = "\n    A B C D E F G H\n    _______________"
     var board = ("\nrow  |" + ("X" * 8)) * 8 + "\n"
     for {
-      row <- 0 to 7
       column <- 0 to 7
-    } board = board.replaceFirst("row", (column + 1).toString)
-      .replaceFirst("X", grid(column)(row).toString)
+      row <- 0 to 7
+    } board = board.replaceFirst("row", f"${row + 1}")
+      .replaceFirst("X", f"${grid(row)(column)}")
     top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
   }
 }

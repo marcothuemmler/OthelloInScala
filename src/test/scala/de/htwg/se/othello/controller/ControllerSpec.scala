@@ -29,24 +29,24 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "setByOpp" should {
     "be true if set by opponent" in {
-      c.setByOpponent(4, 4) should be(true)
+      c.setByOpp(4, 4) should be(true)
     }
     "be false if not set" in {
-      c.setByOpponent(0, 0) should be(false)
+      c.setByOpp(0, 0) should be(false)
     }
     "be false if set by Player" in {
-      c.setByOpponent(3, 4) should be(false)
+      c.setByOpp(3, 4) should be(false)
     }
   }
   "setByPl" should {
     "be false if set by opponent" in {
-      c.setByPlayer(4, 4) should be(false)
+      c.setByPl(4, 4) should be(false)
     }
     "be false if not set" in {
-      c.setByPlayer(0, 0) should be(false)
+      c.setByPl(0, 0) should be(false)
     }
     "be true if set by Player " in {
-      c.setByPlayer(3, 4) should be(true)
+      c.setByPl(3, 4) should be(true)
     }
   }
   "moves" should {
