@@ -6,6 +6,11 @@ import org.scalatest.{Matchers, WordSpec}
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
   var c = new Controller(new Board, players)
+
+  "A controller without a board should create a default board" in {
+    val ctrl = new Controller(players)
+    ctrl.board should equal (new Board)
+  }
   "boardToString" should {
     "return a nice String representation of the board" in {
       c.boardToString shouldBe a[String]
@@ -91,6 +96,59 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "return (-1, -1) if there is no valid move in this direction" in {
       c.checkRecursive(0, 0, (-1, 0)) should be(-1, -1)
+    }
+  }
+  "boardToString" should {
+    "be a string if there are no Moves bout the game is not over" in {
+      for (i <- 0 to 7) {
+        c.board = c.board.flipLine((i, 0), (i, 7), 0)
+      }
+      c.board = c.board.flip((0, 0),1)
+      c.board = c.board.flip((0, 1),2)
+      c.player = c.p(1)
+      c.boardToString shouldBe a[String]
+      c.newGame()
+    }
+    "be a string if the game is over" in {
+      for (i <- 0 to 7) {
+        c.board = c.board.flipLine((i, 0), (i, 7), 0)
+      }
+      c.board = c.board.flip((0, 0),1)
+      c.board = c.board.flip((1, 0),1)
+      c.boardToString shouldBe a[String]
+      c.newGame()
+    }
+    "be a string if the last move was not legal" in {
+      c.notLegal = true
+      c.boardToString shouldBe a[String]
+      c.newGame()
+    }
+    "score" should {
+      "be a string if the amount of tiles is equal" in {
+        c.newGame()
+        c.score shouldBe a[String]
+      }
+      "be a string if the amount of tiles is not equal" in {
+        c.newGame()
+        c.set(2,3)
+        c.score shouldBe a[String]
+      }
+    }
+    "botSet" should {
+      "select a random valid square and set a disk there" in {
+        c.newGame()
+        val board = c.board
+        c.botSet()
+        board should not equal c.board
+      }
+      "not do anything but notifyObservers" in {
+        c.newGame()
+        c.board = c.board.flip((4,3),2)
+        c.board = c.board.flip((3,4),2)
+        val board = c.board
+        c.botSet()
+        board should equal(c.board)
+      }
     }
   }
 }
