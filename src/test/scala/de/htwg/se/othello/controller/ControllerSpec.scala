@@ -24,11 +24,13 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "switchPlayer" should {
     "switch the player" in {
-      c.switchPlayer should be(c.p(1))
+      c.switchPlayer()
+      c.player should be(c.p(1))
     }
   }
   "setByOpp" should {
     "be true if set by opponent" in {
+      c.newGame()
       c.setByOpp(4, 4) should be(true)
     }
     "be false if not set" in {
@@ -40,6 +42,7 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "setByPl" should {
     "be false if set by opponent" in {
+      c.newGame()
       c.setByPl(4, 4) should be(false)
     }
     "be false if not set" in {
@@ -51,6 +54,7 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "moves" should {
     "not be empty if there are valid moves" in {
+      c.newGame()
       c.moves should be(
         Map((3, 4) -> Seq((3, 2), (5, 4)), (4, 3) -> Seq((2, 3), (4, 5))))
     }
@@ -65,7 +69,11 @@ class ControllerSpec extends WordSpec with Matchers {
   "highlight " should {
     "highlight settable squares" in {
       c.highlight()
-      c.board.grid(2)(3).value should be(-1)
+      c.board.isHighlighted should be (true)
+    }
+    "de-highlight settable squares" in {
+      c.highlight()
+      c.board.isHighlighted should be (false)
     }
   }
   "getMoves" should {
