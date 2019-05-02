@@ -12,7 +12,6 @@ class BoardSpec extends WordSpec with Matchers {
       b.count(2) should be (2)
     }
   }
-
   "isSet" should {
     "be true if there is a disk" in {
       board.isSet(3,4) should be (true)
@@ -21,48 +20,41 @@ class BoardSpec extends WordSpec with Matchers {
       board.isSet(0,0) should be (false)
     }
   }
-
   "valueOf" should {
     "return the value of the square" in {
       board.valueOf(2, 2) should be (0)
     }
   }
-
   "highlight" should {
     "return the value of the square" in {
       val b = board.highlight(2, 2)
       b.valueOf(2, 2) should be (-1)
     }
   }
-
   "isHighlighted" should {
     "be true if there are highlighted squares" in {
       val b = board.highlight(2, 2)
       b.isHighlighted should be (true)
     }
   }
-
   "countAll" should {
     "count the disks of both players on the board" in {
       val b = new Board
       b.countAll(1, 2) should be (2, 2)
     }
   }
-
   "count" should {
     "count the disks of one player on the board" in {
       val b = new Board
       b.count(1) should be (2)
     }
   }
-
   "countHighlighted" should {
     "be true if there are highlighted squares" in {
       val b = board.highlight(2, 2)
       b.countHighlighted should be (1)
     }
   }
-
   "deHighlight" should {
     "remove all the highlights on the board" in {
       var b = new Board
@@ -71,10 +63,9 @@ class BoardSpec extends WordSpec with Matchers {
       b.isHighlighted should be (false)
     }
   }
-
   "flip" should {
-    "set the value of the cell to new value" in {
-      board = board.flip((7, 7), 2)
+    "set the value of the square to new value" in {
+      board = board.flip(7, 7, 2)
       board.grid(7)(7) should be(Square(2))
     }
   }
@@ -87,7 +78,7 @@ class BoardSpec extends WordSpec with Matchers {
     }
   }
   "toString" should {
-    "return a nice String representation of the game" in {
+    "return a nice String representation of the board" in {
       board.toString shouldBe a[String]
     }
   }

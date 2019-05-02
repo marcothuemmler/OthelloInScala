@@ -10,14 +10,14 @@ case class Board(grid: Vector[Vector[Square]]) {
     }))
   }
 
-  def isSet(x: Int, y: Int): Boolean = grid(x)(y).isSet
+  def isSet(col: Int, row: Int): Boolean = grid(col)(row).isSet
 
-  def valueOf(x: Int, y: Int): Int = grid(x)(y).value
+  def valueOf(col: Int, row: Int): Int = grid(col)(row).value
 
-  def highlight(square: (Int, Int)): Board = flip(square, -1)
+  def highlight(col: Int, row: Int): Board = flip(col, row, -1)
 
-  def flip(square: (Int, Int), value: Int): Board = {
-    copy(grid.updated(square._1, grid(square._1).updated(square._2, Square(value))))
+  def flip(col: Int, row: Int, value: Int): Board = {
+    copy(grid.updated(col, grid(col).updated(row, Square(value))))
   }
 
   def isHighlighted: Boolean = countHighlighted > 0
@@ -31,15 +31,14 @@ case class Board(grid: Vector[Vector[Square]]) {
   def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
     val nextH = current._1 - current._1.compare(end._1)
     val nextV = current._2 - current._2.compare(end._2)
-    val board = flip(current, value)
-    if (current != end) {
-      board.flipLine((nextH, nextV), end, value)
-    } else board
+    val board = flip(current._1, current._2, value)
+    if (current != end) board.flipLine((nextH, nextV), end, value)
+    else board
   }
 
   def deHighlight: Board = {
-    copy(Vector.tabulate(8, 8)((i, j) => {
-      if (grid(i)(j).isHighlighted) Square(0) else grid(i)(j)
+    copy(Vector.tabulate(8, 8)((col, row) => {
+      if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
     }))
   }
 
@@ -47,10 +46,10 @@ case class Board(grid: Vector[Vector[Square]]) {
     val top = "\n    A B C D E F G H\n    _______________"
     var board = ("\nrow  |" + ("X" * 8)) * 8 + "\n"
     for {
-      column <- 0 to 7
+      col <- 0 to 7
       row <- 0 to 7
     } board = board.replaceFirst("row", f"${row + 1}")
-      .replaceFirst("X", f"${grid(row)(column)}")
+      .replaceFirst("X", f"${grid(row)(col)}")
     top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
   }
 }

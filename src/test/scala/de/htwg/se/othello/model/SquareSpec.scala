@@ -26,4 +26,12 @@ class SquareSpec extends WordSpec with Matchers {
       square0.isSet should be (false)
     }
   }
+  "isHighlighted" should {
+    "be true if the square is highlighted" in {
+      square_1.isHighlighted should be (true)
+    }
+    "be false if the square i snot highlighted" in {
+      square0.isHighlighted should be (false)
+    }
+  }
 }

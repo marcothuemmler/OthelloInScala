@@ -7,9 +7,11 @@ class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
   var c = new Controller(new Board, players)
 
-  "A controller without a board should create a default board" in {
-    val ctrl = new Controller(players)
-    ctrl.board should equal (new Board)
+  "A controller created without board parameter" should {
+    "have a default board" in {
+      val ctrl = new Controller(players)
+      ctrl.board should be (new Board)
+    }
   }
   "boardToString" should {
     "return a nice String representation of the board" in {
@@ -17,14 +19,8 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "mapToBoard" should {
-    "return a tuple of Ints" in {
+    "take a string and return a tuple of Ints" in {
       c.mapToBoard("a1") should be(0, 0)
-    }
-  }
-  "mapOutput" should {
-    "take a tuple of Ints and return a String" in {
-      c.mapOutput(0, 0) should be("A1")
-      c.mapOutput(7, 7) should be("H8")
     }
   }
   "switchPlayer" should {
@@ -103,52 +99,52 @@ class ControllerSpec extends WordSpec with Matchers {
       for (i <- 0 to 7) {
         c.board = c.board.flipLine((i, 0), (i, 7), 0)
       }
-      c.board = c.board.flip((0, 0),1)
-      c.board = c.board.flip((0, 1),2)
+      c.board = c.board.flip(0, 0,1)
+      c.board = c.board.flip(0, 1,2)
       c.player = c.p(1)
       c.boardToString shouldBe a[String]
       c.newGame()
     }
-    "be a string if the game is over" in {
+    "show the board and ask for new game if the game is over" in {
       for (i <- 0 to 7) {
-        c.board = c.board.flipLine((i, 0), (i, 7), 0)
+        c.board = c.board.flipLine((i, 0), (i, 7), 1)
       }
-      c.board = c.board.flip((0, 0),1)
-      c.board = c.board.flip((1, 0),1)
-      c.boardToString shouldBe a[String]
+      c.boardToString should be (c.board.toString + "\n" + c.score +
+        "\n\nPress \"n\" for new game")
       c.newGame()
     }
-    "be a string if the last move was not legal" in {
+    "show suggestions and the board if the last move was not legal" in {
       c.notLegal = true
-      c.boardToString shouldBe a[String]
+      c.boardToString should be (s"Valid moves for ${c.player}: " +
+        s"${c.suggestions}\n${c.board.toString}")
       c.newGame()
     }
-    "score" should {
-      "be a string if the amount of tiles is equal" in {
-        c.newGame()
-        c.score shouldBe a[String]
-      }
-      "be a string if the amount of tiles is not equal" in {
-        c.newGame()
-        c.set(2,3)
-        c.score shouldBe a[String]
-      }
+  }
+  "score" should {
+    "be a draw if the amount of tiles is equal" in {
+      c.newGame()
+      c.score should be ("Draw. 2:2")
     }
-    "botSet" should {
-      "select a random valid square and set a disk there" in {
-        c.newGame()
-        val board = c.board
-        c.botSet()
-        board should not equal c.board
-      }
-      "not do anything but notifyObservers" in {
-        c.newGame()
-        c.board = c.board.flip((4,3),2)
-        c.board = c.board.flip((3,4),2)
-        val board = c.board
-        c.botSet()
-        board should equal(c.board)
-      }
+    "declare the winner if the amount of tiles is not equal" in {
+      c.newGame()
+      c.set(2,3)
+      c.score should be ("Player1 wins by 4:1!")
+    }
+  }
+  "botSet" should {
+    "select a random valid square and set a disk there" in {
+      c.newGame()
+      val board = c.board
+      c.botSet()
+      board should not equal c.board
+    }
+    "not do anything but notifyObservers if there are no legal moves" in {
+      c.newGame()
+      c.board = c.board.flip(4,3,2)
+      c.board = c.board.flip(3,4,2)
+      val board = c.board
+      c.botSet()
+      board should equal(c.board)
     }
   }
 }
