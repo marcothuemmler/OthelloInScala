@@ -16,7 +16,8 @@ class Tui(controller: Controller) extends Observer {
       case _ =>
         input.toList.map(in => in.toString) match {
           case col :: row :: Nil =>
-            controller.set(controller.mapToBoard(col + row))
+            val square = controller.mapToBoard(col + row)
+            controller.set(square)
           case _ =>
             println(s"Please try again. Valid moves: ${controller.suggestions}")
         }

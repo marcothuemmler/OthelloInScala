@@ -13,11 +13,6 @@ class ControllerSpec extends WordSpec with Matchers {
       ctrl.board should be (new Board)
     }
   }
-  "boardToString" should {
-    "return a nice String representation of the board" in {
-      c.boardToString shouldBe a[String]
-    }
-  }
   "mapToBoard" should {
     "take a string and return a tuple of Ints" in {
       c.mapToBoard("a1") should be(0, 0)
