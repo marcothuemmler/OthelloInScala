@@ -64,8 +64,8 @@ class BoardSpec extends WordSpec with Matchers {
     }
   }
   "flip" should {
-    "set the value of the cell to new value" in {
-      board = board.flip((7, 7), 2)
+    "set the value of the square to new value" in {
+      board = board.flip(7, 7, 2)
       board.grid(7)(7) should be(Square(2))
     }
   }
@@ -78,7 +78,7 @@ class BoardSpec extends WordSpec with Matchers {
     }
   }
   "toString" should {
-    "return a nice String representation of the game" in {
+    "return a nice String representation of the board" in {
       board.toString shouldBe a[String]
     }
   }
