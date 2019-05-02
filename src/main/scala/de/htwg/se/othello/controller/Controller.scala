@@ -2,7 +2,7 @@ package de.htwg.se.othello.controller
 
 import de.htwg.se.othello.model.{Board, Player}
 import de.htwg.se.othello.util.Observable
-import scala.util.Random
+import scala.util.Random.nextInt
 
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
@@ -23,10 +23,6 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def mapToBoard(input: String): (Int, Int) = {
     (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
-  }
-
-  def mapOutput(square: (Int, Int)): String = {
-    (square._1 + 65).toChar.toString + (square._2 + 1)
   }
 
   def gameOver: Boolean = {
@@ -71,8 +67,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def botSet(): Unit = {
     if (!noMoves) {
-      val move = moves.toList(Random.nextInt(moves.keySet.size))
-      val square = move._2(Random.nextInt(move._2.size))
+      val move = moves.toList(nextInt(moves.keySet.size))
+      val square = move._2(nextInt(move._2.size))
       set(square)
     } else notifyObservers()
   }
@@ -103,8 +99,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def suggestions: String = {
     (for {
-      square <- moves.values.flatten.toSet.toList.sorted
-    } yield mapOutput(square)).mkString(" ")
+      (x, y) <- moves.values.flatten.toSet.toList.sorted
+    } yield (x + 65).toChar.toString + (y + 1)).mkString(" ")
   }
 
   def boardToString: String = {
@@ -121,12 +117,9 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def score: String = {
-    val player1 = player
-    switchPlayer()
-    val player2 = player
-    val count = board.countAll(player1.value, player2.value)
+    val count = board.countAll(p(0).value, p(1).value)
     val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
-    val winner = if (winCount == count._1) player1 else player2
+    val winner = if (winCount == count._1) p(0) else p(1)
     if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
     else f"Draw. $winCount:$loseCount"
   }

@@ -19,10 +19,6 @@ class Tui(controller: Controller) extends Observer {
           case col :: row :: Nil =>
             val square = controller.mapToBoard(col + row)
             controller.set(square)
-            if (controller.player.isInstanceOf[Bot] && !controller.gameOver) {
-              Thread.sleep(500)
-              controller.botSet()
-            }
           case _ =>
             println(s"Please try again. Valid moves: ${controller.suggestions}")
         }

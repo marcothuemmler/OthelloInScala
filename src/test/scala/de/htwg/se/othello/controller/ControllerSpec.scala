@@ -21,12 +21,6 @@ class ControllerSpec extends WordSpec with Matchers {
       c.mapToBoard("a1") should be(0, 0)
     }
   }
-  "mapOutput" should {
-    "take a tuple of Ints and return a String" in {
-      c.mapOutput(0, 0) should be("A1")
-      c.mapOutput(7, 7) should be("H8")
-    }
-  }
   "switchPlayer" should {
     "switch the player" in {
       c.switchPlayer()
