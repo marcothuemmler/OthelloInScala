@@ -15,13 +15,8 @@ object Othello {
   def main(args: Array[String]): Unit = {
     var input: String = ""
     do {
-      if (controller.player.isInstanceOf[Bot] && !controller.gameOver) {
-        Thread.sleep(500)
-        controller.botSet()
-      } else {
-        input = readLine
-        tui.processInputLine(input)
-      }
+      input = readLine
+      tui.processInputLine(input)
     } while (input != "q")
   }
 }

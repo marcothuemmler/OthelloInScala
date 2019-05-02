@@ -2,7 +2,7 @@ package de.htwg.se.othello.controller
 
 import de.htwg.se.othello.model.{Board, Player}
 import de.htwg.se.othello.util.Observable
-import scala.util.Random.nextInt
+import scala.util.Random
 
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
@@ -20,6 +20,22 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def switchPlayer(): Unit = player = if (player == p(0)) p(1) else p(0)
 
   def noMoves: Boolean = moves.isEmpty
+
+  def mapToBoard(input: String): (Int, Int) = {
+    (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
+  }
+
+  def mapOutput(square: (Int, Int)): String = {
+    (square._1 + 65).toChar.toString + (square._2 + 1)
+  }
+
+  def gameOver: Boolean = {
+    val a = moves.isEmpty
+    switchPlayer()
+    val b = moves.isEmpty
+    switchPlayer()
+    a && b
+  }
 
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
@@ -55,8 +71,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def botSet(): Unit = {
     if (!noMoves) {
-      val move = moves.toList(nextInt(moves.keySet.size))
-      val square = move._2(nextInt(move._2.size))
+      val move = moves.toList(Random.nextInt(moves.keySet.size))
+      val square = move._2(Random.nextInt(move._2.size))
       set(square)
     } else notifyObservers()
   }
@@ -79,36 +95,16 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def highlight(): Unit = {
     if (!board.isHighlighted) {
       for {
-        (x, y) <- moves.values.flatten
-      } board = board.highlight(x, y)
+        square <- moves.values.flatten
+      } board = board.highlight(square)
     } else board = board.deHighlight
     notifyObservers()
   }
 
-  def mapToBoard(input: String): (Int, Int) = {
-    (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
-  }
-
-  def gameOver: Boolean = {
-    val a = moves.isEmpty
-    switchPlayer()
-    val b = moves.isEmpty
-    switchPlayer()
-    a && b
-  }
-
   def suggestions: String = {
     (for {
-      (col, row) <- moves.values.flatten.toSet.toList.sorted
-    } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
-  }
-
-  def score: String = {
-    val count = board.countAll(p(0).value, p(1).value)
-    val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
-    val winner = if (winCount == count._1) p(0) else p(1)
-    if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
-    else f"Draw. $winCount:$loseCount"
+      square <- moves.values.flatten.toSet.toList.sorted
+    } yield mapOutput(square)).mkString(" ")
   }
 
   def boardToString: String = {
@@ -118,9 +114,20 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
       str + s"$player's turn.\n ${board.toString}"
     } else if (notLegal) {
       notLegal = false
-      s"Valid moves for $player: $suggestions\n${board.toString}"
+      s"Valid moves for $player: $suggestions\n ${board.toString}"
     } else if (gameOver) {
       board.toString + "\n" + score + "\n\nPress \"n\" for new game"
     } else board.toString
+  }
+
+  def score: String = {
+    val player1 = player
+    switchPlayer()
+    val player2 = player
+    val count = board.countAll(player1.value, player2.value)
+    val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
+    val winner = if (winCount == count._1) player1 else player2
+    if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
+    else f"Draw. $winCount:$loseCount"
   }
 }
