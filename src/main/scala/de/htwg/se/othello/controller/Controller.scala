@@ -19,8 +19,6 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def switchPlayer(): Unit = player = if (player == p(0)) p(1) else p(0)
 
-  def noMoves: Boolean = moves.isEmpty
-
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
       x <- 0 to 7
@@ -54,7 +52,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def setByOpp(x: Int, y: Int): Boolean = board.isSet(x, y) && !setByPl(x, y)
 
   def botSet(): Unit = {
-    if (!noMoves) {
+    if (moves.nonEmpty) {
       val move = moves.toList(nextInt(moves.keySet.size))
       val square = move._2(nextInt(move._2.size))
       set(square)
@@ -62,7 +60,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def set(square: (Int, Int)): Unit = {
-    if (!noMoves) {
+    if (moves.nonEmpty) {
       val legal = moves.filter(o => o._2.contains(square))
       if (legal.isEmpty) notLegal = true
       else {
@@ -112,7 +110,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def boardToString: String = {
-    if (noMoves && !gameOver) {
+    if (moves.isEmpty && !gameOver) {
       val str = s"No moves for $player. "
       switchPlayer()
       str + s"$player's turn.\n ${board.toString}"
