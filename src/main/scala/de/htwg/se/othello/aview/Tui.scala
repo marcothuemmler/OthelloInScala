@@ -1,6 +1,7 @@
 package de.htwg.se.othello.aview
 
 import de.htwg.se.othello.controller.Controller
+import de.htwg.se.othello.model.Bot
 import de.htwg.se.othello.util.Observer
 
 class Tui(controller: Controller) extends Observer {
