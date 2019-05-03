@@ -7,7 +7,7 @@ import scala.io.StdIn.readLine
 
 object Othello {
 
-  val players: Vector[Player] = Vector(new Player(1), new Bot(2))
+  val players: Vector[Player] = Vector(new Bot(1), new Bot(2))
   val controller = new Controller(players)
   val tui = new Tui(controller)
   controller.notifyObservers()
