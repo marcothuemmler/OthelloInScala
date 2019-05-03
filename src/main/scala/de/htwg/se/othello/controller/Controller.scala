@@ -19,7 +19,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
 
- // def currentPlyer: Player = if (moves.isEmpty || player == p(0)) p(1) else p(0)
+ //   def currentPlyer: Player = if (moves.isEmpty || player == p(0)) p(1) else p(0)
 
   def set(square: (Int, Int)): Unit = {
     if (moves.nonEmpty) {
