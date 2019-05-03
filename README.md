@@ -4,7 +4,7 @@ Othello game for Software Engineering lecture at University of applied science C
 
 <br/>
 
-![Alt text](resources/screenshot.png?raw=true)
+<p align="center"><img src="resources/screenshot.png?raw=true" /> </p>
 
 
 **Object of the Game**
