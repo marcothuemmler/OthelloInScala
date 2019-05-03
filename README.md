@@ -4,9 +4,8 @@ Othello game for Software Engineering lecture at University of applied science C
 
 <br/>
 
-<p align="justify">
 ![Alt text](resources/screenshot.png?raw=true)
-</p>
+
 
 **Object of the Game**
 
