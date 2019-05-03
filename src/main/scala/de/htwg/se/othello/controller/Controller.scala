@@ -17,7 +17,29 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     notifyObservers()
   }
 
-  def switchPlayer(): Unit = player = if (player == p(0)) p(1) else p(0)
+  def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
+
+  def set(square: (Int, Int)): Unit = {
+    if (moves.nonEmpty) {
+      val legal = moves.filter(o => o._2.contains(square))
+      if (legal.isEmpty) notLegal = true
+      else {
+        for {
+          disk <- legal.keys
+        } board = board.flipLine(square, disk, player.value)
+        board = board.deHighlight
+        player = switchPlayer
+      }
+    }
+    notifyObservers()
+  }
+
+  def highlight(): Unit = {
+    if (!board.isHighlighted) {
+      for { (x, y) <- moves.values.flatten } board = board.highlight(x, y)
+    } else board = board.deHighlight
+    notifyObservers()
+  }
 
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
@@ -51,47 +73,15 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def setByOpp(x: Int, y: Int): Boolean = board.isSet(x, y) && !setByPl(x, y)
 
-  def botSet(): Unit = {
-    if (moves.nonEmpty) {
-      val move = moves.toList(nextInt(moves.keySet.size))
-      val square = move._2(nextInt(move._2.size))
-      set(square)
-    } else notifyObservers()
-  }
-
-  def set(square: (Int, Int)): Unit = {
-    if (moves.nonEmpty) {
-      val legal = moves.filter(o => o._2.contains(square))
-      if (legal.isEmpty) notLegal = true
-      else {
-        for {
-          disk <- legal.keys
-        } board = board.flipLine(square, disk, player.value)
-        board = board.deHighlight
-        switchPlayer()
-      }
-    }
-    notifyObservers()
-  }
-
-  def highlight(): Unit = {
-    if (!board.isHighlighted) {
-      for {
-        (x, y) <- moves.values.flatten
-      } board = board.highlight(x, y)
-    } else board = board.deHighlight
-    notifyObservers()
-  }
-
   def mapToBoard(input: String): (Int, Int) = {
     (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
   }
 
   def gameOver: Boolean = {
     val a = moves.isEmpty
-    switchPlayer()
+    player = switchPlayer
     val b = moves.isEmpty
-    switchPlayer()
+    player = switchPlayer
     a && b
   }
 
@@ -99,6 +89,16 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     (for {
       (col, row) <- moves.values.flatten.toSet.toList.sorted
     } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
+  }
+
+  def select: Option[String] = {
+    try {
+      val move = moves.toList(nextInt(moves.keySet.size))
+      val (col, row) = move._2(nextInt(move._2.size))
+      Some((col + 65).toChar.toString + (row + 1))
+    } catch {
+      case _: IllegalArgumentException => None
+    }
   }
 
   def score: String = {
@@ -112,7 +112,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def boardToString: String = {
     if (moves.isEmpty && !gameOver) {
       val str = s"No moves for $player. "
-      switchPlayer()
+      player = switchPlayer
       str + s"$player's turn.\n ${board.toString}"
     } else if (notLegal) {
       notLegal = false

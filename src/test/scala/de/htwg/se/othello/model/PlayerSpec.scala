@@ -14,7 +14,7 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "A Player without name parameter" should {
     "have a default name" in {
-      p.toString should be("Player2")
+      p.toString should be("White")
     }
   }
 }

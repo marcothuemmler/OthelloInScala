@@ -1,6 +1,6 @@
 package de.htwg.se.othello.controller
 
-import de.htwg.se.othello.model.{Board, Player}
+import de.htwg.se.othello.model.{Board, Bot, Player}
 import org.scalatest.{Matchers, WordSpec}
 
 class ControllerSpec extends WordSpec with Matchers {
@@ -20,8 +20,7 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "switchPlayer" should {
     "switch the player" in {
-      c.switchPlayer()
-      c.player should be(c.p(1))
+      c.switchPlayer should be(c.p(1))
     }
   }
   "setByOpp" should {
@@ -97,8 +96,8 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board = c.board.flip(0, 0,1)
       c.board = c.board.flip(0, 1,2)
       c.player = c.p(1)
-      c.boardToString shouldBe a[String]
-      c.newGame()
+      c.boardToString should be (f"No moves for ${c.p(1)}. ${c.p(0)}'s turn." +
+        f"\n ${c.board.toString}")
     }
     "show the board and ask for new game if the game is over" in {
       for (i <- 0 to 7) {
@@ -123,23 +122,20 @@ class ControllerSpec extends WordSpec with Matchers {
     "declare the winner if the amount of tiles is not equal" in {
       c.newGame()
       c.set(2,3)
-      c.score should be ("Player1 wins by 4:1!")
+      c.score should be ("Black wins by 4:1!")
     }
   }
-  "botSet" should {
-    "select a random valid square and set a disk there" in {
-      c.newGame()
-      val board = c.board
-      c.botSet()
-      board should not equal c.board
+
+  "select" should {
+    "select a random valid move and convert it to String" in {
+      c.select.get should fullyMatch regex "[A-H][1-8]".r
     }
-    "not do anything but notifyObservers if there are no legal moves" in {
+    "be None if there are no moves" in {
       c.newGame()
-      c.board = c.board.flip(4,3,2)
-      c.board = c.board.flip(3,4,2)
-      val board = c.board
-      c.botSet()
-      board should equal(c.board)
+      c.p = Vector(new Bot(1), new Bot(2))
+      c.board = c.board.flip(3, 3,1)
+      c.board = c.board.flip(4, 4,1)
+      c.select should be (None)
     }
   }
 }

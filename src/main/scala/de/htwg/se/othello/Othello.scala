@@ -17,11 +17,14 @@ object Othello {
     do {
       if (controller.player.isInstanceOf[Bot] && !controller.gameOver) {
         Thread.sleep(500)
-        controller.botSet()
+        controller.select match {
+          case Some(square) => input = square
+          case _ =>
+        }
       } else {
         input = readLine
-        tui.processInputLine(input)
       }
+      tui.processInputLine(input)
     } while (input != "q")
   }
 }
