@@ -18,23 +18,16 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     notifyObservers()
   }
 
-  def test(square: (Int, Int)): Unit = {
+  def setAndSwitch(square: (Int, Int)): Unit = {
     set(square)
-    if (player.isInstanceOf[Bot]) {
+    if (player.isInstanceOf[Bot] && !gameOver && select.nonEmpty) {
       Thread.sleep(500)
-      select match {
-        case Some(selection) =>
-          val nextSquare = mapToBoard(selection)
-          test(nextSquare)
-        case _ => notifyObservers()
-      }
-
+      val (col, row) = mapToBoard(select.get)
+      setAndSwitch(col, row)
     }
   }
 
   def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
-
- //   def currentPlyer: Player = if (moves.isEmpty || player == p(0)) p(1) else p(0)
 
   def set(square: (Int, Int)): Unit = {
     if (moves.nonEmpty) {

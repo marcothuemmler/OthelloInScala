@@ -1,6 +1,7 @@
 package de.htwg.se.othello.controller
 
-import de.htwg.se.othello.model.{Board, Bot, Player}
+import de.htwg.se.othello.aview.Tui
+import de.htwg.se.othello.model.{Board, Bot, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 
 class ControllerSpec extends WordSpec with Matchers {
@@ -113,6 +114,10 @@ class ControllerSpec extends WordSpec with Matchers {
         s"${c.suggestions}\n${c.board.toString}")
       c.newGame()
     }
+    "print just the current board if nothing special happened" in {
+      c.newGame()
+      c.boardToString should equal (c.board.toString)
+    }
   }
   "score" should {
     "be a draw if the amount of tiles is equal" in {
@@ -136,6 +141,30 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board = c.board.flip(3, 3,1)
       c.board = c.board.flip(4, 4,1)
       c.select should be (None)
+    }
+  }
+  "set" should {
+    "set a square and skip the opponent as long as he doesn't have legal moves" in {
+      val players: Vector[Player] = Vector(new Player(1), new Bot(2))
+      val controller = new Controller(players)
+      val tui = new Tui(controller)  // Yes it is used. If only implicitly
+      controller.board = Board(Vector.tabulate(8, 8)((i, j) => {
+        if (j == 7 || (j == 6 && i == 0)) Square(1) else Square(0)
+      }))
+      controller.board = controller.board.flipLine((1, 4), (1, 6), 2)
+      controller.board = controller.board.flipLine((2, 5), (2, 6), 2)
+      controller.board = controller.board.flip(3,6,2)
+      controller.setAndSwitch(0,5)
+      controller.setAndSwitch(0,4)
+      controller.setAndSwitch(0,3)
+      controller.board.grid.flatten.count(s => s == Square(2)) should be (0)
+      tui.update()
+    }
+    "set a square and if the next player is a bot let it make a legal move" in {
+      val players: Vector[Player] = Vector(new Player(1), new Bot(2))
+      val controller = new Controller(players)
+      controller.setAndSwitch(2, 3)
+      controller.board.grid.flatten.count(s => s == Square(2)) should not be 0
     }
   }
 }
