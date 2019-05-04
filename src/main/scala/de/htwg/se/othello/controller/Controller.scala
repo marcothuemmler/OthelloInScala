@@ -15,6 +15,10 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def newGame(): Unit = {
     board = new Board
     player = p(0)
+    /*if (player.isInstanceOf[Bot]) {
+      val square = mapToBoard(select.get)
+      setAndSwitch(square)
+    }*/
     notifyObservers()
   }
 
