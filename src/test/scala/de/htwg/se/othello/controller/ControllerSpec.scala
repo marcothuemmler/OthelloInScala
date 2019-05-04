@@ -14,6 +14,19 @@ class ControllerSpec extends WordSpec with Matchers {
       ctrl.board should be (new Board)
     }
   }
+  "newGame" should {
+    "reset the board" in {
+      c.newGame()
+      c.board should be (new Board())
+      c.player should be (c.p(0))
+    }
+    "reset the board and make the first move if the first player ist a Bot" in {
+      val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
+      ctrl.newGame()
+      ctrl.board should not equal new Board()
+      ctrl.player should not be ctrl.p(0)
+    }
+  }
   "mapToBoard" should {
     "take a string and return a tuple of Ints" in {
       c.mapToBoard("a1") should be(0, 0)

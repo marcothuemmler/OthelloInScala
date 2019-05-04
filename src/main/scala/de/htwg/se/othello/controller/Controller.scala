@@ -15,23 +15,22 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def newGame(): Unit = {
     board = new Board
     player = p(0)
-    /*if (player.isInstanceOf[Bot]) {
+    if (player.isInstanceOf[Bot]) {
       val square = mapToBoard(select.get)
       setAndSwitch(square)
-    }*/
-    notifyObservers()
-  }
-
-  def setAndSwitch(square: (Int, Int)): Unit = {
-    set(square)
-    if (player.isInstanceOf[Bot] && !gameOver && select.nonEmpty) {
-      Thread.sleep(500)
-      val (col, row) = mapToBoard(select.get)
-      setAndSwitch(col, row)
     }
   }
 
   def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
+
+  def setAndSwitch(square: (Int, Int)): Unit = {
+    set(square)
+    if (player.isInstanceOf[Bot] && select.isDefined) {
+      Thread.sleep(0)
+      val (col, row) = mapToBoard(select.get)
+      setAndSwitch(col, row)
+    }
+  }
 
   def set(square: (Int, Int)): Unit = {
     if (moves.nonEmpty) {
