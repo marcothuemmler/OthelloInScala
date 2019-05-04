@@ -1,7 +1,8 @@
 package de.htwg.se.othello.controller
 
-import de.htwg.se.othello.model.{Board, Player}
+import de.htwg.se.othello.model.{Board, Bot, Player}
 import de.htwg.se.othello.util.Observable
+
 import scala.util.Random.nextInt
 
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
@@ -15,6 +16,20 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     board = new Board
     player = p(0)
     notifyObservers()
+  }
+
+  def test(square: (Int, Int)): Unit = {
+    set(square)
+    if (player.isInstanceOf[Bot]) {
+      Thread.sleep(500)
+      select match {
+        case Some(selection) =>
+          val nextSquare = mapToBoard(selection)
+          test(nextSquare)
+        case _ => notifyObservers()
+      }
+
+    }
   }
 
   def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
