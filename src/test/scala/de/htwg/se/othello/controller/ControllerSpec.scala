@@ -27,6 +27,23 @@ class ControllerSpec extends WordSpec with Matchers {
       ctrl.player should not be ctrl.p(0)
     }
   }
+  "set" should {
+    "set one and flip at least one disk" in {
+      c.newGame()
+      c.set(2, 3)
+      c.board.countAll(1,2) should be (4 ,1)
+    }
+  }
+  "setupPlayers" should {
+    "setup the amount of human players" in {
+      c.setupPlayers(0)
+      c.p.count(o => o.isInstanceOf[Bot]) should be (2)
+      c.setupPlayers(1)
+      c.p.count(o => o.isInstanceOf[Bot]) should be (1)
+      c.setupPlayers(2)
+      c.p.count(o => o.isInstanceOf[Bot]) should be (0)
+    }
+  }
   "mapToBoard" should {
     "take a string and return a tuple of Ints" in {
       c.mapToBoard("a1") should be(0, 0)
@@ -156,11 +173,12 @@ class ControllerSpec extends WordSpec with Matchers {
       c.select should be (None)
     }
   }
-  "set" should {
-    "set a square and skip the opponent as long as he doesn't have legal moves" in {
+  "setAndSwitch" should {
+    "set a square and skip the opponent as long as he can't make legal moves" in {
       val players: Vector[Player] = Vector(new Player(1), new Bot(2))
       val controller = new Controller(players)
-      val tui = new Tui(controller)  // Yes it is used. If only implicitly
+      val tui = new Tui(controller)
+      tui.update()
       controller.board = Board(Vector.tabulate(8, 8)((i, j) => {
         if (j == 7 || (j == 6 && i == 0)) Square(1) else Square(0)
       }))
@@ -171,13 +189,12 @@ class ControllerSpec extends WordSpec with Matchers {
       controller.setAndSwitch(0,4)
       controller.setAndSwitch(0,3)
       controller.board.grid.flatten.count(s => s == Square(2)) should be (0)
-      tui.update()
     }
     "set a square and if the next player is a bot let it make a legal move" in {
       val players: Vector[Player] = Vector(new Player(1), new Bot(2))
       val controller = new Controller(players)
       controller.setAndSwitch(2, 3)
-      controller.board.grid.flatten.count(s => s == Square(2)) should not be 0
+      controller.board.grid.flatten.count(s => s == Square(2)) should not be 1
     }
   }
 }

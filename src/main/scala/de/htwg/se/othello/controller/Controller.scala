@@ -10,12 +10,25 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   var player: Player = p(0)
   var notLegal: Boolean = false
 
+  def setupPlayers(playerCount: Int): Unit = {
+    playerCount match {
+      case 0 =>
+        p = Vector(new Bot(1), new Bot(2))
+      case 1 =>
+        p = Vector(new Player(1), new Bot(2))
+      case 2 =>
+        p = Vector(new Player(1), new Player(2))
+    }
+  }
+
   def this(p: Vector[Player]) = this(new Board, p)
 
   def newGame(): Unit = {
     board = new Board
     player = p(0)
+    notifyObservers()
     if (player.isInstanceOf[Bot]) {
+      Thread.sleep(500)
       val square = mapToBoard(select.get)
       setAndSwitch(square)
     }
@@ -24,27 +37,32 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
 
   def setAndSwitch(square: (Int, Int)): Unit = {
-    set(square)
-    if (player.isInstanceOf[Bot] && select.isDefined) {
-      Thread.sleep(0)
-      val (col, row) = mapToBoard(select.get)
-      setAndSwitch(col, row)
+    if (moves.nonEmpty) {
+      set(square)
+      player = switchPlayer
+    }
+    notifyObservers()
+    if (player.isInstanceOf[Bot]) {
+      Thread.sleep(500)
+      select match {
+        case Some(selection) =>
+          val (col, row) = mapToBoard(selection)
+          println(s"$player sets $selection")
+          setAndSwitch(col, row)
+        case None =>
+      }
     }
   }
 
-  def set(square: (Int, Int)): Unit = {
-    if (moves.nonEmpty) {
-      val legal = moves.filter(o => o._2.contains(square))
-      if (legal.isEmpty) notLegal = true
-      else {
-        for {
-          disk <- legal.keys
-        } board = board.flipLine(square, disk, player.value)
-        board = board.deHighlight
-        player = switchPlayer
-      }
+  def set(toSquare: (Int, Int)): Unit = {
+    val legal = moves.filter(o => o._2.contains(toSquare))
+    if (legal.isEmpty) notLegal = true
+    else {
+      for {
+        fromSquare <- legal.keys
+      } board = board.flipLine(fromSquare, toSquare, player.value)
+      board = board.deHighlight
     }
-    notifyObservers()
   }
 
   def highlight(): Unit = {
@@ -56,16 +74,16 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
-      x <- 0 to 7
-      y <- 0 to 7 if setByPl(x, y)
-    } yield getMoves(x, y)).filter(o => o._2.nonEmpty).toMap
+      col <- 0 to 7
+      row <- 0 to 7 if setByPl(col, row)
+    } yield getMoves(col, row)).filter(o => o._2.nonEmpty).toMap
   }
 
-  def getMoves(x: Int, y: Int): ((Int, Int), Seq[(Int, Int)]) = {
-    ((x, y), (for {
+  def getMoves(col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
+    ((col, row), (for {
       i <- -1 to 1
       j <- -1 to 1 if !(i == 0 && j == 0)
-    } yield check(x, y, (i, j))).filter(o => o != (-1, -1)))
+    } yield check(col, row, (i, j))).filter(o => o != (-1, -1)))
   }
 
   def check(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
@@ -123,15 +141,15 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def boardToString: String = {
-    if (moves.isEmpty && !gameOver) {
+    if (gameOver) {
+      s"${board.toString}\n$score\n\nPress " + "\"n\" for new game"
+    } else if (moves.isEmpty) {
       val str = s"No moves for $player. "
       player = switchPlayer
-      str + s"$player's turn.\n ${board.toString}"
+      s"$str$player's turn.\n ${board.toString}"
     } else if (notLegal) {
       notLegal = false
       s"Valid moves for $player: $suggestions\n${board.toString}"
-    } else if (gameOver) {
-      board.toString + "\n" + score + "\n\nPress \"n\" for new game"
     } else board.toString
   }
 }
