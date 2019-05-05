@@ -33,6 +33,11 @@ class ControllerSpec extends WordSpec with Matchers {
       c.set(2, 3)
       c.board.countAll(1,2) should be (4 ,1)
     }
+    "not set any disk if the input is incorrect" in {
+      c.newGame()
+      c.set(0, 0)
+      c.board.countAll(1,2) should be (2 ,2)
+    }
   }
   "setupPlayers" should {
     "setup the amount of human players" in {
