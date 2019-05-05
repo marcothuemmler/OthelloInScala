@@ -10,6 +10,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   var player: Player = p(0)
   var notLegal: Boolean = false
 
+  def this(p: Vector[Player]) = this(new Board, p)
+
   def setupPlayers(playerCount: Int): Unit = {
     playerCount match {
       case 0 =>
@@ -20,8 +22,6 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
         p = Vector(new Player(1), new Player(2))
     }
   }
-
-  def this(p: Vector[Player]) = this(new Board, p)
 
   def newGame(): Unit = {
     board = new Board

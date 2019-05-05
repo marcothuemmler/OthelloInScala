@@ -160,7 +160,6 @@ class ControllerSpec extends WordSpec with Matchers {
       c.score should be ("Black wins by 4:1!")
     }
   }
-
   "select" should {
     "select a random valid move and convert it to String" in {
       c.select.get should fullyMatch regex "[A-H][1-8]".r
@@ -195,6 +194,19 @@ class ControllerSpec extends WordSpec with Matchers {
       val controller = new Controller(players)
       controller.setAndSwitch(2, 3)
       controller.board.grid.flatten.count(s => s == Square(2)) should not be 1
+    }
+    "just switch and notifyObservers if no legal move exists" in {
+      c.p = Vector(new Player(1), new Player(2))
+      c.newGame()
+      c.board = Board(Vector.tabulate(8, 8)((_, j) => {
+        if (j == 7) Square(2) else Square(0)
+      }))
+      c.board = c.board.flip(0,6,1)
+      val cTui = new Tui(c)
+      cTui.processInputLine("q")
+      val oldBoard = c.board
+      c.setAndSwitch(0,5)
+      c.board should equal (oldBoard)
     }
   }
 }
