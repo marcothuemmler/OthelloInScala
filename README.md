@@ -1,4 +1,8 @@
-[![Build Status](https://travis-ci.org/marcothuemmler/de.htwg.se.OthelloInScala.svg?branch=master)](https://travis-ci.org/marcothuemmler/de.htwg.se.OthelloInScala)[![Coverage Status](https://coveralls.io/repos/github/marcothuemmler/de.htwg.se.OthelloInScala/badge.svg?branch=master)](https://coveralls.io/github/marcothuemmler/de.htwg.se.OthelloInScala?branch=master)![GitHub top language](https://img.shields.io/github/languages/top/marcothuemmler/OthelloInScala.svg?color=RED)![awesome](https://img.shields.io/static/v1.svg?label=cool&message=110.0%&color=BLUE)![GitHub](https://img.shields.io/github/license/marcothuemmler/OthelloInScala.svg)
+[![Build Status](https://travis-ci.org/marcothuemmler/de.htwg.se.OthelloInScala.svg?branch=master)](https://travis-ci.org/marcothuemmler/de.htwg.se.OthelloInScala)
+[![Coverage Status](https://coveralls.io/repos/github/marcothuemmler/de.htwg.se.OthelloInScala/badge.svg)](https://coveralls.io/github/marcothuemmler/de.htwg.se.OthelloInScala?branch=master)
+![GitHub top language](https://img.shields.io/github/languages/top/marcothuemmler/OthelloInScala.svg?color=RED)
+![awesome](https://img.shields.io/static/v1.svg?label=cool&message=110.0%&color=BLUE)
+![GitHub](https://img.shields.io/github/license/marcothuemmler/OthelloInScala.svg)
 <h1 align="center">OthelloInScala</h1>
 <p align="center">Othello game project for Software Engineering lecture at Constance University of applied sciences</p>
 
