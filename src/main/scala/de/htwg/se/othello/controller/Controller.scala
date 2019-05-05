@@ -12,13 +12,13 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def this(p: Vector[Player]) = this(new Board, p)
 
-  def setupPlayers(playerCount: Int): Unit = {
+  def setupPlayers(playerCount: String): Unit = {
     playerCount match {
-      case 0 =>
+      case "0" =>
         p = Vector(new Bot(1), new Bot(2))
-      case 1 =>
+      case "1" =>
         p = Vector(new Player(1), new Bot(2))
-      case 2 =>
+      case "2" =>
         p = Vector(new Player(1), new Player(2))
     }
   }
@@ -37,10 +37,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
 
   def setAndSwitch(square: (Int, Int)): Unit = {
-    if (moves.nonEmpty) {
-      set(square)
-      player = switchPlayer
-    }
+    set(square)
+    if (!notLegal) player = switchPlayer
     notifyObservers()
     if (player.isInstanceOf[Bot]) {
       Thread.sleep(500)
@@ -55,14 +53,14 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def set(toSquare: (Int, Int)): Unit = {
-    val legal = moves.filter(o => o._2.contains(toSquare))
-    if (legal.isEmpty) notLegal = true
-    else {
-      for {
-        fromSquare <- legal.keys
-      } board = board.flipLine(fromSquare, toSquare, player.value)
-      board = board.deHighlight
-    }
+      val legal = moves.filter(o => o._2.contains(toSquare))
+      if (legal.isEmpty) notLegal = true
+      else {
+        for {
+          fromSquare <- legal.keys
+        } board = board.flipLine(fromSquare, toSquare, player.value)
+        board = board.deHighlight
+      }
   }
 
   def highlight(): Unit = {

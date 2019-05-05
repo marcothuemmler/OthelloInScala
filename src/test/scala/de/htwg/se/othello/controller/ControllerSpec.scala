@@ -28,7 +28,7 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "set" should {
-    "set one and flip at least one disk" in {
+    "set one disk and flip at least one of the opponents disks" in {
       c.newGame()
       c.set(2, 3)
       c.board.countAll(1,2) should be (4 ,1)
@@ -36,16 +36,16 @@ class ControllerSpec extends WordSpec with Matchers {
     "not set any disk if the input is incorrect" in {
       c.newGame()
       c.set(0, 0)
-      c.board.countAll(1,2) should be (2 ,2)
+      c.board should equal (new Board)
     }
   }
   "setupPlayers" should {
     "setup the amount of human players" in {
-      c.setupPlayers(0)
+      c.setupPlayers("0")
       c.p.count(o => o.isInstanceOf[Bot]) should be (2)
-      c.setupPlayers(1)
+      c.setupPlayers("1")
       c.p.count(o => o.isInstanceOf[Bot]) should be (1)
-      c.setupPlayers(2)
+      c.setupPlayers("2")
       c.p.count(o => o.isInstanceOf[Bot]) should be (0)
     }
   }
@@ -90,9 +90,7 @@ class ControllerSpec extends WordSpec with Matchers {
         Map((3, 4) -> Seq((3, 2), (5, 4)), (4, 3) -> Seq((2, 3), (4, 5))))
     }
     "be empty if there are no valid moves" in {
-      for (i <- 0 to 7) {
-        c.board = c.board.flipLine((i, 0), (i, 7), 0)
-      }
+      c.board = Board(Vector.fill(8,8)(Square(0)))
       c.moves should be(Map())
       c.board = new Board
     }
