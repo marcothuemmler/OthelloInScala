@@ -208,8 +208,14 @@ class ControllerSpec extends WordSpec with Matchers {
       val cTui = new Tui(c)
       cTui.processInputLine("q")
       val oldBoard = c.board
-      c.setAndSwitch(0,5)
+      c.setAndSwitch(0, 5)
       c.board should equal (oldBoard)
+    }
+    "take the input and let the player try again if the input was invalid" in {
+      c.p = Vector(new Player(1), new Player(2))
+      c.newGame()
+      c.setAndSwitch(0,0)
+      c.player should be (c.p(0))
     }
   }
 }
