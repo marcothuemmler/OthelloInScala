@@ -8,18 +8,15 @@ import scala.util.Random.nextInt
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   var player: Player = p(0)
-  var notLegal: Boolean = false
+  var moveIsLegal: Boolean = true
 
   def this(p: Vector[Player]) = this(new Board, p)
 
-  def setupPlayers(playerCount: String): Unit = {
-    playerCount match {
-      case "0" =>
-        p = Vector(new Bot(1), new Bot(2))
-      case "1" =>
-        p = Vector(new Player(1), new Bot(2))
-      case "2" =>
-        p = Vector(new Player(1), new Player(2))
+  def setupPlayers(number: String): Unit = {
+    number match {
+      case "0" => p = Vector(new Bot(1), new Bot(2))
+      case "1" => p = Vector(new Player(1), new Bot(2))
+      case "2" => p = Vector(new Player(1), new Player(2))
     }
   }
 
@@ -28,44 +25,42 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     player = p(0)
     notifyObservers()
     if (player.isInstanceOf[Bot]) {
-      Thread.sleep(500)
       val square = mapToBoard(select.get)
-      setAndSwitch(square)
+      setAndNext(square)
     }
   }
 
-  def switchPlayer: Player = if (player == p(0)) p(1) else p(0)
+  def nextPlayer: Player = if (player == p(0)) p(1) else p(0)
 
-  def setAndSwitch(square: (Int, Int)): Unit = {
+  def setAndNext(square: (Int, Int)): Unit = {
     set(square)
-    if (!notLegal) player = switchPlayer
+    if (moveIsLegal) player = nextPlayer
     notifyObservers()
     if (player.isInstanceOf[Bot]) {
       Thread.sleep(500)
       select match {
         case Some(selection) =>
           val (col, row) = mapToBoard(selection)
-          println(s"$player sets $selection")
-          setAndSwitch(col, row)
+          setAndNext(col, row)
         case None =>
       }
     }
   }
 
   def set(toSquare: (Int, Int)): Unit = {
-      val legal = moves.filter(o => o._2.contains(toSquare))
-      if (legal.isEmpty) notLegal = true
-      else {
-        for {
-          fromSquare <- legal.keys
-        } board = board.flipLine(fromSquare, toSquare, player.value)
-        board = board.deHighlight
-      }
+    val legal = moves.filter(o => o._2.contains(toSquare))
+    moveIsLegal = legal.nonEmpty
+    for {
+      fromSquare <- legal.keys
+    } board = board.flipLine(fromSquare, toSquare, player.value)
+    board = board.deHighlight
   }
 
   def highlight(): Unit = {
     if (!board.isHighlighted) {
-      for { (x, y) <- moves.values.flatten } board = board.highlight(x, y)
+      for {
+        (col, row) <- moves.values.flatten
+      } board = board.highlight(col, row)
     } else board = board.deHighlight
     notifyObservers()
   }
@@ -80,15 +75,15 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def getMoves(col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
     ((col, row), (for {
       i <- -1 to 1
-      j <- -1 to 1 if !(i == 0 && j == 0)
-    } yield check(col, row, (i, j))).filter(o => o != (-1, -1)))
+      j <- -1 to 1
+      direction = (i, j)
+    } yield check(col, row, direction)).filter(o => o != (-1, -1)))
   }
 
   def check(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val (nX, nY) = (x + direction._1, y + direction._2)
-    if (nX > -1 && nX < 8 && nY > -1 && nY < 8 && setByOpp(nX, nY)) {
-      checkRecursive(nX, nY, direction)
-    } else (-1, -1)
+    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || !setByOpp(nX, nY)) (-1, -1)
+    else checkRecursive(nX, nY, direction)
   }
 
   def checkRecursive(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
@@ -108,14 +103,14 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def gameOver: Boolean = {
     val a = moves.isEmpty
-    player = switchPlayer
+    player = nextPlayer
     val b = moves.isEmpty
-    player = switchPlayer
+    player = nextPlayer
     a && b
   }
 
   def suggestions: String = {
-    (for {
+    s"Valid moves for $player: " + (for {
       (col, row) <- moves.values.flatten.toSet.toList.sorted
     } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
@@ -131,23 +126,23 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def score: String = {
-    val count = board.countAll(p(0).value, p(1).value)
+    val count = board.countAll
     val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
     val winner = if (winCount == count._1) p(0) else p(1)
     if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
     else f"Draw. $winCount:$loseCount"
   }
 
-  def boardToString: String = {
+  def status: String = {
     if (gameOver) {
       s"${board.toString}\n$score\n\nPress " + "\"n\" for new game"
     } else if (moves.isEmpty) {
-      val str = s"No moves for $player. "
-      player = switchPlayer
-      s"$str$player's turn.\n ${board.toString}"
-    } else if (notLegal) {
-      notLegal = false
-      s"Valid moves for $player: $suggestions\n${board.toString}"
+      val previousPlayer = player
+      player = nextPlayer
+      s"No valid moves for $previousPlayer. $player's turn.\n ${board.toString}"
+    } else if (!moveIsLegal) {
+      moveIsLegal = true
+      s"$suggestions\n${board.toString}"
     } else board.toString
   }
 }

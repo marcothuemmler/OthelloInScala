@@ -11,14 +11,14 @@ class ControllerSpec extends WordSpec with Matchers {
   "A controller created without board parameter" should {
     "have a default board" in {
       val ctrl = new Controller(players)
-      ctrl.board should be (new Board)
+      ctrl.board should be(new Board)
     }
   }
   "newGame" should {
     "reset the board" in {
       c.newGame()
-      c.board should be (new Board())
-      c.player should be (c.p(0))
+      c.board should be(new Board())
+      c.player should be(c.p(0))
     }
     "reset the board and make the first move if the first player ist a Bot" in {
       val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
@@ -31,22 +31,22 @@ class ControllerSpec extends WordSpec with Matchers {
     "set one disk and flip at least one of the opponents disks" in {
       c.newGame()
       c.set(2, 3)
-      c.board.countAll(1,2) should be (4 ,1)
+      c.board.countAll should be(4, 1)
     }
-    "not set any disk if the input is incorrect" in {
+    "not change any square on the board if the input is incorrect" in {
       c.newGame()
       c.set(0, 0)
-      c.board should equal (new Board)
+      c.board should equal(new Board)
     }
   }
   "setupPlayers" should {
     "setup the amount of human players" in {
       c.setupPlayers("0")
-      c.p.count(o => o.isInstanceOf[Bot]) should be (2)
+      c.p.count(o => o.isInstanceOf[Bot]) should be(2)
       c.setupPlayers("1")
-      c.p.count(o => o.isInstanceOf[Bot]) should be (1)
+      c.p.count(o => o.isInstanceOf[Bot]) should be(1)
       c.setupPlayers("2")
-      c.p.count(o => o.isInstanceOf[Bot]) should be (0)
+      c.p.count(o => o.isInstanceOf[Bot]) should be(0)
     }
   }
   "mapToBoard" should {
@@ -56,12 +56,11 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "switchPlayer" should {
     "switch the player" in {
-      c.switchPlayer should be(c.p(1))
+      c.nextPlayer should be(c.p(1))
     }
   }
   "setByOpp" should {
     "be true if set by opponent" in {
-      c.newGame()
       c.setByOpp(4, 4) should be(true)
     }
     "be false if not set" in {
@@ -73,7 +72,6 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "setByPl" should {
     "be false if set by opponent" in {
-      c.newGame()
       c.setByPl(4, 4) should be(false)
     }
     "be false if not set" in {
@@ -87,10 +85,11 @@ class ControllerSpec extends WordSpec with Matchers {
     "not be empty if there are valid moves" in {
       c.newGame()
       c.moves should be(
-        Map((3, 4) -> Seq((3, 2), (5, 4)), (4, 3) -> Seq((2, 3), (4, 5))))
+        Map((3, 4) -> Seq((3, 2), (5, 4)), (4, 3) -> Seq((2, 3), (4, 5)))
+      )
     }
     "be empty if there are no valid moves" in {
-      c.board = Board(Vector.fill(8,8)(Square(0)))
+      c.board = Board(Vector.fill(8, 8)(Square(0)))
       c.moves should be(Map())
       c.board = new Board
     }
@@ -98,11 +97,11 @@ class ControllerSpec extends WordSpec with Matchers {
   "highlight " should {
     "highlight settable squares" in {
       c.highlight()
-      c.board.isHighlighted should be (true)
+      c.board.isHighlighted should be(true)
     }
     "de-highlight settable squares" in {
       c.highlight()
-      c.board.isHighlighted should be (false)
+      c.board.isHighlighted should be(false)
     }
   }
   "getMoves" should {
@@ -111,10 +110,10 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "return the checked square and a list with possible moves" in {
       c.player = c.p(0)
-      c.getMoves(4, 3) should be(((4, 3), Vector((2, 3),(4, 5))))
+      c.getMoves(4, 3) should be(((4, 3), Vector((2, 3), (4, 5))))
     }
   }
-  "checkRec" should {
+  "checkRecursive" should {
     "return a tuple with values between 0 and 7 if there is a valid move" in {
       c.checkRecursive(3, 4, (1, 0)) should be(5, 4)
     }
@@ -123,44 +122,43 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "boardToString" should {
-    "be a string if there are no Moves bout the game is not over" in {
+    "be a string if there are no Moves but the game is not over" in {
       for (i <- 0 to 7) {
         c.board = c.board.flipLine((i, 0), (i, 7), 0)
       }
-      c.board = c.board.flip(0, 0,1)
-      c.board = c.board.flip(0, 1,2)
+      c.board = c.board.flip(0, 0, 1)
+      c.board = c.board.flip(0, 1, 2)
       c.player = c.p(1)
-      c.boardToString should be (f"No moves for ${c.p(1)}. ${c.p(0)}'s turn." +
+      c.status should be(f"No valid moves for ${c.p(1)}. ${c.p(0)}'s turn." +
         f"\n ${c.board.toString}")
     }
     "show the board and ask for new game if the game is over" in {
       for (i <- 0 to 7) {
         c.board = c.board.flipLine((i, 0), (i, 7), 1)
       }
-      c.boardToString should be (c.board.toString + "\n" + c.score +
+      c.status should be(c.board.toString + "\n" + c.score +
         "\n\nPress \"n\" for new game")
       c.newGame()
     }
     "show suggestions and the board if the last move was not legal" in {
-      c.notLegal = true
-      c.boardToString should be (s"Valid moves for ${c.player}: " +
-        s"${c.suggestions}\n${c.board.toString}")
+      c.moveIsLegal = false
+      c.status should be(s"${c.suggestions}\n${c.board.toString}")
       c.newGame()
     }
-    "print just the current board if nothing special happened" in {
+    "print just the current board otherwise" in {
       c.newGame()
-      c.boardToString should equal (c.board.toString)
+      c.status should equal(c.board.toString)
     }
   }
   "score" should {
     "be a draw if the amount of tiles is equal" in {
       c.newGame()
-      c.score should be ("Draw. 2:2")
+      c.score should be("Draw. 2:2")
     }
     "declare the winner if the amount of tiles is not equal" in {
       c.newGame()
-      c.set(2,3)
-      c.score should be ("Black wins by 4:1!")
+      c.set(2, 3)
+      c.score should be("Black wins by 4:1!")
     }
   }
   "select" should {
@@ -170,9 +168,9 @@ class ControllerSpec extends WordSpec with Matchers {
     "be None if there are no moves" in {
       c.newGame()
       c.p = Vector(new Bot(1), new Bot(2))
-      c.board = c.board.flip(3, 3,1)
-      c.board = c.board.flip(4, 4,1)
-      c.select should be (None)
+      c.board = c.board.flip(3, 3, 1)
+      c.board = c.board.flip(4, 4, 1)
+      c.select should be(None)
     }
   }
   "setAndSwitch" should {
@@ -186,17 +184,17 @@ class ControllerSpec extends WordSpec with Matchers {
       }))
       controller.board = controller.board.flipLine((1, 4), (1, 6), 2)
       controller.board = controller.board.flipLine((2, 5), (2, 6), 2)
-      controller.board = controller.board.flip(3,6,2)
-      controller.setAndSwitch(0,5)
-      controller.setAndSwitch(0,4)
-      controller.setAndSwitch(0,3)
-      controller.board.grid.flatten.count(s => s == Square(2)) should be (0)
+      controller.board = controller.board.flip(3, 6, 2)
+      controller.setAndNext(0, 5)
+      controller.setAndNext(0, 4)
+      controller.setAndNext(0, 3)
+      controller.board.grid.flatten.count(s => s == Square(2)) should be(0)
     }
     "set a square and if the next player is a bot let it make a legal move" in {
       val players: Vector[Player] = Vector(new Player(1), new Bot(2))
       val controller = new Controller(players)
-      controller.setAndSwitch(2, 3)
-      controller.board.grid.flatten.count(s => s == Square(2)) should not be 1
+      controller.setAndNext(2, 3)
+      controller.board.grid.flatten.count(s => s == Square(2)) should be > 1
     }
     "just switch and notifyObservers if no legal move exists" in {
       c.p = Vector(new Player(1), new Player(2))
@@ -204,18 +202,18 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board = Board(Vector.tabulate(8, 8)((_, j) => {
         if (j == 7) Square(2) else Square(0)
       }))
-      c.board = c.board.flip(0,6,1)
+      c.board = c.board.flip(0, 6, 1)
       val cTui = new Tui(c)
       cTui.processInputLine("q")
       val oldBoard = c.board
-      c.setAndSwitch(0, 5)
-      c.board should equal (oldBoard)
+      c.setAndNext(0, 5)
+      c.board should equal(oldBoard)
     }
     "take the input and let the player try again if the input was invalid" in {
       c.p = Vector(new Player(1), new Player(2))
       c.newGame()
-      c.setAndSwitch(0,0)
-      c.player should be (c.p(0))
+      c.setAndNext(0, 0)
+      c.player should be(c.p(0))
     }
   }
 }

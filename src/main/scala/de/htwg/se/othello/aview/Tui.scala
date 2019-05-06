@@ -12,12 +12,12 @@ class Tui(controller: Controller) extends Observer {
       case "q" =>
       case "n" => controller.newGame()
       case "h" => controller.highlight()
-      case "s" => println(s"Valid moves: ${controller.suggestions}")
+      case "s" => println(controller.suggestions)
       case _ =>
         input.toList.map(in => in.toString) match {
           case col :: row :: Nil =>
             val square = controller.mapToBoard(col + row)
-            controller.setAndSwitch(square)
+            controller.setAndNext(square)
           case count :: Nil =>
             controller.setupPlayers(count)
           case _ =>
@@ -26,5 +26,5 @@ class Tui(controller: Controller) extends Observer {
     }
   }
 
-  override def update(): Unit = println(controller.boardToString)
+  override def update(): Unit = println(controller.status)
 }

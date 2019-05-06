@@ -24,7 +24,7 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   def countHighlighted: Int = grid.flatten.count(o => o.isHighlighted)
 
-  def countAll(v1: Int, v2: Int): (Int, Int) = (count(v1), count(v2))
+  def countAll: (Int, Int) = (count(1), count(2))
 
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
 
