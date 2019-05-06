@@ -31,7 +31,7 @@ class ControllerSpec extends WordSpec with Matchers {
     "set one disk and flip at least one of the opponents disks" in {
       c.newGame()
       c.set(2, 3)
-      c.board.countAll should be(4, 1)
+      c.board.countAll(1, 2) should be(4, 1)
     }
     "not change any square on the board if the input is incorrect" in {
       c.newGame()
@@ -158,7 +158,7 @@ class ControllerSpec extends WordSpec with Matchers {
     "declare the winner if the amount of tiles is not equal" in {
       c.newGame()
       c.set(2, 3)
-      c.score should be("Black wins by 4:1!")
+      c.score should be(s"${c.p(0)} wins by 4:1!")
     }
   }
   "select" should {

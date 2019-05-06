@@ -126,7 +126,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def score: String = {
-    val count = board.countAll
+    val count = board.countAll(p(0).value, p(1).value)
     val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
     val winner = if (winCount == count._1) p(0) else p(1)
     if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
