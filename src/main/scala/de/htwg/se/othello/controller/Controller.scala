@@ -24,10 +24,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     board = new Board
     player = p(0)
     notifyObservers()
-    if (player.isInstanceOf[Bot]) {
-      val square = mapToBoard(select.get)
-      setAndNext(square)
-    }
+    if (player.isInstanceOf[Bot]) setAndNext(select.get)
   }
 
   def nextPlayer: Player = if (player == p(0)) p(1) else p(0)
@@ -39,9 +36,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     if (player.isInstanceOf[Bot]) {
       Thread.sleep(500)
       select match {
-        case Some(selection) =>
-          val (col, row) = mapToBoard(selection)
-          setAndNext(col, row)
+        case Some(selection) => setAndNext(selection)
         case None =>
       }
     }
@@ -74,16 +69,11 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def getMoves(col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
     ((col, row), (for {
-      i <- -1 to 1
-      j <- -1 to 1
-      direction = (i, j)
-    } yield check(col, row, direction)).filter(o => o != (-1, -1)))
-  }
-
-  def check(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
-    val (nX, nY) = (x + direction._1, y + direction._2)
-    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || !setByOpp(nX, nY)) (-1, -1)
-    else checkRecursive(nX, nY, direction)
+      x <- -1 to 1
+      y <- -1 to 1
+      (nX, nY) = (col + x, row + y)
+      if !(nX < 0 || nX > 7 || nY < 0 || nY > 7) && setByOpp(nX, nY)
+    } yield checkRecursive(nX, nY, (x, y))).filter(o => o != (-1, -1)))
   }
 
   def checkRecursive(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
@@ -96,6 +86,15 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def setByPl(x: Int, y: Int): Boolean = board.valueOf(x, y) == player.value
 
   def setByOpp(x: Int, y: Int): Boolean = board.isSet(x, y) && !setByPl(x, y)
+
+  def select: Option[(Int, Int)] = {
+    try {
+      val move = moves.toList(nextInt(moves.keySet.size))
+      Some(move._2(nextInt(move._2.size)))
+    } catch {
+      case _: IllegalArgumentException => None
+    }
+  }
 
   def mapToBoard(input: String): (Int, Int) = {
     (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
@@ -115,16 +114,6 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
 
-  def select: Option[String] = {
-    try {
-      val move = moves.toList(nextInt(moves.keySet.size))
-      val (col, row) = move._2(nextInt(move._2.size))
-      Some((col + 65).toChar.toString + (row + 1))
-    } catch {
-      case _: IllegalArgumentException => None
-    }
-  }
-
   def score: String = {
     val count = board.countAll(p(0).value, p(1).value)
     val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
@@ -134,15 +123,14 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def status: String = {
-    if (gameOver) {
-      s"${board.toString}\n$score\n\nPress " + "\"n\" for new game"
-    } else if (moves.isEmpty) {
+    if (gameOver) board.toString + score + "\n\nPress \"n\" for new game"
+    else if (moves.isEmpty) {
       val previousPlayer = player
       player = nextPlayer
-      s"No valid moves for $previousPlayer. $player's turn.\n ${board.toString}"
+      s"No valid moves for $previousPlayer. $player's turn.\n" + board.toString
     } else if (!moveIsLegal) {
       moveIsLegal = true
-      s"$suggestions\n${board.toString}"
+      suggestions + "\n" + board.toString
     } else board.toString
   }
 }

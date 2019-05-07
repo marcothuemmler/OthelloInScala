@@ -54,8 +54,8 @@ class ControllerSpec extends WordSpec with Matchers {
       c.mapToBoard("a1") should be(0, 0)
     }
   }
-  "switchPlayer" should {
-    "switch the player" in {
+  "nextPlayer" should {
+    "return the player who's next" in {
       c.nextPlayer should be(c.p(1))
     }
   }
@@ -98,10 +98,12 @@ class ControllerSpec extends WordSpec with Matchers {
     "highlight settable squares" in {
       c.highlight()
       c.board.isHighlighted should be(true)
+      c.board.valueOf(3,2) should be(-1)
     }
-    "de-highlight settable squares" in {
+    "de-highlight settable squares if already highlighted" in {
       c.highlight()
       c.board.isHighlighted should be(false)
+      c.board.count(-1) should be(0)
     }
   }
   "getMoves" should {
@@ -121,7 +123,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.checkRecursive(0, 0, (-1, 0)) should be(-1, -1)
     }
   }
-  "boardToString" should {
+  "status" should {
     "be a string if there are no Moves but the game is not over" in {
       for (i <- 0 to 7) {
         c.board = c.board.flipLine((i, 0), (i, 7), 0)
@@ -129,14 +131,14 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board = c.board.flip(0, 0, 1)
       c.board = c.board.flip(0, 1, 2)
       c.player = c.p(1)
-      c.status should be(f"No valid moves for ${c.p(1)}. ${c.p(0)}'s turn." +
-        f"\n ${c.board.toString}")
+      c.status should be(f"No valid moves for ${c.p(1)}. ${c.p(0)}'s turn.\n" +
+        c.board.toString)
     }
     "show the board and ask for new game if the game is over" in {
       for (i <- 0 to 7) {
         c.board = c.board.flipLine((i, 0), (i, 7), 1)
       }
-      c.status should be(c.board.toString + "\n" + c.score +
+      c.status should be(c.board.toString + c.score +
         "\n\nPress \"n\" for new game")
       c.newGame()
     }
@@ -162,8 +164,10 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "select" should {
-    "select a random valid move and convert it to String" in {
-      c.select.get should fullyMatch regex "[A-H][1-8]".r
+    "select a random valid move" in {
+      val selection = c.select.get
+      (0 to 7) should contain (selection._1)
+      (0 to 7) should contain (selection._2)
     }
     "be None if there are no moves" in {
       c.newGame()
@@ -173,7 +177,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.select should be(None)
     }
   }
-  "setAndSwitch" should {
+  "setAndNext" should {
     "set a square and skip the opponent as long as he can't make legal moves" in {
       val players: Vector[Player] = Vector(new Player(1), new Bot(2))
       val controller = new Controller(players)
