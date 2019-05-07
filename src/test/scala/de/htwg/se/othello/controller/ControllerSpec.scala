@@ -144,7 +144,7 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "show suggestions and the board if the last move was not legal" in {
       c.moveIsLegal = false
-      c.status should be(s"${c.suggestions}\n${c.board.toString}")
+      c.status should be(c.suggestions + "\n" + c.board.toString)
       c.newGame()
     }
     "print just the current board otherwise" in {
@@ -160,7 +160,7 @@ class ControllerSpec extends WordSpec with Matchers {
     "declare the winner if the amount of tiles is not equal" in {
       c.newGame()
       c.set(2, 3)
-      c.score should be(s"${c.p(0)} wins by 4:1!")
+      c.score should be(s"Black wins by 4:1!")
     }
   }
   "select" should {
