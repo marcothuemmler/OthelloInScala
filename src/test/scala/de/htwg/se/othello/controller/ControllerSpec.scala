@@ -177,6 +177,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.select should be(None)
     }
   }
+  /*
   "setAndNext" should {
     "set a square and skip the opponent as long as he can't make legal moves" in {
       val players: Vector[Player] = Vector(new Player(1), new Bot(2))
@@ -220,4 +221,5 @@ class ControllerSpec extends WordSpec with Matchers {
       c.player should be(c.p(0))
     }
   }
+*/
 }

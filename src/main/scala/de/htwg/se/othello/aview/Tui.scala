@@ -1,6 +1,7 @@
 package de.htwg.se.othello.aview
 
 import de.htwg.se.othello.controller.Controller
+import de.htwg.se.othello.model.Bot
 import de.htwg.se.othello.util.Observer
 
 class Tui(controller: Controller) extends Observer {
@@ -18,7 +19,8 @@ class Tui(controller: Controller) extends Observer {
         input.toList.map(in => in.toString) match {
           case col :: row :: Nil =>
             val square = controller.mapToBoard(col + row)
-            controller.setAndNext(square)
+            controller.set(square)
+            if (controller.player.isInstanceOf[Bot]) controller.setAndNext()
           case _ =>
             println("Please try again. " + controller.suggestions)
         }

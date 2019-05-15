@@ -24,33 +24,41 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     board = new Board
     player = p(0)
     notifyObservers()
-    if (player.isInstanceOf[Bot]) setAndNext(select.get)
+    if (player.isInstanceOf[Bot]) setAndNext()
   }
 
   def nextPlayer: Player = if (player == p(0)) p(1) else p(0)
 
-  def setAndNext(square: (Int, Int)): Unit = {
-    set(square)
-    if (moveIsLegal) player = nextPlayer
-    notifyObservers()
-    if (player.isInstanceOf[Bot]) {
-      Thread.sleep(0)
-      select match {
-        case Some(selection) => setAndNext(selection)
-        case None =>
-      }
-    }
-  }
-
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
 
+  def setAndNext(): Unit = {
+    Thread.sleep(0)
+    select match {
+      case Some(selection) => set(selection)
+      case None =>
+        player = nextPlayer
+        omitted = true
+        notifyObservers()
+    }
+    if (player.isInstanceOf[Bot] && !gameOver) setAndNext()
+  }
+
+  var omitted: Boolean = false
+
   def set(toSquare: (Int, Int)): Unit = {
-    val legal = moves.filter(o => o._2.contains(toSquare))
-    moveIsLegal = legal.nonEmpty
-    for {
-      fromSquare <- legal.keys
-    } board = board.flipLine(fromSquare, toSquare, player.value)
-    board = board.deHighlight
+    if (moves.nonEmpty) {
+      val legal = moves.filter(o => o._2.contains(toSquare))
+      moveIsLegal = legal.nonEmpty
+      for {
+        fromSquare <- legal.keys
+      } board = board.flipLine(fromSquare, toSquare, player.value)
+      board = board.deHighlight
+      if (moveIsLegal) player = nextPlayer
+    } else {
+      player = nextPlayer
+      omitted = true
+    }
+    notifyObservers()
   }
 
   def highlight(): Unit = {
@@ -89,12 +97,13 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     else f"Draw. $winCount:$loseCount"
   }
 
+  def gameOver: Boolean = board.gameOver
+
   def status: String = {
     if (board.gameOver) board.toString + score + "\n\nPress \"n\" for new game"
-    else if (moves.isEmpty) {
-      val previousPlayer = player
-      player = nextPlayer
-      s"No valid moves for $previousPlayer. $player's turn.\n" + board.toString
+    else if (omitted) {
+      omitted = false
+      s"$player's turn.\n" + board.toString
     } else if (!moveIsLegal) {
       moveIsLegal = true
       suggestions + "\n" + board.toString
