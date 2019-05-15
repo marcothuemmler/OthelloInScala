@@ -1,6 +1,6 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.Controller
+import de.htwg.se.othello.controller.{Controller, GameStatus}
 import de.htwg.se.othello.model.Bot
 import de.htwg.se.othello.util.Observer
 
@@ -27,5 +27,15 @@ class Tui(controller: Controller) extends Observer {
     }
   }
 
-  override def update(): Unit = println(controller.status)
+  override def update: Boolean = {
+    if (controller.gameStatus != GameStatus.GAME_OVER) {
+      println(GameStatus.message(controller.gameStatus))
+      println(controller.boardToString)
+    } else {
+      println(controller.boardToString)
+      println(GameStatus.message(controller.gameStatus))
+    }
+    controller.gameStatus=GameStatus.IDLE
+    true
+  }
 }

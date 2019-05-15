@@ -1,7 +1,7 @@
 package de.htwg.se.othello.aview
 
 import de.htwg.se.othello.controller.Controller
-import de.htwg.se.othello.model.{Board, Bot, Player}
+import de.htwg.se.othello.model.{Board, Bot, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 
 class TuiSpec extends WordSpec with Matchers{
@@ -44,6 +44,27 @@ class TuiSpec extends WordSpec with Matchers{
       val board = controller.board
       tui.processInputLine("a12")
       controller.board should equal(board)
+    }
+  }
+  "update" should {
+    "print the current board and the gameStatus if the game is over" in {
+      val ctrl = new Controller(new Board, Vector(new Bot(1), new Bot(2)))
+      val test = new Tui(ctrl)
+      ctrl.setupPlayers("0")
+      ctrl.board = Board(Vector.fill(8, 8)(Square(1)))
+      ctrl.board.flip(5,5, 2)
+      ctrl.board.flip(7,7, 0)
+      println(controller.boardToString)
+      ctrl.player = controller.p(1)
+      println(controller.boardToString)
+      ctrl.set(7,7)
+      println(controller.boardToString)
+      ctrl.setupPlayers("1")
+      test.update should be (true)
+    }
+    "print the gameStatus and the current board and if the game is not over " in {
+      controller.newGame()
+      tui.update should be (true)
     }
   }
 }

@@ -1,5 +1,6 @@
 package de.htwg.se.othello.controller
 
+import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, Player}
 import de.htwg.se.othello.util.Observable
 
@@ -8,8 +9,7 @@ import scala.util.Random.nextInt
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   var player: Player = p(0)
-  var notLegal: Boolean = false
-  var omitted: Boolean = false
+  var gameStatus: GameStatus = IDLE
 
   def this(p: Vector[Player]) = this(new Board, p)
 
@@ -31,32 +31,33 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def nextPlayer: Player = if (player == p(0)) p(1) else p(0)
 
   def setAndNext(): Unit = {
-    if (!gameOver) {
+    if (!board.gameOver && player.isInstanceOf[Bot]) {
       Thread.sleep(0)
       select match {
         case Some(selection) => set(selection)
         case None =>
           player = nextPlayer
-          omitted = true
+          gameStatus = GameStatus.OMITTED
           notifyObservers()
       }
+      setAndNext()
     }
-    if (player.isInstanceOf[Bot] && !gameOver) setAndNext()
   }
 
   def set(toSquare: (Int, Int)): Unit = {
     if (moves.nonEmpty) {
       val legal = moves.filter(o => o._2.contains(toSquare))
-      notLegal = legal.isEmpty
+      if (legal.isEmpty) gameStatus = GameStatus.ILLEGAL
       for {
         fromSquare <- legal.keys
       } board = board.flipLine(fromSquare, toSquare, player.value)
       board = board.deHighlight
-      if (!notLegal) player = nextPlayer
+      if (gameStatus != ILLEGAL) player = nextPlayer
     } else {
       player = nextPlayer
-      omitted = true
+      gameStatus = GameStatus.OMITTED
     }
+    if (board.gameOver) gameStatus = GameStatus.GAME_OVER
     notifyObservers()
   }
 
@@ -90,24 +91,5 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
 
-  def score: String = {
-    val count = board.countAll(p(0).value, p(1).value)
-    val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
-    val winner = if (winCount == count._1) p(0) else p(1)
-    if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
-    else f"Draw. $winCount:$loseCount"
-  }
-
-  def gameOver: Boolean = board.gameOver
-
-  def status: String = {
-    if (gameOver) board.toString + score + "\n\nPress \"n\" for new game"
-    else if (omitted) {
-      omitted = false
-      s"$player's turn.\n" + board.toString
-    } else if (notLegal) {
-      notLegal = false
-      suggestions + "\n" + board.toString
-    } else board.toString
-  }
+  def boardToString: String = board.toString
 }
