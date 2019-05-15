@@ -143,7 +143,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.newGame()
     }
     "show suggestions and the board if the last move was not legal" in {
-      c.moveIsLegal = false
+      c.notLegal = true
       c.status should be(c.suggestions + "\n" + c.board.toString)
       c.newGame()
     }

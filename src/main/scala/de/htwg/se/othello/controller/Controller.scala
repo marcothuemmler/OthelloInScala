@@ -8,7 +8,8 @@ import scala.util.Random.nextInt
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   var player: Player = p(0)
-  var moveIsLegal: Boolean = true
+  var notLegal: Boolean = false
+  var omitted: Boolean = false
 
   def this(p: Vector[Player]) = this(new Board, p)
 
@@ -29,31 +30,29 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def nextPlayer: Player = if (player == p(0)) p(1) else p(0)
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
-
   def setAndNext(): Unit = {
-    Thread.sleep(0)
-    select match {
-      case Some(selection) => set(selection)
-      case None =>
-        player = nextPlayer
-        omitted = true
-        notifyObservers()
+    if (!gameOver) {
+      Thread.sleep(0)
+      select match {
+        case Some(selection) => set(selection)
+        case None =>
+          player = nextPlayer
+          omitted = true
+          notifyObservers()
+      }
     }
     if (player.isInstanceOf[Bot] && !gameOver) setAndNext()
   }
 
-  var omitted: Boolean = false
-
   def set(toSquare: (Int, Int)): Unit = {
     if (moves.nonEmpty) {
       val legal = moves.filter(o => o._2.contains(toSquare))
-      moveIsLegal = legal.nonEmpty
+      notLegal = legal.isEmpty
       for {
         fromSquare <- legal.keys
       } board = board.flipLine(fromSquare, toSquare, player.value)
       board = board.deHighlight
-      if (moveIsLegal) player = nextPlayer
+      if (!notLegal) player = nextPlayer
     } else {
       player = nextPlayer
       omitted = true
@@ -69,6 +68,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     } else board = board.deHighlight
     notifyObservers()
   }
+
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
 
   def select: Option[(Int, Int)] = {
     try {
@@ -100,12 +101,12 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def gameOver: Boolean = board.gameOver
 
   def status: String = {
-    if (board.gameOver) board.toString + score + "\n\nPress \"n\" for new game"
+    if (gameOver) board.toString + score + "\n\nPress \"n\" for new game"
     else if (omitted) {
       omitted = false
       s"$player's turn.\n" + board.toString
-    } else if (!moveIsLegal) {
-      moveIsLegal = true
+    } else if (notLegal) {
+      notLegal = false
       suggestions + "\n" + board.toString
     } else board.toString
   }
