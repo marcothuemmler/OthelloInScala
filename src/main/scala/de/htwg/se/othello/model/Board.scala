@@ -10,6 +10,33 @@ case class Board(grid: Vector[Vector[Square]]) {
     }))
   }
 
+  def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
+    (for {
+      col <- 0 to 7
+      row <- 0 to 7 if setByPl(value, col, row)
+    } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
+  }
+
+  def getMoves(value: Int, col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
+    ((col, row), (for {
+      x <- -1 to 1
+      y <- -1 to 1
+      (nX, nY) = (col + x, row + y)
+      if !(nX < 0 || nX > 7 || nY < 0 || nY > 7) && setByOpp(value, nX, nY)
+    } yield checkRecursive(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
+  }
+
+  def checkRecursive(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
+    val (nX, nY) = (x + direction._1, y + direction._2)
+    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setByPl(value, nX, nY)) (-1, -1)
+    else if (setByOpp(value, nX, nY)) checkRecursive(value, nX, nY, direction)
+    else (nX, nY)
+  }
+
+  def setByPl(value: Int, x: Int, y: Int): Boolean = valueOf(x, y) == value
+
+  def setByOpp(value: Int, x: Int, y: Int): Boolean = isSet(x, y) && !setByPl(value, x, y)
+
   def flip(col: Int, row: Int, value: Int): Board = {
     copy(grid.updated(col, grid(col).updated(row, Square(value))))
   }
@@ -41,6 +68,8 @@ case class Board(grid: Vector[Vector[Square]]) {
   def countAll(v1: Int, v2: Int): (Int, Int) = (count(v1), count(v2))
 
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
+
+  def gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty
 
   override def toString: String = {
     val top = "\n    A B C D E F G H\n    _______________"

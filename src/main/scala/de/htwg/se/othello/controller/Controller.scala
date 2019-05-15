@@ -34,13 +34,15 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     if (moveIsLegal) player = nextPlayer
     notifyObservers()
     if (player.isInstanceOf[Bot]) {
-      Thread.sleep(500)
+      Thread.sleep(0)
       select match {
         case Some(selection) => setAndNext(selection)
         case None =>
       }
     }
   }
+
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
 
   def set(toSquare: (Int, Int)): Unit = {
     val legal = moves.filter(o => o._2.contains(toSquare))
@@ -60,33 +62,6 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     notifyObservers()
   }
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
-    (for {
-      col <- 0 to 7
-      row <- 0 to 7 if setByPl(col, row)
-    } yield getMoves(col, row)).filter(o => o._2.nonEmpty).toMap
-  }
-
-  def getMoves(col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
-    ((col, row), (for {
-      x <- -1 to 1
-      y <- -1 to 1
-      (nX, nY) = (col + x, row + y)
-      if !(nX < 0 || nX > 7 || nY < 0 || nY > 7) && setByOpp(nX, nY)
-    } yield checkRecursive(nX, nY, (x, y))).filter(o => o != (-1, -1)))
-  }
-
-  def checkRecursive(x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
-    val (nX, nY) = (x + direction._1, y + direction._2)
-    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setByPl(nX, nY)) (-1, -1)
-    else if (setByOpp(nX, nY)) checkRecursive(nX, nY, direction)
-    else (nX, nY)
-  }
-
-  def setByPl(x: Int, y: Int): Boolean = board.valueOf(x, y) == player.value
-
-  def setByOpp(x: Int, y: Int): Boolean = board.isSet(x, y) && !setByPl(x, y)
-
   def select: Option[(Int, Int)] = {
     try {
       val move = moves.toList(nextInt(moves.keySet.size))
@@ -100,16 +75,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
   }
 
-  def gameOver: Boolean = {
-    val a = moves.isEmpty
-    player = nextPlayer
-    val b = moves.isEmpty
-    player = nextPlayer
-    a && b
-  }
-
   def suggestions: String = {
-    s"Valid moves for $player: " + (for {
+    (for {
       (col, row) <- moves.values.flatten.toSet.toList.sorted
     } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
@@ -123,7 +90,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def status: String = {
-    if (gameOver) board.toString + score + "\n\nPress \"n\" for new game"
+    if (board.gameOver) board.toString + score + "\n\nPress \"n\" for new game"
     else if (moves.isEmpty) {
       val previousPlayer = player
       player = nextPlayer
