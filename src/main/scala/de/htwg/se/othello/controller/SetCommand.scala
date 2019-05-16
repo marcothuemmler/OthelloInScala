@@ -22,10 +22,17 @@ class SetCommand(toSquare: (Int, Int), value: Int, controller: Controller) exten
     if (controller.board.gameOver) controller.gameStatus = GameStatus.GAME_OVER
   }
 
-  override def undoStep(): Unit = controller.board = controller.previousBoard
+  override def undoStep(): Unit = {
+    controller.board = controller.boardList(controller.boardList.length - 2).deHighlight
+  }
 
   override def redoStep(): Unit = {
+    controller.board = controller.boardList.last
     controller.player = controller.nextPlayer
-    controller.set(toSquare)
+    val legal = controller.moves.filter(o => o._2.contains(toSquare))
+    for {
+      fromSquare <- legal.keys
+    } controller.board = controller.board.flipLine(fromSquare, toSquare, value)
+    controller.board = controller.board.deHighlight
   }
 }
