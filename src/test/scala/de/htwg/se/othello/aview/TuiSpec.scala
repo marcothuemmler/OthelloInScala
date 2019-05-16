@@ -56,9 +56,7 @@ class TuiSpec extends WordSpec with Matchers{
       ctrl.board.flip(7,7, 0)
       println(controller.boardToString)
       ctrl.player = controller.p(1)
-      println(controller.boardToString)
       ctrl.set(7,7)
-      println(controller.boardToString)
       ctrl.setupPlayers("1")
       test.update should be (true)
     }

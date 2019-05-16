@@ -25,13 +25,13 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "setByPl" should {
     "be false if set by opponent" in {
-      board.setByPl(1, 4, 4) should be(false)
+      board.setBy(1, 4, 4) should be(false)
     }
     "be false if not set" in {
-      board.setByPl(1, 0, 0) should be(false)
+      board.setBy(1, 0, 0) should be(false)
     }
     "be true if set by Player " in {
-      board.setByPl(1, 3, 4) should be(true)
+      board.setBy(1, 3, 4) should be(true)
     }
   }
   "moves" should {
@@ -57,10 +57,10 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "checkRecursive" should {
     "return a tuple with values between 0 and 7 if there is a valid move" in {
-      board.checkRecursive(1, 3, 4, (1, 0)) should be(5, 4)
+      board.checkRec(1, 3, 4, (1, 0)) should be(5, 4)
     }
     "return (-1, -1) if there is no valid move in this direction" in {
-      board.checkRecursive(1, 0, 0, (-1, 0)) should be(-1, -1)
+      board.checkRec(1, 0, 0, (-1, 0)) should be(-1, -1)
     }
   }
   "isSet" should {

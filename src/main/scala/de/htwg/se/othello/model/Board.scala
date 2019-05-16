@@ -13,7 +13,7 @@ case class Board(grid: Vector[Vector[Square]]) {
   def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
       col <- 0 to 7
-      row <- 0 to 7 if setByPl(value, col, row)
+      row <- 0 to 7 if setBy(value, col, row)
     } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
   }
 
@@ -23,19 +23,19 @@ case class Board(grid: Vector[Vector[Square]]) {
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
       if !(nX < 0 || nX > 7 || nY < 0 || nY > 7) && setByOpp(value, nX, nY)
-    } yield checkRecursive(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
+    } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
   }
 
-  def checkRecursive(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
+  def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val (nX, nY) = (x + direction._1, y + direction._2)
-    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setByPl(value, nX, nY)) (-1, -1)
-    else if (setByOpp(value, nX, nY)) checkRecursive(value, nX, nY, direction)
+    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setBy(value, nX, nY)) (-1, -1)
+    else if (setByOpp(value, nX, nY)) checkRec(value, nX, nY, direction)
     else (nX, nY)
   }
 
-  def setByPl(value: Int, x: Int, y: Int): Boolean = valueOf(x, y) == value
+  def setBy(value: Int, x: Int, y: Int): Boolean = valueOf(x, y) == value
 
-  def setByOpp(value: Int, x: Int, y: Int): Boolean = isSet(x, y) && !setByPl(value, x, y)
+  def setByOpp(value: Int, x: Int, y: Int): Boolean = isSet(x, y) && !setBy(value, x, y)
 
   def flip(col: Int, row: Int, value: Int): Board = {
     copy(grid.updated(col, grid(col).updated(row, Square(value))))
@@ -87,6 +87,6 @@ case class Board(grid: Vector[Vector[Square]]) {
       row <- 0 to 7
     } board = board.replaceFirst("row", f"${row + 1}")
       .replaceFirst("X", f"${grid(row)(col)}")
-    top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺\n" + (if (gameOver) score else "")
+    top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺" + (if (gameOver) "\n" + score else "")
   }
 }

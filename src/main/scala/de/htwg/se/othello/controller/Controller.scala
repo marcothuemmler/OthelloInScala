@@ -2,7 +2,7 @@ package de.htwg.se.othello.controller
 
 import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, Player}
-import de.htwg.se.othello.util.Observable
+import de.htwg.se.othello.util.{Observable, UndoManager}
 
 import scala.util.Random.nextInt
 
@@ -10,6 +10,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   var player: Player = p(0)
   var gameStatus: GameStatus = IDLE
+  private val undoManager = new UndoManager
 
   def this(p: Vector[Player]) = this(new Board, p)
 
@@ -45,19 +46,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def set(toSquare: (Int, Int)): Unit = {
-    if (moves.nonEmpty) {
-      val legal = moves.filter(o => o._2.contains(toSquare))
-      if (legal.isEmpty) gameStatus = GameStatus.ILLEGAL
-      for {
-        fromSquare <- legal.keys
-      } board = board.flipLine(fromSquare, toSquare, player.value)
-      board = board.deHighlight
-      if (gameStatus != ILLEGAL) player = nextPlayer
-    } else {
-      player = nextPlayer
-      gameStatus = GameStatus.OMITTED
-    }
-    if (board.gameOver) gameStatus = GameStatus.GAME_OVER
+    undoManager.doStep(new SetCommand(toSquare, player.value, this))
     notifyObservers()
   }
 
@@ -69,8 +58,6 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     } else board = board.deHighlight
     notifyObservers()
   }
-
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
 
   def select: Option[(Int, Int)] = {
     try {
@@ -90,6 +77,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
       (col, row) <- moves.values.flatten.toSet.toList.sorted
     } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
+
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
 
   def boardToString: String = board.toString
 }
