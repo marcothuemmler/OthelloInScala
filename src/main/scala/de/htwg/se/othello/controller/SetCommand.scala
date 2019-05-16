@@ -34,5 +34,6 @@ class SetCommand(toSquare: (Int, Int), value: Int, controller: Controller) exten
       fromSquare <- legal.keys
     } controller.board = controller.board.flipLine(fromSquare, toSquare, value)
     controller.board = controller.board.deHighlight
+    controller.player = controller.nextPlayer
   }
 }
