@@ -1,7 +1,5 @@
 package de.htwg.se.othello.util
 
-import java.security.KeyStore.TrustedCertificateEntry
-
 import org.scalatest.{Matchers, WordSpec}
 
 class ObservableSpec extends WordSpec with Matchers {
@@ -9,7 +7,7 @@ class ObservableSpec extends WordSpec with Matchers {
     val observable = new Observable
     val observer: Observer = new Observer {
       var updated: Boolean = false
-      override def update(): Unit = ()
+      override def update: Boolean = true
     }
     "add an Observer" in {
       observable.add(observer)

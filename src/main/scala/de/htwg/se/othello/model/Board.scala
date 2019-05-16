@@ -10,6 +10,33 @@ case class Board(grid: Vector[Vector[Square]]) {
     }))
   }
 
+  def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
+    (for {
+      col <- 0 to 7
+      row <- 0 to 7 if setBy(value, col, row)
+    } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
+  }
+
+  def getMoves(value: Int, col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
+    ((col, row), (for {
+      x <- -1 to 1
+      y <- -1 to 1
+      (nX, nY) = (col + x, row + y)
+      if !(nX < 0 || nX > 7 || nY < 0 || nY > 7) && setByOpp(value, nX, nY)
+    } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
+  }
+
+  def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
+    val (nX, nY) = (x + direction._1, y + direction._2)
+    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setBy(value, nX, nY)) (-1, -1)
+    else if (setByOpp(value, nX, nY)) checkRec(value, nX, nY, direction)
+    else (nX, nY)
+  }
+
+  def setBy(value: Int, x: Int, y: Int): Boolean = valueOf(x, y) == value
+
+  def setByOpp(value: Int, x: Int, y: Int): Boolean = isSet(x, y) && !setBy(value, x, y)
+
   def flip(col: Int, row: Int, value: Int): Board = {
     copy(grid.updated(col, grid(col).updated(row, Square(value))))
   }
@@ -42,6 +69,16 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
 
+  def gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty
+
+  def score: String = {
+    val count = countAll(1, 2)
+    val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
+    val winner = if (winCount == count._1) "Black" else "White"
+    if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
+    else f"Draw. $winCount:$loseCount"
+  }
+
   override def toString: String = {
     val top = "\n    A B C D E F G H\n    _______________"
     var board = ("\nrow  |" + ("X" * 8)) * 8 + "\n"
@@ -50,6 +87,6 @@ case class Board(grid: Vector[Vector[Square]]) {
       row <- 0 to 7
     } board = board.replaceFirst("row", f"${row + 1}")
       .replaceFirst("X", f"${grid(row)(col)}")
-    top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺\n"
+    top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺" + (if (gameOver) "\n" + score else "")
   }
 }
