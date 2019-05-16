@@ -13,6 +13,8 @@ class Tui(controller: Controller) extends Observer {
       case "q" =>
       case "n" => controller.newGame()
       case "h" => controller.highlight()
+      case "z" => controller.undo()
+      case "y" => controller.redo()
       case "s" => println(controller.suggestions)
       case "0" | "1" | "2" => controller.setupPlayers(input)
       case _ =>

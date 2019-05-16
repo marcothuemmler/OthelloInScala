@@ -11,6 +11,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   var player: Player = p(0)
   var gameStatus: GameStatus = IDLE
   private val undoManager = new UndoManager
+  var previousBoard = new Board
 
   def this(p: Vector[Player]) = this(new Board, p)
 
@@ -45,8 +46,19 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     }
   }
 
-  def set(toSquare: (Int, Int)): Unit = {
-    undoManager.doStep(new SetCommand(toSquare, player.value, this))
+  def set(square: (Int, Int)): Unit = {
+    previousBoard = board
+    undoManager.doStep(new SetCommand(square, player.value, this))
+    notifyObservers()
+  }
+
+  def redo(): Unit = {
+    undoManager.redoStep()
+    notifyObservers()
+  }
+
+  def undo(): Unit = {
+    undoManager.undoStep()
     notifyObservers()
   }
 
