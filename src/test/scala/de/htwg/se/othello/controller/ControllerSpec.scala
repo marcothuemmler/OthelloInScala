@@ -64,6 +64,26 @@ class ControllerSpec extends WordSpec with Matchers {
       c.remove(tui)
     }
   }
+  "undo" should {
+    "revert the board to a previous state" in {
+      val ctrl = new Controller(new Board, Vector(new Player(1), new Player(2)))
+      ctrl.set(3,2)
+      ctrl.set(2,4)
+      ctrl.undo()
+      ctrl.board should equal (new Board)
+    }
+  }
+  "redo" should {
+    "redo undone changes" in {
+      val ctrl = new Controller(new Board, Vector(new Player(1), new Player(2)))
+      ctrl.set(3,2)
+      ctrl.set(2,4)
+      val changedBoard = ctrl.board
+      ctrl.undo()
+      ctrl.redo()
+      ctrl.board should equal(changedBoard)
+    }
+  }
   "setupPlayers" should {
     "setup the amount of human players" in {
       c.setupPlayers("0")
