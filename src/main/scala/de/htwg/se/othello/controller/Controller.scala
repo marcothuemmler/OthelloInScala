@@ -5,6 +5,7 @@ import de.htwg.se.othello.model.{Board, Bot, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
 
 import scala.util.Random.nextInt
+import scala.util.{Failure, Success, Try}
 
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
@@ -35,8 +36,8 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     if (!board.gameOver && player.isInstanceOf[Bot]) {
       Thread.sleep(0)
       select match {
-        case Some(selection) => set(selection)
-        case None =>
+        case Success(selection) => set(selection)
+        case Failure(_) =>
           player = nextPlayer
           gameStatus = OMITTED
           notifyObservers()
@@ -47,7 +48,6 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
   def set(square: (Int, Int)): Unit = {
     undoManager.doStep(new SetCommand(square, player.value, this))
-    if (board.gameOver) gameStatus = GAME_OVER
     notifyObservers()
   }
 
@@ -72,13 +72,9 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     notifyObservers()
   }
 
-  def select: Option[(Int, Int)] = {
-    try {
-      val move = moves.toList(nextInt(moves.keySet.size))
-      Some(move._2(nextInt(move._2.size)))
-    } catch {
-      case _: IllegalArgumentException => None
-    }
+  def select: Try[(Int, Int)] = Try {
+    val move = moves.toList(nextInt(moves.keySet.size))
+    move._2(nextInt(move._2.size))
   }
 
   def mapToBoard(input: String): (Int, Int) = {

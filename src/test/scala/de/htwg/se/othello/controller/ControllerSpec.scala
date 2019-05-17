@@ -4,6 +4,8 @@ import de.htwg.se.othello.aview.Tui
 import de.htwg.se.othello.model.{Board, Bot, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 
+import scala.util.Failure
+
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
   var c = new Controller(new Board, players)
@@ -134,7 +136,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.p = Vector(new Bot(1), new Bot(2))
       c.board = c.board.flip(3, 3, 1)
       c.board = c.board.flip(4, 4, 1)
-      c.select should be(None)
+      c.select shouldBe a[Failure[_]]
     }
   }
   "suggestions" should {
