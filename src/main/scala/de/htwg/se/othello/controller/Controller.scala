@@ -5,6 +5,7 @@ import de.htwg.se.othello.model.{Board, Bot, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
 
 import scala.util.Random.nextInt
+import scala.util.Try
 
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
@@ -34,7 +35,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def selectAndSet(): Unit = {
     if (!board.gameOver && player.isInstanceOf[Bot]) {
       Thread.sleep(0)
-      select match {
+      select.get match {
         case Some(selection) => set(selection)
         case None =>
           player = nextPlayer
@@ -72,12 +73,10 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     notifyObservers()
   }
 
-  def select: Option[(Int, Int)] = {
-    try {
+  def select: Try[Option[(Int, Int)]] = {
+    Try {
       val move = moves.toList(nextInt(moves.keySet.size))
       Some(move._2(nextInt(move._2.size)))
-    } catch {
-      case _: IllegalArgumentException => None
     }
   }
 
