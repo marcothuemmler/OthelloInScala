@@ -45,6 +45,24 @@ class TuiSpec extends WordSpec with Matchers{
       tui.processInputLine("a12")
       controller.board should equal(board)
     }
+    "undo a step on input z" in {
+      val ctrl = new Controller(new Board, players)
+      val t = new Tui(ctrl)
+      t.processInputLine("c4")
+      t.processInputLine("c5")
+      t.processInputLine("z")
+      ctrl.board should equal(new Board)
+    }
+    "redo a step on input y" in {
+      val ctrl = new Controller(new Board, players)
+      val t = new Tui(ctrl)
+      t.processInputLine("c4")
+      t.processInputLine("c5")
+      val changedBoard = ctrl.board
+      t.processInputLine("z")
+      t.processInputLine("y")
+      ctrl.board should equal(changedBoard)
+    }
   }
   "update" should {
     "print the current board and the gameStatus if the game is over" in {
