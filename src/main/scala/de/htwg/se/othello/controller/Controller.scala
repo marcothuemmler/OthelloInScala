@@ -27,28 +27,29 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
     board = new Board
     player = p(0)
     notifyObservers()
-    if (player.isInstanceOf[Bot]) setAndNext()
+    if (player.isInstanceOf[Bot]) selectAndSet()
   }
 
   def nextPlayer: Player = if (player == p(0)) p(1) else p(0)
 
-  def setAndNext(): Unit = {
+  def selectAndSet(): Unit = {
     if (!board.gameOver && player.isInstanceOf[Bot]) {
       Thread.sleep(0)
       select match {
         case Some(selection) => set(selection)
         case None =>
           player = nextPlayer
-          gameStatus = GameStatus.OMITTED
+          gameStatus = OMITTED
           notifyObservers()
       }
-      setAndNext()
+      selectAndSet()
     }
   }
 
   def set(square: (Int, Int)): Unit = {
     boardList = boardList :+ board
     undoManager.doStep(new SetCommand(square, player.value, this))
+    if (board.gameOver) gameStatus = GAME_OVER
     notifyObservers()
   }
 

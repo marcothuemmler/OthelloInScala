@@ -58,7 +58,7 @@ class ControllerSpec extends WordSpec with Matchers {
       println(cBoard)
       c.board = c.board.flip(0,6, 1)
       c.set(0,5)
-      if (c.player.isInstanceOf[Bot]) c.setAndNext()
+      if (c.player.isInstanceOf[Bot]) c.selectAndSet()
       println(c.board)
       c.newGame()
       c.remove(tui)

@@ -22,7 +22,7 @@ class Tui(controller: Controller) extends Observer {
           case col :: row :: Nil =>
             val square = controller.mapToBoard(col + row)
             controller.set(square)
-            if (controller.player.isInstanceOf[Bot]) controller.setAndNext()
+            if (controller.player.isInstanceOf[Bot]) controller.selectAndSet()
           case _ =>
             println("Please try again. " + controller.suggestions)
         }
