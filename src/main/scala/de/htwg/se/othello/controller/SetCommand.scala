@@ -1,11 +1,15 @@
 
 package de.htwg.se.othello.controller
 
+import de.htwg.se.othello.model.Board
 import de.htwg.se.othello.util.Command
 
 class SetCommand(toSquare: (Int, Int), value: Int, controller: Controller) extends Command {
 
+  var memento: Board = controller.board
+
   override def doStep(): Unit = {
+    memento = controller.board
     if (controller.moves.isEmpty) {
       controller.player = controller.nextPlayer
       controller.gameStatus = GameStatus.OMITTED
@@ -22,16 +26,14 @@ class SetCommand(toSquare: (Int, Int), value: Int, controller: Controller) exten
   }
 
   override def undoStep(): Unit = {
-    controller.board = controller.boardList(controller.boardList.length - 2).deHighlight
+    val new_memento = controller.board
+    controller.board = memento
+    memento = new_memento
   }
 
   override def redoStep(): Unit = {
-    controller.board = controller.boardList.last
-    controller.player = controller.nextPlayer
-    val legal = controller.moves.filter(o => o._2.contains(toSquare))
-    for {
-      fromSquare <- legal.keys
-    } controller.board = controller.board.flipLine(fromSquare, toSquare, value).deHighlight
-    controller.player = controller.nextPlayer
+    val new_memento = controller.board
+    controller.board = memento
+    memento = new_memento
   }
 }
