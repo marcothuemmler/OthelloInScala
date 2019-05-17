@@ -11,8 +11,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   var player: Player = p(0)
   var gameStatus: GameStatus = IDLE
   private val undoManager = new UndoManager
-  var boardList: Array[Board] = Array.ofDim[Board](500)
-  var currentIndex = 0
+  var boardList: Vector[Board] = Vector.empty
 
   def this(p: Vector[Player]) = this(new Board, p)
 
@@ -48,8 +47,7 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def set(square: (Int, Int)): Unit = {
-    boardList(currentIndex) = board
-    currentIndex += 1
+    boardList = boardList :+ board
     undoManager.doStep(new SetCommand(square, player.value, this))
     if (board.gameOver) gameStatus = GAME_OVER
     notifyObservers()
