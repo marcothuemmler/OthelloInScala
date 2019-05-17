@@ -5,7 +5,7 @@ import de.htwg.se.othello.model.{Board, Bot, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
 
 import scala.util.Random.nextInt
-import scala.util.{Failure, Success, Try}
+import scala.util.{Try, Success, Failure}
 
 class Controller(var board: Board, var p: Vector[Player]) extends Observable {
 
