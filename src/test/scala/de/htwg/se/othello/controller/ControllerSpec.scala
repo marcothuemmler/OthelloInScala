@@ -123,7 +123,6 @@ class ControllerSpec extends WordSpec with Matchers {
       c.boardToString should equal(c.board.toString)
     }
   }
-  /*
   "select" should {
     "select a random valid move" in {
       val selection = c.select.get
@@ -138,7 +137,6 @@ class ControllerSpec extends WordSpec with Matchers {
       c.select should be(None)
     }
   }
-   */
   "suggestions" should {
     "show possible moves" in {
       c.setupPlayers("1")
