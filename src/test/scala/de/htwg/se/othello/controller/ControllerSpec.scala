@@ -101,11 +101,13 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "nextPlayer" should {
     "return the player who's next" in {
+      c.player = c.p(0)
       c.nextPlayer should be(c.p(1))
     }
   }
   "highlight " should {
     "highlight settable squares" in {
+      c.newGame()
       c.highlight()
       c.board.isHighlighted should be(true)
       c.board.valueOf(3,2) should be(-1)
