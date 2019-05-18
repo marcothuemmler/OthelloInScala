@@ -1,6 +1,5 @@
 package de.htwg.se.othello.controller
 
-import de.htwg.se.othello.aview.Tui
 import de.htwg.se.othello.model.{Board, Bot, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 
@@ -41,45 +40,43 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board should equal(new Board)
     }
     "skip the player if there are no valid moves to be made" in {
-      c.board = Board(Vector.fill(8,8)(Square(0)))
+      c.board = Board(Vector.fill(8, 8)(Square(0)))
       val emptyBoard = c.board
-      c.set(0,0)
+      c.set(0, 0)
       c.board should equal(emptyBoard)
       c.newGame()
     }
   }
   "setAndNext" should {
     "not change any square on the board if the input is incorrect" in {
-      val tui = new Tui(c)
       c.setupPlayers("1")
-      c.board = Board(Vector.fill(8,8)(Square(0)))
-      c.board = c.board.flipLine((0,7),(5,7),1)
-      c.board = c.board.flipLine((1,6),(3,6),2)
-      c.board.flip(0,6,2)
+      c.board = Board(Vector.fill(8, 8)(Square(0)))
+      c.board = c.board.flipLine((0, 7), (5, 7), 1)
+      c.board = c.board.flipLine((1, 6), (3, 6), 2)
+      c.board = c.board.flip(0, 6, 1)
+      c.set(0, 5)
       val cBoard = c.board
-      println(cBoard)
-      c.board = c.board.flip(0,6, 1)
-      c.set(0,5)
-      if (c.player.isInstanceOf[Bot]) c.selectAndSet()
-      println(c.board)
+      c.player should be(c.p(1))
+      c.p(1) shouldBe a[Bot]
+      c.selectAndSet()
+      c.board should equal(cBoard)
       c.newGame()
-      c.remove(tui)
     }
   }
   "undo" should {
     "revert the board to a previous state" in {
       val ctrl = new Controller(new Board, Vector(new Player(1), new Player(2)))
-      ctrl.set(3,2)
-      ctrl.set(2,4)
+      ctrl.set(3, 2)
+      ctrl.set(2, 4)
       ctrl.undo()
-      ctrl.board should equal (new Board)
+      ctrl.board should equal(new Board)
     }
   }
   "redo" should {
     "redo undone changes" in {
       val ctrl = new Controller(new Board, Vector(new Player(1), new Player(2)))
-      ctrl.set(3,2)
-      ctrl.set(2,4)
+      ctrl.set(3, 2)
+      ctrl.set(2, 4)
       val changedBoard = ctrl.board
       ctrl.undo()
       ctrl.redo()
@@ -90,8 +87,6 @@ class ControllerSpec extends WordSpec with Matchers {
     "setup the amount of human players" in {
       c.setupPlayers("0")
       c.p.count(o => o.isInstanceOf[Bot]) should be(2)
-      c.setupPlayers("1")
-      c.p.count(o => o.isInstanceOf[Bot]) should be(1)
       c.setupPlayers("2")
       c.p.count(o => o.isInstanceOf[Bot]) should be(0)
     }
@@ -112,7 +107,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.newGame()
       c.highlight()
       c.board.isHighlighted should be(true)
-      c.board.valueOf(3,2) should be(-1)
+      c.board.valueOf(3, 2) should be(-1)
     }
     "de-highlight settable squares if already highlighted" in {
       c.highlight()
@@ -128,10 +123,10 @@ class ControllerSpec extends WordSpec with Matchers {
   "select" should {
     "select a random valid move" in {
       val selection = c.select.get
-      (0 to 7) should contain (selection._1)
-      (0 to 7) should contain (selection._2)
+      (0 to 7) should contain(selection._1)
+      (0 to 7) should contain(selection._2)
     }
-    "be None if there are no moves" in {
+    "fail if there are no moves" in {
       c.newGame()
       c.p = Vector(new Bot(1), new Bot(2))
       c.board = c.board.flip(3, 3, 1)

@@ -64,15 +64,13 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def highlight(): Unit = {
-    if (!board.isHighlighted) {
-      for {
-        (col, row) <- moves.values.flatten
-      } board = board.highlight(col, row)
-    } else board = board.deHighlight
+    board = if (!board.isHighlighted) {
+      board.highlight(player.value)
+    } else board.deHighlight
     notifyObservers()
   }
 
-  def select: Try[(Int, Int)] = Try {
+  def select = Try {
     val move = moves.toList(nextInt(moves.keySet.size))
     move._2(nextInt(move._2.size))
   }

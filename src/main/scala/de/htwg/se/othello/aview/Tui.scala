@@ -37,7 +37,7 @@ class Tui(controller: Controller) extends Observer {
       println(controller.boardToString)
       println(GameStatus.message(controller.gameStatus))
     }
-    controller.gameStatus=GameStatus.IDLE
+    controller.gameStatus = GameStatus.IDLE
     true
   }
 }

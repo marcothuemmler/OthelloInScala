@@ -49,11 +49,15 @@ case class Board(grid: Vector[Vector[Square]]) {
     else board
   }
 
-  def highlight(col: Int, row: Int): Board = flip(col, row, -1)
-
   def deHighlight: Board = {
     copy(Vector.tabulate(8, 8)((col, row) => {
       if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
+    }))
+  }
+
+  def highlight(value: Int): Board = {
+    copy(Vector.tabulate(8, 8)((col, row) => {
+      if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1) else grid(col)(row)
     }))
   }
 
@@ -61,9 +65,7 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   def valueOf(col: Int, row: Int): Int = grid(col)(row).value
 
-  def isHighlighted: Boolean = countHighlighted > 0
-
-  def countHighlighted: Int = grid.flatten.count(o => o.isHighlighted)
+  def isHighlighted: Boolean = grid.flatten.count(o => o.isHighlighted) > 0
 
   def countAll(v1: Int, v2: Int): (Int, Int) = (count(v1), count(v2))
 

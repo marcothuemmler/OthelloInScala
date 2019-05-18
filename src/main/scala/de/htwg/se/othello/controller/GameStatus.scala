@@ -8,7 +8,8 @@ object GameStatus extends Enumeration {
     IDLE -> "",
     ILLEGAL -> "Please try again",
     OMITTED -> "No legal moves",
-    GAME_OVER ->"\nPress \"n\" for new game")
+    GAME_OVER -> "\nPress \"n\" for new game"
+  )
 
   def message(gameStatus: GameStatus): String = map(gameStatus)
 }
