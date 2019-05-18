@@ -1,7 +1,6 @@
 package de.htwg.se.othello.aview
 
 import de.htwg.se.othello.controller.{Controller, GameStatus}
-import de.htwg.se.othello.model.Bot
 import de.htwg.se.othello.util.Observer
 
 class Tui(controller: Controller) extends Observer {
@@ -22,7 +21,6 @@ class Tui(controller: Controller) extends Observer {
           case col :: row :: Nil =>
             val square = controller.mapToBoard(col + row)
             controller.set(square)
-            if (controller.player.isInstanceOf[Bot]) controller.selectAndSet()
           case _ =>
             println("Please try again. " + controller.suggestions)
         }

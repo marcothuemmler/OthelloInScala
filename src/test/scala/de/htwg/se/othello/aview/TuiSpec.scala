@@ -14,15 +14,15 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "set the amount of human players to 0 on input 0" in {
       tui.processInputLine("0")
-      controller.p.count(o => o.isInstanceOf[Bot]) should be(2)
+      controller.players.count(o => o.isInstanceOf[Bot]) should be(2)
     }
     "set the amount of human players to 1 on input 1" in {
       tui.processInputLine("1")
-      controller.p.count(o => o.isInstanceOf[Bot]) should be(1)
+      controller.players.count(o => o.isInstanceOf[Bot]) should be(1)
     }
     "set the amount of human players to 2 on input 2" in {
       tui.processInputLine("2")
-      controller.p.count(o => o.isInstanceOf[Bot]) should be(0)
+      controller.players.count(o => o.isInstanceOf[Bot]) should be(0)
     }
     "print suggestions on input s" in {
       tui.processInputLine("s")
@@ -70,7 +70,7 @@ class TuiSpec extends WordSpec with Matchers {
       val test = new Tui(ctrl)
       ctrl.setupPlayers("0")
       ctrl.board = Board(Vector.fill(8, 8)(Square(1)))
-      ctrl.player = controller.p(1)
+      ctrl.player = controller.players(1)
       ctrl.set(7, 7)
       ctrl.setupPlayers("1")
       test.update should be(true)

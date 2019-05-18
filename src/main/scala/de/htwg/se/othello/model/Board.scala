@@ -51,13 +51,15 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   def deHighlight: Board = {
     copy(Vector.tabulate(8, 8)((col, row) => {
-      if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
+      if (grid(col)(row).isHighlighted) Square(0)
+      else grid(col)(row)
     }))
   }
 
   def highlight(value: Int): Board = {
     copy(Vector.tabulate(8, 8)((col, row) => {
-      if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1) else grid(col)(row)
+      if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
+      else grid(col)(row)
     }))
   }
 

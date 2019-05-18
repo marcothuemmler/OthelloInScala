@@ -7,30 +7,30 @@ import de.htwg.se.othello.util.{Observable, UndoManager}
 import scala.util.Random.nextInt
 import scala.util.{Try, Success, Failure}
 
-class Controller(var board: Board, var p: Vector[Player]) extends Observable {
+class Controller(var board: Board, var players: Vector[Player]) extends Observable {
 
-  var player: Player = p(0)
+  var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
   private val undoManager = new UndoManager
 
-  def this(p: Vector[Player]) = this(new Board, p)
+  def this(players: Vector[Player]) = this(new Board, players)
 
   def setupPlayers(number: String): Unit = {
     number match {
-      case "0" => p = Vector(new Bot(1), new Bot(2))
-      case "1" => p = Vector(new Player(1), new Bot(2))
-      case "2" => p = Vector(new Player(1), new Player(2))
+      case "0" => players = Vector(new Bot(1), new Bot(2))
+      case "1" => players = Vector(new Player(1), new Bot(2))
+      case "2" => players = Vector(new Player(1), new Player(2))
     }
   }
 
   def newGame(): Unit = {
     board = new Board
-    player = p(0)
+    player = players(0)
     notifyObservers()
-    if (player.isInstanceOf[Bot]) selectAndSet()
+    selectAndSet()
   }
 
-  def nextPlayer: Player = if (player == p(0)) p(1) else p(0)
+  def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 
   def selectAndSet(): Unit = {
     if (!board.gameOver && player.isInstanceOf[Bot]) {
@@ -49,6 +49,11 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   def set(square: (Int, Int)): Unit = {
     undoManager.doStep(new SetCommand(square, player.value, this))
     notifyObservers()
+    if (moves.isEmpty && !board.gameOver) {
+      player = nextPlayer
+      gameStatus = OMITTED
+      notifyObservers()
+    } else selectAndSet()
   }
 
   def redo(): Unit = {
@@ -64,9 +69,10 @@ class Controller(var board: Board, var p: Vector[Player]) extends Observable {
   }
 
   def highlight(): Unit = {
-    board = if (!board.isHighlighted) {
-      board.highlight(player.value)
-    } else board.deHighlight
+    board = {
+      if (board.isHighlighted) board.deHighlight
+      else board.highlight(player.value)
+    }
     notifyObservers()
   }
 
