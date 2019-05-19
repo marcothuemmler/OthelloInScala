@@ -78,7 +78,10 @@ case class Board(grid: Vector[Vector[Square]]) {
   def score: String = {
     val count = countAll(1, 2)
     val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
-    val winner = if (winCount == count._1) "Black" else "White"
+    val winner = {
+      if (winCount == count._1) "Black"
+      else "White"
+    }
     if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
     else f"Draw. $winCount:$loseCount"
   }

@@ -9,11 +9,13 @@ import scala.util.{Try, Success, Failure}
 
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
 
+  private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
-  private val undoManager = new UndoManager
 
   def this(players: Vector[Player]) = this(new Board, players)
+
+  def this() = this(Vector(new Player(1), new Bot(2)))
 
   def setupPlayers(number: String): Unit = {
     number match {
@@ -30,30 +32,36 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     selectAndSet()
   }
 
-  def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
+  def set(square: (Int, Int)): Unit = {
+    undoManager.doStep(new SetCommand(square, player.value, this))
+    notifyObservers()
+    if (moves.isEmpty && !board.gameOver) omitPlayer()
+    else selectAndSet()
+  }
 
   def selectAndSet(): Unit = {
     if (!board.gameOver && player.isInstanceOf[Bot]) {
       Thread.sleep(0)
       select match {
         case Success(selection) => set(selection)
-        case Failure(_) =>
-          player = nextPlayer
-          gameStatus = OMITTED
-          notifyObservers()
+        case Failure(_) => omitPlayer()
       }
       selectAndSet()
     }
   }
 
-  def set(square: (Int, Int)): Unit = {
-    undoManager.doStep(new SetCommand(square, player.value, this))
+  def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
+
+  def omitPlayer(): Unit = {
+    player = nextPlayer
+    gameStatus = OMITTED
     notifyObservers()
-    if (moves.isEmpty && !board.gameOver) {
-      player = nextPlayer
-      gameStatus = OMITTED
-      notifyObservers()
-    } else selectAndSet()
+  }
+
+  def undo(): Unit = {
+    undoManager.undoStep()
+    undoManager.undoStep()
+    notifyObservers()
   }
 
   def redo(): Unit = {
@@ -62,10 +70,9 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     notifyObservers()
   }
 
-  def undo(): Unit = {
-    undoManager.undoStep()
-    undoManager.undoStep()
-    notifyObservers()
+  def select = Try {
+    val move = moves.toList(nextInt(moves.keySet.size))
+    move._2(nextInt(move._2.size))
   }
 
   def highlight(): Unit = {
@@ -76,22 +83,17 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     notifyObservers()
   }
 
-  def select = Try {
-    val move = moves.toList(nextInt(moves.keySet.size))
-    move._2(nextInt(move._2.size))
-  }
-
   def mapToBoard(input: String): (Int, Int) = {
     (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
   }
+
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
 
   def suggestions: String = {
     (for {
       (col, row) <- moves.values.flatten.toSet.toList.sorted
     } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
-
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
 
   def boardToString: String = board.toString
 }

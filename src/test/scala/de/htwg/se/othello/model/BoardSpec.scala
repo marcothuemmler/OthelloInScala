@@ -128,10 +128,15 @@ class BoardSpec extends WordSpec with Matchers {
       board = new Board
       board.score should be("Draw. 2:2")
     }
-    "declare the winner if the amount of tiles is not equal" in {
+    "declare the Black player as winner if there are more black disks" in {
       board = new Board
       board = board.flipLine((2, 3), (3, 3), 1)
       board.score should be(s"Black wins by 4:1!")
+    }
+    "declare the White player as  winner if there are more white disks" in {
+      board = new Board
+      board = board.flipLine((4, 2), (4, 3), 2)
+      board.score should be(s"White wins by 4:1!")
     }
   }
   "toString" should {

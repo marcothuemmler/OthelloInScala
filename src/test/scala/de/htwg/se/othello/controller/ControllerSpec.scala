@@ -17,6 +17,7 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "newGame" should {
     "reset the board" in {
+      c.set(3, 2)
       c.newGame()
       c.board should be(new Board)
       c.player should be(c.players(0))
@@ -47,17 +48,16 @@ class ControllerSpec extends WordSpec with Matchers {
       c.newGame()
     }
     "omit a player who doesn't have valid moves" in {
-      val players = Vector(new Player(1), new Player(2))
-      val controller = new Controller(new Board, players)
-      controller.board = Board(Vector.fill(8,8)(Square(1)))
-      controller.board = controller.board.flipLine((0,3),(0, 6),2)
-      controller.board = controller.board.flip(0,7, 0)
-      controller.board = controller.board.flip(7,0, 0)
-      controller.board = controller.board.flipLine((6,0),(6, 1),2)
-      controller.board = controller.board.flip(7,1, 2)
+      val controller = new Controller(Vector(new Player(1), new Player(2)))
+      controller.board = Board(Vector.fill(8, 8)(Square(1)))
+      controller.board = controller.board.flipLine((0, 3), (0, 6), 2)
+      controller.board = controller.board.flip(0, 7, 0)
+      controller.board = controller.board.flip(7, 0, 0)
+      controller.board = controller.board.flipLine((6, 0), (6, 1), 2)
+      controller.board = controller.board.flip(7, 1, 2)
       val currentPlayer = controller.player
-      controller.set(7,0)
-      controller.player should equal (currentPlayer)
+      controller.set(7, 0)
+      controller.player should equal(currentPlayer)
     }
   }
   "setAndNext" should {
@@ -65,9 +65,8 @@ class ControllerSpec extends WordSpec with Matchers {
       c.setupPlayers("1")
       c.board = Board(Vector.fill(8, 8)(Square(0)))
       c.board = c.board.flipLine((0, 7), (5, 7), 1)
+      c.board = c.board.flipLine((0, 6), (0, 5), 1)
       c.board = c.board.flipLine((1, 6), (3, 6), 2)
-      c.board = c.board.flip(0, 6, 1)
-      c.board.flip(0, 5, 1)
       val cBoard = c.board
       c.player = c.players(1)
       c.selectAndSet()
@@ -75,20 +74,27 @@ class ControllerSpec extends WordSpec with Matchers {
       c.newGame()
     }
   }
+  "omit" should {
+    "change the current player and set the gameStatus to omitted" in {
+      val ctrl = new Controller
+      val currentPlayer = ctrl.player
+      ctrl.omitPlayer()
+      ctrl.player should not equal currentPlayer
+      ctrl.gameStatus should equal (GameStatus.OMITTED)
+    }
+  }
   "undo" should {
     "revert the board to a previous state" in {
-      val ctrl = new Controller(new Board, Vector(new Player(1), new Player(2)))
+      val ctrl = new Controller
       ctrl.set(3, 2)
-      ctrl.set(2, 4)
       ctrl.undo()
       ctrl.board should equal(new Board)
     }
   }
   "redo" should {
     "redo undone changes" in {
-      val ctrl = new Controller(new Board, Vector(new Player(1), new Player(2)))
+      val ctrl = new Controller
       ctrl.set(3, 2)
-      ctrl.set(2, 4)
       val changedBoard = ctrl.board
       ctrl.undo()
       ctrl.redo()
@@ -127,8 +133,7 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "boardToString" should {
-    "print just the current board" in {
-      c.newGame()
+    "print the board" in {
       c.boardToString should equal(c.board.toString)
     }
   }
@@ -140,9 +145,8 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "fail if there are no moves" in {
       c.newGame()
-      c.players = Vector(new Bot(1), new Bot(2))
-      c.board = c.board.flip(3, 3, 1)
-      c.board = c.board.flip(4, 4, 1)
+      c.setupPlayers("0")
+      c.board = c.board.flipLine((3, 3), (4, 4), 1)
       c.select shouldBe a[Failure[_]]
     }
   }
