@@ -7,19 +7,20 @@ import scala.util.Failure
 
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
-  var c = new Controller(new Board, players)
+  var c = new Controller(players)
 
   "A controller created without board parameter" should {
     "have a default board" in {
       val ctrl = new Controller(players)
-      ctrl.board should be(new Board)
+      ctrl.board should equal(new Board)
     }
   }
   "newGame" should {
     "reset the board" in {
-      c.set(3, 2)
+      c.set(2, 3)
+      c.board should not equal new Board
       c.newGame()
-      c.board should be(new Board)
+      c.board should equal(new Board)
       c.player should be(c.players(0))
     }
     "reset the board and make the first move if the first player ist a Bot" in {
@@ -33,7 +34,7 @@ class ControllerSpec extends WordSpec with Matchers {
     "set one disk and flip at least one of the opponents disks" in {
       c.newGame()
       c.set(2, 3)
-      c.board.countAll(1, 2) should be(4, 1)
+      c.board.count should be(4, 1)
     }
     "not change any square on the board if the input is incorrect" in {
       c.newGame()
@@ -60,8 +61,8 @@ class ControllerSpec extends WordSpec with Matchers {
       controller.player should equal(currentPlayer)
     }
   }
-  "setAndNext" should {
-    "not change any square on the board if the input is incorrect" in {
+  "selectAndSet" should {
+    "not change any square on the board if the player has no valid move" in {
       c.setupPlayers("1")
       c.board = Board(Vector.fill(8, 8)(Square(0)))
       c.board = c.board.flipLine((0, 7), (5, 7), 1)
@@ -133,7 +134,7 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "boardToString" should {
-    "print the board" in {
+    "represent the board" in {
       c.boardToString should equal(c.board.toString)
     }
   }
@@ -145,16 +146,15 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "fail if there are no moves" in {
       c.newGame()
-      c.setupPlayers("0")
       c.board = c.board.flipLine((3, 3), (4, 4), 1)
       c.select shouldBe a[Failure[_]]
     }
   }
   "suggestions" should {
     "show possible moves" in {
-      c.setupPlayers("1")
-      c.newGame()
-      c.suggestions should be("C4 D3 E6 F5")
+      c.board = new Board
+      c.player = c.players(0)
+      c.suggestions should equal("C4 D3 E6 F5")
     }
   }
 }

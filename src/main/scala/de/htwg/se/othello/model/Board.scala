@@ -2,13 +2,11 @@ package de.htwg.se.othello.model
 
 case class Board(grid: Vector[Vector[Square]]) {
 
-  def this() = {
-    this(Vector.tabulate(8, 8)((i, j) => {
-      if ((i == 4 || i == 3) && i == j) Square(2)
-      else if (i == 4 && j == 3 || i == 3 && j == 4) Square(1)
-      else Square(0)
-    }))
-  }
+  def this() = this(Vector.tabulate(8, 8)((i, j) => {
+    if ((i == 4 || i == 3) && i == j) Square(2)
+    else if (i == 4 && j == 3 || i == 3 && j == 4) Square(1)
+    else Square(0)
+  }))
 
   def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
@@ -22,7 +20,7 @@ case class Board(grid: Vector[Vector[Square]]) {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
-      if !(nX < 0 || nX > 7 || nY < 0 || nY > 7) && setByOpp(value, nX, nY)
+      if (0 to 7 contains nX) && (0 to 7 contains nY) && setByOpp(value, nX, nY)
     } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
   }
 
@@ -33,57 +31,47 @@ case class Board(grid: Vector[Vector[Square]]) {
     else (nX, nY)
   }
 
-  def setBy(value: Int, x: Int, y: Int): Boolean = valueOf(x, y) == value
-
-  def setByOpp(value: Int, x: Int, y: Int): Boolean = isSet(x, y) && !setBy(value, x, y)
-
   def flip(col: Int, row: Int, value: Int): Board = {
     copy(grid.updated(col, grid(col).updated(row, Square(value))))
   }
 
   def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
+    val board = flip(current._1, current._2, value)
     val nextH = current._1 - current._1.compare(end._1)
     val nextV = current._2 - current._2.compare(end._2)
-    val board = flip(current._1, current._2, value)
     if (current != end) board.flipLine((nextH, nextV), end, value)
     else board
   }
 
-  def deHighlight: Board = {
-    copy(Vector.tabulate(8, 8)((col, row) => {
-      if (grid(col)(row).isHighlighted) Square(0)
-      else grid(col)(row)
-    }))
-  }
+  def deHighlight: Board = copy(Vector.tabulate(8, 8)((col, row) => {
+    if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
+  }))
 
-  def highlight(value: Int): Board = {
-    copy(Vector.tabulate(8, 8)((col, row) => {
-      if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
-      else grid(col)(row)
-    }))
-  }
+  def highlight(value: Int): Board = copy(Vector.tabulate(8, 8)((col, row) => {
+    if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
+    else grid(col)(row)
+  }))
 
   def isSet(col: Int, row: Int): Boolean = grid(col)(row).isSet
+
+  def setBy(value: Int, x: Int, y: Int): Boolean = valueOf(x, y) == value
+
+  def setByOpp(value: Int, x: Int, y: Int): Boolean = isSet(x, y) && !setBy(value, x, y)
 
   def valueOf(col: Int, row: Int): Int = grid(col)(row).value
 
   def isHighlighted: Boolean = grid.flatten.count(o => o.isHighlighted) > 0
 
-  def countAll(v1: Int, v2: Int): (Int, Int) = (count(v1), count(v2))
+  def count: (Int, Int) = (count(1), count(2))
 
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
 
   def gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty
 
   def score: String = {
-    val count = countAll(1, 2)
-    val (winCount, loseCount) = (count._1 max count._2, count._1 min count._2)
-    val winner = {
-      if (winCount == count._1) "Black"
-      else "White"
-    }
-    if (winCount != loseCount) f"$winner wins by $winCount:$loseCount!"
-    else f"Draw. $winCount:$loseCount"
+    val (win, lose) = (count._1 max count._2, count._1 min count._2)
+    val winner = if (win == count._1) "Black" else "White"
+    if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
   }
 
   override def toString: String = {

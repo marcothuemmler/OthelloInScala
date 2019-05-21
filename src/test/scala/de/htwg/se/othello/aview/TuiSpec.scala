@@ -6,7 +6,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 class TuiSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
-  val controller = new Controller(new Board, players)
+  val controller = new Controller(players)
   val tui = new Tui(controller)
   "A Tui " should {
     "do nothing on input q" in {
@@ -29,7 +29,7 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "create a new game on input n" in {
       tui.processInputLine("n")
-      controller.board should be(new Board())
+      controller.board should be(new Board)
     }
     "highlight possible moves on the board on input h" in {
       tui.processInputLine("h")
@@ -46,7 +46,7 @@ class TuiSpec extends WordSpec with Matchers {
       controller.board should equal(board)
     }
     "undo a step on input z" in {
-      val ctrl = new Controller(new Board, players)
+      val ctrl = new Controller(players)
       val t = new Tui(ctrl)
       t.processInputLine("c4")
       t.processInputLine("c5")
@@ -54,7 +54,7 @@ class TuiSpec extends WordSpec with Matchers {
       ctrl.board should equal(new Board)
     }
     "redo a step on input y" in {
-      val ctrl = new Controller(new Board, players)
+      val ctrl = new Controller(players)
       val t = new Tui(ctrl)
       t.processInputLine("c4")
       t.processInputLine("c5")
@@ -66,13 +66,12 @@ class TuiSpec extends WordSpec with Matchers {
   }
   "update" should {
     "print the current board and the gameStatus if the game is over" in {
-      val ctrl = new Controller(new Board, Vector(new Bot(1), new Bot(2)))
+      val ctrl = new Controller
       val test = new Tui(ctrl)
       ctrl.setupPlayers("0")
       ctrl.board = Board(Vector.fill(8, 8)(Square(1)))
       ctrl.player = controller.players(1)
       ctrl.set(7, 7)
-      ctrl.setupPlayers("1")
       test.update should be(true)
     }
     "print the gameStatus and the current board and if the game is not over " in {

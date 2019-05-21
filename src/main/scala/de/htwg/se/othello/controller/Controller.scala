@@ -4,8 +4,7 @@ import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
 
-import scala.util.Random.nextInt
-import scala.util.{Try, Success, Failure}
+import scala.util.{Try, Success}
 
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
 
@@ -17,12 +16,10 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def this() = this(Vector(new Player(1), new Bot(2)))
 
-  def setupPlayers(number: String): Unit = {
-    number match {
-      case "0" => players = Vector(new Bot(1), new Bot(2))
-      case "1" => players = Vector(new Player(1), new Bot(2))
-      case "2" => players = Vector(new Player(1), new Player(2))
-    }
+  def setupPlayers(number: String): Unit = number match {
+    case "0" => players = Vector(new Bot(1), new Bot(2))
+    case "1" => players = Vector(new Player(1), new Bot(2))
+    case "2" => players = Vector(new Player(1), new Player(2))
   }
 
   def newGame(): Unit = {
@@ -35,7 +32,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def set(square: (Int, Int)): Unit = {
     undoManager.doStep(new SetCommand(square, player.value, this))
     notifyObservers()
-    if (moves.isEmpty && !board.gameOver) omitPlayer()
+    if (options.isEmpty && !board.gameOver) omitPlayer()
     else selectAndSet()
   }
 
@@ -43,14 +40,12 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     if (!board.gameOver && player.isInstanceOf[Bot]) {
       Thread.sleep(0)
       select match {
-        case Success(selection) => set(selection)
-        case Failure(_) => omitPlayer()
+        case Success(square) => set(square)
+        case _ => omitPlayer()
       }
       selectAndSet()
     }
   }
-
-  def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 
   def omitPlayer(): Unit = {
     player = nextPlayer
@@ -70,11 +65,6 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     notifyObservers()
   }
 
-  def select = Try {
-    val move = moves.toList(nextInt(moves.keySet.size))
-    move._2(nextInt(move._2.size))
-  }
-
   def highlight(): Unit = {
     board = {
       if (board.isHighlighted) board.deHighlight
@@ -87,13 +77,18 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
   }
 
+  def suggestions: String = {
+    (for { (col, row) <- options }
+      yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
+  }
+
+  def options: List[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
+
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
 
-  def suggestions: String = {
-    (for {
-      (col, row) <- moves.values.flatten.toSet.toList.sorted
-    } yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
-  }
+  def select = Try(options(scala.util.Random.nextInt(options.size)))
+
+  def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 
   def boardToString: String = board.toString
 }
