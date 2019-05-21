@@ -1,7 +1,7 @@
 package de.htwg.se.othello.aview
 
 import de.htwg.se.othello.controller.Controller
-import de.htwg.se.othello.model.{Board, Bot, Player, Square}
+import de.htwg.se.othello.model.{Board, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 
 class TuiSpec extends WordSpec with Matchers {
@@ -14,15 +14,15 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "set the amount of human players to 0 on input 0" in {
       tui.processInputLine("0")
-      controller.players.count(o => o.isInstanceOf[Bot]) should be(2)
+      controller.players.count(o => o.isBot) should be(2)
     }
     "set the amount of human players to 1 on input 1" in {
       tui.processInputLine("1")
-      controller.players.count(o => o.isInstanceOf[Bot]) should be(1)
+      controller.players.count(o => o.isBot) should be(1)
     }
     "set the amount of human players to 2 on input 2" in {
       tui.processInputLine("2")
-      controller.players.count(o => o.isInstanceOf[Bot]) should be(0)
+      controller.players.count(o => o.isBot) should be(0)
     }
     "print suggestions on input s" in {
       tui.processInputLine("s")

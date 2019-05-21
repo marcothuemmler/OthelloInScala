@@ -17,4 +17,14 @@ class PlayerSpec extends WordSpec with Matchers {
       p.toString should be("White")
     }
   }
+  "isBot" should {
+    "return false if the player is a human player" in {
+      val player = new Player(1)
+      player.isBot should be(false)
+    }
+    "return true if the player is a bot" in {
+      val bot = new Bot(2)
+      bot.isBot should be(true)
+    }
+  }
 }
