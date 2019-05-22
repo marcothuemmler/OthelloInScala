@@ -4,6 +4,8 @@ import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
 
+import scala.util.{Failure, Success, Try}
+
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
 
   private val undoManager = new UndoManager
@@ -37,8 +39,11 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def selectAndSet(): Unit = {
     if (!board.gameOver && player.isBot) {
       val moveSelector = new MoveSelector(this)
-      val square = moveSelector.search(this, player, 5)
-      set(square)
+      val selection = Try(moveSelector.search(board, player, 5).get)
+      selection match {
+        case Success(value) => set(value)
+        case Failure(_) => omitPlayer()
+      }
       selectAndSet()
     }
   }
