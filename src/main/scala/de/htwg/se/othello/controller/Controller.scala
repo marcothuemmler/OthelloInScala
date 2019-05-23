@@ -38,8 +38,8 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def selectAndSet(): Unit = {
     if (!board.gameOver && player.isBot) {
-      val moveSelector = new MoveSelector(this)
-      val selection = Try(moveSelector.search(board, player, 5).get)
+      val moveSelector = new MoveSelector(player)
+      val selection = Try(moveSelector.search(board, player, 5))
       selection match {
         case Success(value) => set(value)
         case Failure(_) => omitPlayer()
@@ -83,9 +83,9 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
       yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
 
-  def options: List[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
+  def options: Stream[(Int, Int)] = moves.values.flatten.toSet.toStream.sorted
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
+  def moves: Map[(Int, Int), Stream[(Int, Int)]] = board.moves(player.value)
 
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 

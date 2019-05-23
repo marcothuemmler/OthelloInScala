@@ -15,12 +15,11 @@ class Tui(controller: Controller) extends Observer {
       case "z" => controller.undo()
       case "y" => controller.redo()
       case "s" => println(controller.suggestions)
+      case "0" | "1" | "2" => controller.setupPlayers(input)
       case _ => input.toList.map(in => in.toString) match {
         case col :: row :: Nil =>
           val square = controller.mapToBoard(col + row)
           controller.set(square)
-        case count :: Nil if 0 to 2 contains count.toInt =>
-          controller.setupPlayers(count)
         case _ => println("Please try again. " + controller.suggestions)
       }
     }

@@ -8,20 +8,27 @@ case class Board(grid: Vector[Vector[Square]]) {
     else Square(0)
   }))
 
-  def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
+  def moves(value: Int): Map[(Int, Int), Stream[(Int, Int)]] = {
     (for {
       col <- 0 to 7
       row <- 0 to 7 if setBy(value, col, row)
     } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
   }
 
-  def getMoves(value: Int, col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
+  def getMoves(value: Int, col: Int, row: Int): ((Int, Int), Stream[(Int, Int)]) = {
     ((col, row), (for {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
       if (0 to 7 contains nX) && (0 to 7 contains nY) && setByOpp(value, nX, nY)
-    } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
+    } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)).toStream)
+  }
+
+  def corners(value: Int): Int = {
+    (if (setBy(value, 0 ,0)) 3 else 0) +
+      (if (setBy(value, 0 ,7)) 3 else 0) +
+      (if (setBy(value, 7 ,0)) 3 else 0) +
+      (if (setBy(value, 7 ,7)) 3 else 0)
   }
 
   def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
