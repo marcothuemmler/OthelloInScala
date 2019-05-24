@@ -84,10 +84,8 @@ case class Board(grid: Vector[Vector[Square]]) {
   }
 
   override def toString: String = {
-    val columns = (for {
-      i <- grid.indices
-    } yield (i + 65).toChar).mkString(" ")
-    val top = "\n    " + columns + "\n    " + "_" * (grid.size * 2 - 1)
+    val cols = (for { i <- grid.indices } yield (i + 65).toChar).mkString(" ")
+    val top = "\n    " + cols + "\n    " + "_" * (grid.size * 2 - 1)
     var board = ("\nrow  |" + ("X" * grid.size)) * grid.size + "\n"
     for {
       col <- grid.indices

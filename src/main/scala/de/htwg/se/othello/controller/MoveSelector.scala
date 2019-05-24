@@ -1,12 +1,7 @@
 package de.htwg.se.othello.controller
-import de.htwg.se.othello.aview.Tui
 import de.htwg.se.othello.model.{Board, Player}
 
 final class MoveSelector(p: Player) {
-
-  private trait MinMax
-  private object Min extends MinMax
-  private object Max extends MinMax
 
   private type Move = (Int, Option[(Int, Int)])
   private val betaP: Player = if (p.value == 1) new Player(2) else new Player(1)
@@ -59,14 +54,10 @@ final class MoveSelector(p: Player) {
   private def max(x: Move, y: Move): Move = if (x._1 >= y._1) x else y
 
   private def min(x: Move, y: Move): Move = if (x._1 <= y._1) x else (y._1, x._2)
-}
 
-object MoveSelector {
-  def main(args: Array[String]): Unit = {
-    val controller = new Controller
-    controller.createBoard(6)
-    val tui = new Tui(controller)
-    controller.setupPlayers("0")
-    controller.newGame()
-  }
+  private trait MinMax
+
+  private object Min extends MinMax
+
+  private object Max extends MinMax
 }

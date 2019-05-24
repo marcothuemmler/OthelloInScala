@@ -30,6 +30,16 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     notifyObservers()
   }
 
+  def resizeBoard(op: String): Unit = {
+    op match {
+      case "+" => board = new Board(board.size + 2)
+      case "-" => board = new Board(board.size - 2)
+      case "." => board = new Board(8)
+    }
+    gameSize = board.size
+    newGame()
+  }
+
   def setupPlayers(number: String): Unit = number match {
     case "0" => players = Vector(new Bot(1), new Bot(2))
     case "1" => players = Vector(new Player(1), new Bot(2))

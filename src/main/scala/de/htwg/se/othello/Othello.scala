@@ -9,7 +9,7 @@ object Othello {
 
   val controller = new Controller
   val tui = new Tui(controller)
-  controller.notifyObservers()
+  controller.newGame()
 
   def main(args: Array[String]): Unit = {
     var input: String = ""
