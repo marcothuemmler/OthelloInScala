@@ -18,18 +18,25 @@ final class MoveSelector(p: Player) {
   }
 
   private def alphaBeta(d: Int, n: Board, choice: Option[(Int, Int)], pl: Player, alpha: Int, beta: Int, m: MinMax): Move = {
-    println(pl + "   " + "   " + alpha + "   " + "   " + beta + "   " + choice)
-    if (d == 0 || n.gameOver) (evaluate(pl,n), choice)
+    println(pl + "   " + "   " + alpha + "   " + "   " + beta + "   " + choice+ "   depht:   " + d)
+    if (d == 0 || n.gameOver) {
+      val result = (evaluate(pl, n), choice)
+      println("reached depth:   " + result)
+      result
+    }
     else if (m == Max) {
       n.moves(pl.value).values.flatten.toSet.takeWhile(_ => beta > alpha).foldLeft(alpha, choice) {
         case ((a, select), move) =>
           val board = simulate(n, pl, move)
+          println("maxboard:  \n" + board)
           max((a, select), alphaBeta(d - 1, board, Option(move), betaP, a, beta, Min))
       }
     } else {
       n.moves(pl.value).values.flatten.toSet.takeWhile(_ => beta > alpha).foldLeft((beta, choice)) {
         case ((b, select), move) =>
           val board = simulate(n, pl, move)
+
+          println("minboard:  \n" + board)
           min((b, select), alphaBeta(d - 1, board, Option(move), p, alpha, b, Max))
       }
     }
