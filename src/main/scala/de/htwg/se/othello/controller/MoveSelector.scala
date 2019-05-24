@@ -1,4 +1,5 @@
 package de.htwg.se.othello.controller
+import de.htwg.se.othello.aview.Tui
 import de.htwg.se.othello.model.{Board, Player}
 
 final class MoveSelector(p: Player) {
@@ -12,6 +13,7 @@ final class MoveSelector(p: Player) {
 
   def search(board: Board, player: Player, depth: Int = 5): (Int, Int) = {
     val res = alphaBeta(depth, board, None, player, -100000, 100000, Max)
+    println(player + "  " + res)
     res._2.getOrElse(board.moves(player.value).values.flatten.head)
   }
 
@@ -40,12 +42,19 @@ final class MoveSelector(p: Player) {
     board
   }
 
-  private def evaluate(board: Board): Int = {
-    if (board.gameOver) board.count(p.value)
-    else board.count(betaP.value) + board.corners(p.value)
-  }
+  private def evaluate(board: Board): Int = board.count(p.value)
 
   private def max(x: Move, y: Move): Move = if (x._1 >= y._1) x else y
 
   private def min(x: Move, y: Move): Move = if (x._1 <= y._1) x else (y._1, x._2)
+}
+
+object MoveSelector {
+  def main(args: Array[String]): Unit = {
+    val controller = new Controller
+    controller.createBoard(4)
+    val tui = new Tui(controller)
+    controller.setupPlayers("0")
+    controller.newGame()
+  }
 }

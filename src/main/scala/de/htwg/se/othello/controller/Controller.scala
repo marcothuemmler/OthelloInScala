@@ -11,6 +11,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
+  var gameSize: Int = board.size
 
   def this(players: Vector[Player]) = this(new Board, players)
 
@@ -25,6 +26,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def createBoard(size: Int): Unit = {
     board = (new CreateBoardStrategy).createNewBoard(size)
+    gameSize = size
     notifyObservers()
   }
 
@@ -35,7 +37,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   }
 
   def newGame(): Unit = {
-    createBoard(8)
+    createBoard(gameSize)
     player = players(0)
     selectAndSet()
   }

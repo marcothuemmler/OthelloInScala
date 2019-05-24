@@ -84,13 +84,13 @@ case class Board(grid: Vector[Vector[Square]]) {
   }
 
   override def toString: String = {
-    val top = "\n    A B C D E F G H\n    _______________"
+    val top = "\n    A B C D E F G H\n    " + "_" * (grid.size * 2 - 1)
     var board = ("\nrow  |" + ("X" * grid.size)) * grid.size + "\n"
     for {
       col <- grid.indices
       row <- grid.indices
     } board = board.replaceFirst("row", f"${row + 1}")
       .replaceFirst("X", f"${grid(row)(col)}")
-    top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺" + (if (gameOver && isSet) "\n" + score else "")
+    top + board + "    " + "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺" + (if (gameOver && isSet) "\n" + score else "")
   }
 }
