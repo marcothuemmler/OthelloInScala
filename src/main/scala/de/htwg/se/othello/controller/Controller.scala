@@ -1,10 +1,10 @@
 package de.htwg.se.othello.controller
 
 import de.htwg.se.othello.controller.GameStatus._
-import de.htwg.se.othello.model.{Board, Bot, Player}
+import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Try}
 
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
 
@@ -16,6 +16,18 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def this() = this(Vector(new Player(1), new Bot(2)))
 
+  def this(board: Board) = this(new Board(8), Vector(new Player(1), new Bot(2)))
+
+  def createEmptyBoard(size: Int): Unit = {
+    board = new Board(size)
+    notifyObservers()
+  }
+
+  def createBoard(size: Int): Unit = {
+    board = (new CreateBoardStrategy).createNewBoard(size)
+    notifyObservers()
+  }
+
   def setupPlayers(number: String): Unit = number match {
     case "0" => players = Vector(new Bot(1), new Bot(2))
     case "1" => players = Vector(new Player(1), new Bot(2))
@@ -23,9 +35,8 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   }
 
   def newGame(): Unit = {
-    board = new Board
+    createBoard(8)
     player = players(0)
-    notifyObservers()
     selectAndSet()
   }
 
@@ -39,10 +50,10 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def selectAndSet(): Unit = {
     if (!board.gameOver && player.isBot) {
       val moveSelector = new MoveSelector(player)
-      val selection = Try(moveSelector.search(board, player, 5))
+      val selection = Try(moveSelector.search(board, player))
       selection match {
-        case Success(value) => set(value)
-        case Failure(_) => omitPlayer()
+        case Success(square) => set(square)
+        case _ => omitPlayer()
       }
       selectAndSet()
     }

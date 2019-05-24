@@ -2,6 +2,7 @@ package de.htwg.se.othello
 
 import de.htwg.se.othello.aview.Tui
 import de.htwg.se.othello.controller.Controller
+
 import scala.io.StdIn.readLine
 
 object Othello {

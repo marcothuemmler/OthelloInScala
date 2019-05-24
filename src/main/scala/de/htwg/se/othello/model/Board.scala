@@ -2,16 +2,16 @@ package de.htwg.se.othello.model
 
 case class Board(grid: Vector[Vector[Square]]) {
 
-  def this() = this(Vector.tabulate(8, 8)((i, j) => {
-    if ((i == 4 || i == 3) && i == j) Square(2)
-    else if (i == 4 && j == 3 || i == 3 && j == 4) Square(1)
-    else Square(0)
-  }))
+  def this() = this(Vector.fill(8, 8)(Square(0)))
+
+  val size: Int = grid.size
+
+  def this(size: Int) = this(Vector.fill(size, size)(Square(0)))
 
   def moves(value: Int): Map[(Int, Int), Stream[(Int, Int)]] = {
     (for {
-      col <- 0 to 7
-      row <- 0 to 7 if setBy(value, col, row)
+      col <- grid.indices
+      row <- grid.indices if setBy(value, col, row)
     } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
   }
 
@@ -20,20 +20,20 @@ case class Board(grid: Vector[Vector[Square]]) {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
-      if (0 to 7 contains nX) && (0 to 7 contains nY) && setByOpp(value, nX, nY)
+      if (grid.indices contains nX) && (grid.indices contains nY) && setByOpp(value, nX, nY)
     } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)).toStream)
   }
 
   def corners(value: Int): Int = {
     (if (setBy(value, 0 ,0)) 3 else 0) +
-      (if (setBy(value, 0 ,7)) 3 else 0) +
-      (if (setBy(value, 7 ,0)) 3 else 0) +
-      (if (setBy(value, 7 ,7)) 3 else 0)
+      (if (setBy(value, 0 ,grid.size -1)) 3 else 0) +
+      (if (setBy(value, grid.size -1 ,0)) 3 else 0) +
+      (if (setBy(value, grid.size -1 ,grid.size-1)) 3 else 0)
   }
 
   def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val (nX, nY) = (x + direction._1, y + direction._2)
-    if (nX < 0 || nX > 7 || nY < 0 || nY > 7 || setBy(value, nX, nY)) (-1, -1)
+    if (nX < 0 || nX >= grid.size || nY < 0 || nY >= grid.size || setBy(value, nX, nY)) (-1, -1)
     else if (setByOpp(value, nX, nY)) checkRec(value, nX, nY, direction)
     else (nX, nY)
   }
@@ -50,11 +50,11 @@ case class Board(grid: Vector[Vector[Square]]) {
     else board
   }
 
-  def deHighlight: Board = copy(Vector.tabulate(8, 8)((col, row) => {
+  def deHighlight: Board = copy(Vector.tabulate(grid.size, grid.size)((col, row) => {
     if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
   }))
 
-  def highlight(value: Int): Board = copy(Vector.tabulate(8, 8)((col, row) => {
+  def highlight(value: Int): Board = copy(Vector.tabulate(grid.size, grid.size)((col, row) => {
     if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
     else grid(col)(row)
   }))
@@ -75,6 +75,8 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   def gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty
 
+  def isSet: Boolean = count._1 + count._2 > 0
+
   def score: String = {
     val (win, lose) = (count._1 max count._2, count._1 min count._2)
     val winner = if (win == count._1) "Black" else "White"
@@ -83,12 +85,12 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   override def toString: String = {
     val top = "\n    A B C D E F G H\n    _______________"
-    var board = ("\nrow  |" + ("X" * 8)) * 8 + "\n"
+    var board = ("\nrow  |" + ("X" * grid.size)) * grid.size + "\n"
     for {
-      col <- 0 to 7
-      row <- 0 to 7
+      col <- grid.indices
+      row <- grid.indices
     } board = board.replaceFirst("row", f"${row + 1}")
       .replaceFirst("X", f"${grid(row)(col)}")
-    top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺" + (if (gameOver) "\n" + score else "")
+    top + board + "    ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺" + (if (gameOver && isSet) "\n" + score else "")
   }
 }
