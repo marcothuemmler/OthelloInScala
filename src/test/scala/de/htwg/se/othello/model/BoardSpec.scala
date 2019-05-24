@@ -4,12 +4,14 @@ import org.scalatest.{Matchers, WordSpec}
 
 class BoardSpec extends WordSpec with Matchers {
   var board = new Board
+  val strategy = new CreateBoardStrategy
+  board = strategy.createNewBoard(8)
 
   "A board without parameters" should {
-    "be a board with four squares set" in {
-      val b = new Board
-      b.count(1) should be(2)
-      b.count(2) should be(2)
+    "be a board with no squares set" in {
+      val b = new Board()
+      b.count(1) should be(0)
+      b.count(2) should be(0)
     }
   }
   "setByOpp" should {
@@ -36,7 +38,6 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "moves" should {
     "not be empty if there are valid moves" in {
-      board = new Board
       board.moves(1) should be(
         Map((3, 4) -> Seq((3, 2), (5, 4)), (4, 3) -> Seq((2, 3), (4, 5)))
       )
@@ -44,7 +45,7 @@ class BoardSpec extends WordSpec with Matchers {
     "be empty if there are no valid moves" in {
       board = Board(Vector.fill(8, 8)(Square(0)))
       board.moves(1) should be(Map())
-      board = new Board
+      board = strategy.createNewBoard(8)
     }
   }
   "getMoves" should {
@@ -91,19 +92,19 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "countAll" should {
     "count the disks of both players on the board" in {
-      val b = new Board
+      val b = strategy.createNewBoard(8)
       b.count should be(2, 2)
     }
   }
   "count" should {
     "count the disks of one player on the board" in {
-      val b = new Board
+      val b = strategy.createNewBoard(8)
       b.count(1) should be(2)
     }
   }
   "deHighlight" should {
     "remove all the highlights on the board" in {
-      var b = new Board
+      var b = strategy.createNewBoard(8)
       b = b.highlight(1)
       b = b.deHighlight
       b.isHighlighted should be(false)
@@ -125,16 +126,16 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "score" should {
     "be a draw if the amount of tiles is equal" in {
-      board = new Board
+      board = strategy.createNewBoard(8)
       board.score should be("Draw. 2:2")
     }
     "declare the Black player as winner if there are more black disks" in {
-      board = new Board
+      board = strategy.createNewBoard(8)
       board = board.flipLine((2, 3), (3, 3), 1)
       board.score should be(s"Black wins by 4:1!")
     }
     "declare the White player as  winner if there are more white disks" in {
-      board = new Board
+      board = strategy.createNewBoard(8)
       board = board.flipLine((4, 2), (4, 3), 2)
       board.score should be(s"White wins by 4:1!")
     }

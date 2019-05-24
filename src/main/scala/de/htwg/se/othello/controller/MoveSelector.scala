@@ -46,9 +46,9 @@ final class MoveSelector(p: Player) {
   private def evaluate(board: Board): Int = {
     if (board.corners(p.value) == 0 && board.corners(betaP.value) == 0
       && board.count._1 + board.count._2 <= 30) {
-      board.count(betaP.value) // Evaporation strategy
+      board.count(betaP.value) + board.corners(p.value) // Evaporation strategy
     } else if (!board.gameOver) board.count(p.value) + board.corners(p.value) // absolute strategy + positional strategy
-    else board.count(p.value) // absolute strategy
+    else board.count(p.value)  - board.count(betaP.value)// absolute strategy
   }
 
   private def max(x: Move, y: Move): Move = if (x._1 >= y._1) x else y

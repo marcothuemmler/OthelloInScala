@@ -17,7 +17,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def this() = this(Vector(new Player(1), new Bot(2)))
 
-  def this(board: Board) = this(new Board(8), Vector(new Player(1), new Bot(2)))
+  def this(size: Int) = this(new Board(size), Vector(new Player(1), new Bot(2)))
 
   def createEmptyBoard(size: Int): Unit = {
     board = new Board(size)

@@ -86,11 +86,12 @@ case class Board(grid: Vector[Vector[Square]]) {
   override def toString: String = {
     val cols = (for { i <- grid.indices } yield (i + 65).toChar).mkString(" ")
     val top = "\n    " + cols + "\n    " + "_" * (grid.size * 2 - 1)
-    var board = ("\nrow  |" + ("X" * grid.size)) * grid.size + "\n"
+    var board = ("\nrow" + ("X" * grid.size)) * grid.size + "\n"
     for {
       col <- grid.indices
       row <- grid.indices
-    } board = board.replaceFirst("row", f"${row + 1}")
+    } board = board.replaceFirst("row",
+      f"${row + 1}" + (if (row + 1 > 9) " |" else "  |"))
       .replaceFirst("X", f"${grid(row)(col)}")
     top + board + "    " + "⎺" * (grid.size * 2 - 1) +
       (if (gameOver && isSet) "\n" + score else "")

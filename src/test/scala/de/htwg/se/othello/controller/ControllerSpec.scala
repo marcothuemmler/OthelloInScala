@@ -1,13 +1,13 @@
 package de.htwg.se.othello.controller
 
-import de.htwg.se.othello.model.{Board, Bot, Player, Square}
+import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
-
-import scala.util.Failure
 
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
   var c = new Controller(players)
+  val strategy = new CreateBoardStrategy
+  val b: Board = strategy.createNewBoard(8)
 
   "A controller created without board parameter" should {
     "have a default board" in {
@@ -18,15 +18,15 @@ class ControllerSpec extends WordSpec with Matchers {
   "newGame" should {
     "reset the board" in {
       c.set(2, 3)
-      c.board should not equal new Board
+      c.board should not equal b
       c.newGame()
-      c.board should equal(new Board)
+      c.board should equal(b)
       c.player should be(c.players(0))
     }
     "reset the board and make the first move if the first player ist a Bot" in {
       val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
       ctrl.newGame()
-      ctrl.board should not equal new Board
+      ctrl.board should not equal b
       ctrl.player should not be ctrl.players(0)
     }
   }
@@ -39,7 +39,7 @@ class ControllerSpec extends WordSpec with Matchers {
     "not change any square on the board if the input is incorrect" in {
       c.newGame()
       c.set(0, 0)
-      c.board should equal(new Board)
+      c.board should equal(b)
     }
     "skip the player if there are no valid moves to be made" in {
       c.board = Board(Vector.fill(8, 8)(Square(0)))
@@ -87,14 +87,16 @@ class ControllerSpec extends WordSpec with Matchers {
   "undo" should {
     "revert the board to a previous state" in {
       val ctrl = new Controller
+      ctrl.createBoard(8)
       ctrl.set(3, 2)
       ctrl.undo()
-      ctrl.board should equal(new Board)
+      ctrl.board should equal(b)
     }
   }
   "redo" should {
     "redo undone changes" in {
       val ctrl = new Controller
+      ctrl.createBoard(8)
       ctrl.set(3, 2)
       val changedBoard = ctrl.board
       ctrl.undo()
@@ -154,7 +156,7 @@ class ControllerSpec extends WordSpec with Matchers {
   */
   "suggestions" should {
     "show possible moves" in {
-      c.board = new Board
+      c.createBoard(8)
       c.player = c.players(0)
       c.suggestions should equal("C4 D3 E6 F5")
     }

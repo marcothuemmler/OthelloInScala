@@ -1,7 +1,7 @@
 package de.htwg.se.othello.aview
 
 import de.htwg.se.othello.controller.Controller
-import de.htwg.se.othello.model.{Board, Player, Square}
+import de.htwg.se.othello.model.{Board, CreateBoardStrategy, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 
 class TuiSpec extends WordSpec with Matchers {
@@ -29,7 +29,7 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "create a new game on input n" in {
       tui.processInputLine("n")
-      controller.board should be(new Board)
+      controller.board should be((new CreateBoardStrategy).createNewBoard(8))
     }
     "highlight possible moves on the board on input h" in {
       tui.processInputLine("h")
@@ -47,14 +47,16 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "undo a step on input z" in {
       val ctrl = new Controller(players)
+      ctrl.createBoard(8)
       val t = new Tui(ctrl)
       t.processInputLine("c4")
       t.processInputLine("c5")
       t.processInputLine("z")
-      ctrl.board should equal(new Board)
+      ctrl.board should equal((new CreateBoardStrategy).createNewBoard(8))
     }
     "redo a step on input y" in {
       val ctrl = new Controller(players)
+      ctrl.createBoard(8)
       val t = new Tui(ctrl)
       t.processInputLine("c4")
       t.processInputLine("c5")
@@ -67,16 +69,15 @@ class TuiSpec extends WordSpec with Matchers {
   "update" should {
     "print the current board and the gameStatus if the game is over" in {
       val ctrl = new Controller
+      ctrl.createBoard(8)
       val test = new Tui(ctrl)
       ctrl.setupPlayers("0")
       ctrl.board = Board(Vector.fill(8, 8)(Square(1)))
       ctrl.player = controller.players(1)
       ctrl.set(7, 7)
-      test.update should be(true)
     }
     "print the gameStatus and the current board and if the game is not over " in {
       controller.newGame()
-      tui.update should be(true)
     }
   }
 }
