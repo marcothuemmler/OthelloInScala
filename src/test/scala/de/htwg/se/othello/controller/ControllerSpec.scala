@@ -140,20 +140,46 @@ class ControllerSpec extends WordSpec with Matchers {
       c.boardToString should equal(c.board.toString)
     }
   }
-  /*
-  "select" should {
-    "select a random valid move" in {
-      val selection = c.select.get
-      (0 to 7) should contain(selection._1)
-      (0 to 7) should contain(selection._2)
-    }
-    "fail if there are no moves" in {
-      c.newGame()
-      c.board = c.board.flipLine((3, 3), (4, 4), 1)
-      c.select shouldBe a[Failure[_]]
+  "createEmptyBoard" should {
+    "create an empty board with the given dimensions" in {
+      c.createEmptyBoard(8)
+      c.board should be(new Board)
+      c.board.size should be (8)
+      c.board.count._2 + c.board.count._2 should be (0)
     }
   }
-  */
+  "createBoard" should {
+    "create a new instance of a game with the given dimensions" in {
+      c.createBoard(8)
+      c.board should be((new CreateBoardStrategy).createNewBoard(8))
+      c.board.size should be (8)
+      c.board.count._2 + c.board.count._2 should be (4)
+    }
+  }
+  "resizeBoard" should {
+    "increase the board size by 2 on input +" in {
+      val c = new Controller
+      val size = c.gameSize
+      c.resizeBoard("+")
+      c.gameSize should equal(size + 2)
+      c.board.size should equal(size + 2)
+    }
+    "reduce the board size by 2 on input -" in {
+      val c = new Controller
+      val size = c.gameSize
+      c.resizeBoard("-")
+      c.gameSize should equal(size - 2)
+      c.board.size should equal(size - 2)
+    }
+    "reset the board size to 8 on input ." in {
+      val c = new Controller(16)
+      c.gameSize should equal(16)
+      c.board.size should equal(16)
+      c.resizeBoard(".")
+      c.gameSize should equal(8)
+      c.board.size should equal(8)
+    }
+  }
   "suggestions" should {
     "show possible moves" in {
       c.createBoard(8)

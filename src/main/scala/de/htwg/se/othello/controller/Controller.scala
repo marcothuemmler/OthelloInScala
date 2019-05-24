@@ -37,7 +37,8 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
       case "." => board = new Board(8)
     }
     gameSize = board.size
-    newGame()
+    createBoard(gameSize)
+    notifyObservers()
   }
 
   def setupPlayers(number: String): Unit = number match {
