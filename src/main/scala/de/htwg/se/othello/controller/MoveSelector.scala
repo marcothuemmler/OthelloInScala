@@ -11,32 +11,30 @@ final class MoveSelector(p: Player) {
   private type Move = (Int, Option[(Int, Int)])
   private val betaP: Player = if (p.value == 1) new Player(2) else new Player(1)
 
-  def search(board: Board, player: Player, depth: Int = 4): (Int, Int) = {
+  def search(board: Board, player: Player, depth: Int = 5): (Int, Int) = {
     val res = alphaBeta(depth, board, None, player, -100000, 100000, Max)
-    println(player + "  " + res)
+    // println(player + "  " + res)
     res._2.getOrElse(board.moves(player.value).values.flatten.head)
   }
 
   private def alphaBeta(d: Int, n: Board, choice: Option[(Int, Int)], pl: Player, alpha: Int, beta: Int, m: MinMax): Move = {
-    println(pl + "   " + "   " + alpha + "   " + "   " + beta + "   " + choice+ "   depht:   " + d)
+    // println(pl + "   " + "   " + alpha + "   " + "   " + beta + "   " + choice+ "   depht:   " + d)
     if (d == 0 || n.gameOver) {
-      val result = (evaluate(pl, n), choice)
-      println("reached depth:   " + result)
+      val result = (evaluate(n), choice)
+      // println("reached depth:   " + result)
       result
-    }
-    else if (m == Max) {
+    } else if (m == Max) {
       n.moves(pl.value).values.flatten.toSet.takeWhile(_ => beta > alpha).foldLeft(alpha, choice) {
         case ((a, select), move) =>
           val board = simulate(n, pl, move)
-          println("maxboard:  \n" + board)
+          // println("maxboard:  \n" + board)
           max((a, select), alphaBeta(d - 1, board, Option(move), betaP, a, beta, Min))
       }
     } else {
       n.moves(pl.value).values.flatten.toSet.takeWhile(_ => beta > alpha).foldLeft((beta, choice)) {
         case ((b, select), move) =>
           val board = simulate(n, pl, move)
-
-          println("minboard:  \n" + board)
+          // println("minboard:  \n" + board)
           min((b, select), alphaBeta(d - 1, board, Option(move), p, alpha, b, Max))
       }
     }
@@ -50,7 +48,13 @@ final class MoveSelector(p: Player) {
     board
   }
 
-  private def evaluate(player: Player,board: Board): Int = board.count(player.value)
+  private def evaluate(board: Board): Int = {
+    if (board.corners(p.value) == 0 && board.corners(betaP.value) == 0
+      && board.count._1 + board.count._2 <= 30) {
+      board.count(betaP.value) // Evaporation strategy
+    } else if (!board.gameOver) board.count(p.value) + board.corners(p.value) // absolute strategy + positional strategy
+    else board.count(p.value) // absolute strategy
+  }
 
   private def max(x: Move, y: Move): Move = if (x._1 >= y._1) x else y
 
@@ -60,7 +64,7 @@ final class MoveSelector(p: Player) {
 object MoveSelector {
   def main(args: Array[String]): Unit = {
     val controller = new Controller
-    controller.createBoard(4)
+    controller.createBoard(6)
     val tui = new Tui(controller)
     controller.setupPlayers("0")
     controller.newGame()

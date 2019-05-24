@@ -25,10 +25,10 @@ case class Board(grid: Vector[Vector[Square]]) {
   }
 
   def corners(value: Int): Int = {
-    (if (setBy(value, 0 ,0)) 3 else 0) +
-      (if (setBy(value, 0 ,grid.size -1)) 3 else 0) +
-      (if (setBy(value, grid.size -1 ,0)) 3 else 0) +
-      (if (setBy(value, grid.size -1 ,grid.size-1)) 3 else 0)
+    (if (setBy(value, 0, 0)) 10 else 0) +
+      (if (setBy(value, 0, grid.size - 1)) 10 else 0) +
+      (if (setBy(value, grid.size - 1, 0)) 10 else 0) +
+      (if (setBy(value, grid.size - 1, grid.size - 1)) 10 else 0)
   }
 
   def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
@@ -91,6 +91,7 @@ case class Board(grid: Vector[Vector[Square]]) {
       row <- grid.indices
     } board = board.replaceFirst("row", f"${row + 1}")
       .replaceFirst("X", f"${grid(row)(col)}")
-    top + board + "    " + "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺" + (if (gameOver && isSet) "\n" + score else "")
+    top + board + "    " + "⎺" * (grid.size * 2 - 1) +
+      (if (gameOver && isSet) "\n" + score else "")
   }
 }
