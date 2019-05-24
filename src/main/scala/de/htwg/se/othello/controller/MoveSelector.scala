@@ -11,14 +11,15 @@ final class MoveSelector(p: Player) {
   private type Move = (Int, Option[(Int, Int)])
   private val betaP: Player = if (p.value == 1) new Player(2) else new Player(1)
 
-  def search(board: Board, player: Player, depth: Int = 5): (Int, Int) = {
+  def search(board: Board, player: Player, depth: Int = 4): (Int, Int) = {
     val res = alphaBeta(depth, board, None, player, -100000, 100000, Max)
     println(player + "  " + res)
     res._2.getOrElse(board.moves(player.value).values.flatten.head)
   }
 
   private def alphaBeta(d: Int, n: Board, choice: Option[(Int, Int)], pl: Player, alpha: Int, beta: Int, m: MinMax): Move = {
-    if (d == 0 || n.gameOver) (evaluate(n), choice)
+    println(pl + "   " + "   " + alpha + "   " + "   " + beta + "   " + choice)
+    if (d == 0 || n.gameOver) (evaluate(pl,n), choice)
     else if (m == Max) {
       n.moves(pl.value).values.flatten.toSet.takeWhile(_ => beta > alpha).foldLeft(alpha, choice) {
         case ((a, select), move) =>
@@ -42,7 +43,7 @@ final class MoveSelector(p: Player) {
     board
   }
 
-  private def evaluate(board: Board): Int = board.count(p.value)
+  private def evaluate(player: Player,board: Board): Int = board.count(player.value)
 
   private def max(x: Move, y: Move): Move = if (x._1 >= y._1) x else y
 
