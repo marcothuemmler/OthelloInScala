@@ -4,14 +4,13 @@ import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
 
-import scala.util.{Success, Try}
+import scala.util.Success
 
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
 
   private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
-  var gameSize: Int = board.size
 
   def this(players: Vector[Player]) = this(new Board, players)
 
@@ -19,26 +18,15 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def this(size: Int) = this(new Board(size), Vector(new Player(1), new Bot(2)))
 
-  def createEmptyBoard(size: Int): Unit = {
-    board = new Board(size)
-    notifyObservers()
-  }
-
   def createBoard(size: Int): Unit = {
     board = (new CreateBoardStrategy).createNewBoard(size)
-    gameSize = size
     notifyObservers()
   }
 
-  def resizeBoard(op: String): Unit = {
-    op match {
-      case "+" => board = new Board(board.size + 2)
-      case "-" => board = new Board(board.size - 2)
-      case "." => board = new Board(8)
-    }
-    gameSize = board.size
-    createBoard(gameSize)
-    notifyObservers()
+  def resizeBoard(op: String): Unit = op match {
+    case "+" => createBoard(board.size + 2)
+    case "-" => if  (board.size > 4) createBoard(board.size - 2)
+    case "." => createBoard(8)
   }
 
   def setupPlayers(number: String): Unit = number match {
@@ -48,7 +36,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   }
 
   def newGame(): Unit = {
-    createBoard(gameSize)
+    createBoard(board.size)
     player = players(0)
     selectAndSet()
   }
@@ -56,20 +44,16 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def set(square: (Int, Int)): Unit = {
     undoManager.doStep(new SetCommand(square, player.value, this))
     notifyObservers()
-    if (options.isEmpty && !board.gameOver) omitPlayer()
+    if (moves.isEmpty && !board.gameOver) omitPlayer()
     else selectAndSet()
   }
 
-  def selectAndSet(): Unit = {
-    if (!board.gameOver && player.isBot) {
-      val moveSelector = new MoveSelector(player)
-      val selection = Try(moveSelector.search(board, player))
-      selection match {
-        case Success(square) => set(square)
-        case _ => omitPlayer()
-      }
-      selectAndSet()
+  def selectAndSet(): Unit = if (!board.gameOver && player.isBot) {
+    new MoveSelector(this).select(5) match {
+      case Success(square) => set(square)
+      case _ => omitPlayer()
     }
+    selectAndSet()
   }
 
   def omitPlayer(): Unit = {

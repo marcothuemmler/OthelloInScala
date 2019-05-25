@@ -68,23 +68,23 @@ class TuiSpec extends WordSpec with Matchers {
     "resize the board on input +" in {
       val ctrl = new Controller
       val t = new Tui(ctrl)
-      val size = ctrl.gameSize
+      val size = ctrl.board.size
       t.processInputLine("+")
-      ctrl.gameSize should be (size + 2)
+      ctrl.board.size should be (size + 2)
     }
     "resize the board on input -" in {
       val ctrl = new Controller
       val t = new Tui(ctrl)
-      val size = ctrl.gameSize
+      val size = ctrl.board.size
       t.processInputLine("-")
-      ctrl.gameSize should be (size - 2)
+      ctrl.board.size should be (size - 2)
     }
     "reset the board size on input ." in {
       val ctrl = new Controller(16)
       val t = new Tui(ctrl)
-      ctrl.gameSize should equal(16)
+      ctrl.board.size should equal(16)
       t.processInputLine(".")
-      ctrl.gameSize should be (8)
+      ctrl.board.size should be (8)
     }
   }
   "update" should {
@@ -92,7 +92,7 @@ class TuiSpec extends WordSpec with Matchers {
       val ctrl = new Controller
       ctrl.createBoard(8)
       val test = new Tui(ctrl)
-      ctrl.setupPlayers("0")
+      test.processInputLine("0")
       ctrl.board = Board(Vector.fill(8, 8)(Square(1)))
       ctrl.player = ctrl.players(1)
       ctrl.set(7, 7)

@@ -1,63 +1,83 @@
 package de.htwg.se.othello.controller
 import de.htwg.se.othello.model.{Board, Player}
 
-final class MoveSelector(p: Player) {
+import scala.util.Try
+
+class MoveSelector(controller: Controller) {
 
   private type Move = (Int, Option[(Int, Int)])
-  private val betaP: Player = if (p.value == 1) new Player(2) else new Player(1)
+  val player: Player = controller.player
+  val board: Board = controller.board
+  val betaP: Player = if (player.value == 1) new Player(2) else new Player(1)
 
-  def search(board: Board, player: Player, depth: Int = 5): (Int, Int) = {
-    val res = alphaBeta(depth, board, None, player, -100000, 100000, Max)
-    // println(player + "  " + res)
-    res._2.getOrElse(board.moves(player.value).values.flatten.head)
+  val weightedBoard: Vector[Vector[Int]] = Vector(
+    Vector(99,  -8,  8,  6,  6,  8,  -8, 99),
+    Vector(-8, -24, -4, -3, -3, -4, -24, -8),
+    Vector(8,   -4,  7,  4,  4,  7,  -4,  8),
+    Vector(6,   -3,  4,  0,  0,  4,  -3,  6),
+    Vector(6,   -3,  4,  0,  0,  4,  -3,  6),
+    Vector(8,   -4,  7,  4,  4,  7,  -4,  8),
+    Vector(-8, -24, -4, -3, -3, -4, -24, -8),
+    Vector(99,  -8,  8,  6,  6,  8,  -8, 99)
+  )
+
+  // var maxdepth = 0
+  def select(depth: Int) = Try {
+    // maxdepth = depth
+    val result = search(depth, board, None, -1000, 1000, Max)
+    /*val test = */ result._2.getOrElse(controller.options.head)
+    // println("\nthis has been selected!: " + result._1 +", " + result._2.get)
+    // test
   }
 
-  private def alphaBeta(d: Int, n: Board, choice: Option[(Int, Int)], pl: Player, alpha: Int, beta: Int, m: MinMax): Move = {
-    // println(pl + "   " + "   " + alpha + "   " + "   " + beta + "   " + choice+ "   depht:   " + d)
+  def max(x: Move, y: Move): Move = if (x._1 >= y._1) x else y
+
+  def min(x: Move, y: Move): Move = if (x._1 <= y._1) x else (y._1, x._2)
+
+  def search(d: Int, n: Board, move: Option[(Int, Int)], alpha: Int, beta: Int, m: MinMax): Move = {
+    // val depth = (for { _ <- d to maxdepth } yield "").mkString("    ")
+    // if (d > 0) println("\n" + depth + d + "   " + move + "   " + alpha + "" + "   " + beta)
     if (d == 0 || n.gameOver) {
-      val result = (evaluate(n), choice)
-      // println("reached depth:   " + result)
-      result
-    } else if (m == Max) {
-      n.moves(pl.value).values.flatten.toSet.takeWhile(_ => beta > alpha).foldLeft(alpha, choice) {
-        case ((a, select), move) =>
-          val board = simulate(n, pl, move)
-          // println("maxboard:  \n" + board)
-          max((a, select), alphaBeta(d - 1, board, Option(move), betaP, a, beta, Min))
+      /*val eval = */(evaluate(n), move)
+      // println(depth + d + "   " + eval)
+      // eval
+    }
+    else if (m == Max) {
+      n.moves(player.value).values.flatten.toSet.foldLeft(alpha, move) {
+        case ((a, prev), next) => if (beta > alpha) {
+          val newBoard = simulate(n, player, next)
+          max((a, prev), search(d - 1, newBoard, Option(next), a, beta, Min))
+        } else (alpha, prev) // pruning
       }
     } else {
-      n.moves(pl.value).values.flatten.toSet.takeWhile(_ => beta > alpha).foldLeft((beta, choice)) {
-        case ((b, select), move) =>
-          val board = simulate(n, pl, move)
-          // println("minboard:  \n" + board)
-          min((b, select), alphaBeta(d - 1, board, Option(move), p, alpha, b, Max))
+      n.moves(betaP.value).values.flatten.toSet.foldLeft((beta, move)) {
+        case ((b, prev), next) => if (beta > alpha) {
+          val newBoard = simulate(n, betaP, next)
+          min((b, prev), search(d - 1, newBoard, Option(next), alpha, b, Max))
+        } else (alpha, prev) // pruning
       }
     }
   }
 
-  private def simulate(node: Board, player: Player, move: (Int, Int)): Board = {
-    val legal = node.moves(player.value).filter(o => o._2.contains(move))
-    var board = node
+  def simulate(b: Board, p: Player, toSquare: (Int, Int)): Board = {
+    val legal = b.moves(p.value).filter(o => o._2.contains(toSquare))
+    var newBoard = b
     for { fromSquare <- legal.keys }
-      board = node.flipLine(fromSquare, move, player.value)
-    board
+      newBoard = b.flipLine(fromSquare, toSquare, p.value)
+    newBoard
   }
 
-  private def evaluate(board: Board): Int = {
-    if (board.corners(p.value) == 0 && board.corners(betaP.value) == 0
-      && board.count._1 + board.count._2 <= 30) {
-      board.count(betaP.value) + board.corners(p.value) // Evaporation strategy
-    } else if (!board.gameOver) board.count(p.value) + board.corners(p.value) // absolute strategy + positional strategy
-    else board.count(p.value)  - board.count(betaP.value)// absolute strategy
+  def evaluate(b: Board): Int = {
+    (for {
+      x <- b.grid.indices
+      y <- b.grid.indices
+      if b.setBy(player.value, x, y)
+    } yield weightedBoard(x)(y)).sum
   }
 
-  private def max(x: Move, y: Move): Move = if (x._1 >= y._1) x else y
+  trait MinMax
 
-  private def min(x: Move, y: Move): Move = if (x._1 <= y._1) x else (y._1, x._2)
+  object Min extends MinMax
 
-  private trait MinMax
-
-  private object Min extends MinMax
-
-  private object Max extends MinMax
+  object Max extends MinMax
 }

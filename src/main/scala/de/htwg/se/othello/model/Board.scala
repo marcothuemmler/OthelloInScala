@@ -24,13 +24,6 @@ case class Board(grid: Vector[Vector[Square]]) {
     } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)).toStream)
   }
 
-  def corners(value: Int): Int = {
-    (if (setBy(value, 0, 0)) 10 else 0) +
-      (if (setBy(value, 0, grid.size - 1)) 10 else 0) +
-      (if (setBy(value, grid.size - 1, 0)) 10 else 0) +
-      (if (setBy(value, grid.size - 1, grid.size - 1)) 10 else 0)
-  }
-
   def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val (nX, nY) = (x + direction._1, y + direction._2)
     if (nX < 0 || nX >= grid.size || nY < 0 || nY >= grid.size || setBy(value, nX, nY)) (-1, -1)
