@@ -1,6 +1,7 @@
 package de.htwg.se.othello
 
 import de.htwg.se.othello.aview.Tui
+import de.htwg.se.othello.aview.gui._
 import de.htwg.se.othello.controller.Controller
 
 import scala.io.StdIn.readLine
@@ -9,6 +10,7 @@ object Othello {
 
   val controller = new Controller
   val tui = new Tui(controller)
+  val gui = new SwingGui(controller)
   controller.newGame()
 
   def main(args: Array[String]): Unit = {
@@ -18,6 +20,6 @@ object Othello {
     else do {
       input = readLine()
       tui.processInputLine(input)
-    } while (input != "q")
+    } while (true)
   }
 }

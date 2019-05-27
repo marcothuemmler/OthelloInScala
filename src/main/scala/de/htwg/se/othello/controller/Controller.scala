@@ -41,6 +41,8 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     selectAndSet()
   }
 
+  def exit(): Unit = System.exit(0)
+
   def set(square: (Int, Int)): Unit = {
     undoManager.doStep(new SetCommand(square, player.value, this))
     notifyObservers()

@@ -9,7 +9,7 @@ class Tui(controller: Controller) extends Observer {
 
   def processInputLine(input: String): Unit = {
     input match {
-      case "q" =>
+      case "q" => controller.exit()
       case "n" => controller.newGame()
       case "h" => controller.highlight()
       case "z" => controller.undo()
