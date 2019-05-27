@@ -9,9 +9,6 @@ class TuiSpec extends WordSpec with Matchers {
   val controller = new Controller(players)
   val tui = new Tui(controller)
   "A Tui " should {
-    "do nothing on input q" in {
-      tui.processInputLine("q")
-    }
     "set the amount of human players to 0 on input 0" in {
       tui.processInputLine("0")
       controller.players.count(o => o.isBot) should be(2)
