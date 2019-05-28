@@ -13,12 +13,15 @@ class SwingGui(controller: Controller) extends Frame with Observer {
 
   controller.add(this)
 
+  var cells: Array[Array[CellPanel]] = Array.ofDim[CellPanel](controller.board.size, controller.board.size)
+
+ /**
   private val white = new Label {icon = new ImageIcon("resources/white.png")}
   private val black = new Label { icon = new ImageIcon("resources/black.png") }
   private val empty = new Label("")
   private val highlightBlack = new Label { icon = new ImageIcon("resources/highlight.png") }
   private val highlightWhite = new Label { icon = new ImageIcon("resources/highlight-white.png") }
-
+  **/
   title = "Othello"
 
   menuBar = new MenuBar {
@@ -61,6 +64,8 @@ class SwingGui(controller: Controller) extends Frame with Observer {
     }
   }
 
+
+/**
   def table: Table = new Table(controller.board.size,controller.board.size) {
     background = new Color(0, 165, 0)
     gridColor = Color.DARK_GRAY
@@ -79,6 +84,21 @@ class SwingGui(controller: Controller) extends Frame with Observer {
       }
     }
   }
+**/
+def tablePanel: FlowPanel = new FlowPanel() {
+  contents += new GridPanel(cells.length, cells.length) {
+    for {
+      innerRow <- 0 until controller.board.size
+      innerColumn <- 0 until controller.board.size
+    } {
+      val cellPanel = new CellPanel(innerRow, innerColumn, controller)
+      cells(innerRow)(innerColumn) = cellPanel
+      contents += cellPanel
+      listenTo(cellPanel)
+    }
+  }
+}
+
 
   def top: GridPanel = new GridPanel(1, 9) {
     background = Color.LIGHT_GRAY
@@ -110,7 +130,7 @@ class SwingGui(controller: Controller) extends Frame with Observer {
   def panel: BorderPanel = new BorderPanel {
     add(top, BorderPanel.Position.North)
     add(left, BorderPanel.Position.West)
-    add(table, BorderPanel.Position.Center)
+    add(tablePanel, BorderPanel.Position.Center)
   }
 
   contents = panel
@@ -125,4 +145,7 @@ class SwingGui(controller: Controller) extends Frame with Observer {
     repaint()
     true
   }
+
+
+
 }
