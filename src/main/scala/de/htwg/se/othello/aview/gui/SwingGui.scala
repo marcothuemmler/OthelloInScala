@@ -13,10 +13,9 @@ class SwingGui(controller: Controller) extends Frame with Observer {
 
   controller.add(this)
 
-  private val white = new Label { icon = new ImageIcon("resources/white_alt.png") }
-  private val black = new Label { icon = new ImageIcon("resources/black_alt.png") }
-  private val highlightBlack = new Label { icon = new ImageIcon("resources/black_alt_highlight.png") }
-  private val highlightWhite = new Label { icon = new ImageIcon("resources/white_alt_highlight.png") }
+  private val white = new Label { icon = new ImageIcon("resources/white_leather_shadow.png") }
+  private val black = new Label { icon = new ImageIcon("resources/black_leather_shadow.png") }
+  private val highlight = new Label { icon = new ImageIcon("resources/black_dot.png") }
 
   title = "Othello"
 
@@ -53,22 +52,22 @@ class SwingGui(controller: Controller) extends Frame with Observer {
   }
 
   def table: Table = new Table(controller.board.size, controller.board.size) {
-    background = new Color(0, 150, 0)
-    gridColor = Color.DARK_GRAY
+    background = new Color(10, 90, 10)
+    gridColor = new Color(20, 20, 20)
     rowHeight = 50
     preferredSize = new Dimension(400, 400)
     listenTo(mouse.clicks)
     reactions += {
       case e: MouseClicked =>
         if (controller.board.gameOver) controller.newGame()
-        else controller.set(e.point.x / 50, e.point.y / 50)
+        else controller.set(e.point.x / rowHeight, e.point.y / rowHeight)
     }
     override def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = {
       controller.board.valueOf(column, row) match {
         case 1 => black
         case 2 => white
         case 0 => new Label("")
-        case -1 => if (controller.player.value == 1) highlightBlack else highlightWhite
+        case -1 => highlight
       }
     }
   }
