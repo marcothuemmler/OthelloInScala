@@ -13,24 +13,23 @@ class SwingGui(controller: Controller) extends Frame with Observer {
 
   controller.add(this)
 
-  private val white = new Label {icon = new ImageIcon("resources/white.png")}
-  private val black = new Label { icon = new ImageIcon("resources/black.png") }
-  private val empty = new Label("")
-  private val highlightBlack = new Label { icon = new ImageIcon("resources/highlight.png") }
-  private val highlightWhite = new Label { icon = new ImageIcon("resources/highlight-white.png") }
+  private val white = new Label { icon = new ImageIcon("resources/white_alt.png") }
+  private val black = new Label { icon = new ImageIcon("resources/black_alt.png") }
+  private val highlightBlack = new Label { icon = new ImageIcon("resources/black_alt_highlight.png") }
+  private val highlightWhite = new Label { icon = new ImageIcon("resources/white_alt_highlight.png") }
 
   title = "Othello"
 
   menuBar = new MenuBar {
     contents += new Menu("File") {
       mnemonic = Key.F
-      contents += new MenuItem(Action("New Game") {controller.newGame()})
-      contents += new MenuItem(Action("Quit") {controller.exit()})
+      contents += new MenuItem(Action("New Game") { controller.newGame() })
+      contents += new MenuItem(Action("Quit") { controller.exit() })
     }
     contents += new Menu("Edit") {
       mnemonic = Key.E
-      contents += new MenuItem(Action("Undo") {controller.undo()})
-      contents += new MenuItem(Action("Redo") {controller.redo()})
+      contents += new MenuItem(Action("Undo") { controller.undo() })
+      contents += new MenuItem(Action("Redo") { controller.redo() })
     }
     contents += new Menu("Options") {
       mnemonic = Key.O
@@ -43,46 +42,40 @@ class SwingGui(controller: Controller) extends Frame with Observer {
       contents += new MenuItem(Action("Increase board size") {
         controller.resizeBoard("+")
       })
-      contents += new MenuItem(Action("Reset board") {
+      contents += new MenuItem(Action("Reset board size") {
         controller.resizeBoard(".")
       })
       contents += new Menu("Player count") {
-        contents += new MenuItem(Action("1") {
-          controller.setupPlayers("1")
-        })
-        contents += new MenuItem(Action("2") {
-          controller.setupPlayers("2")
-        })
-        // Using this makes the gui hang until the game is over
-        /*contents += new MenuItem(Action("Demo mode") {
-          controller.setupPlayers("0")
-        })*/
+        contents += new MenuItem(Action("1") {controller.setupPlayers("1")})
+        contents += new MenuItem(Action("2") {controller.setupPlayers("2")})
       }
     }
   }
 
-  def table: Table = new Table(controller.board.size,controller.board.size) {
-    background = new Color(0, 165, 0)
+  def table: Table = new Table(controller.board.size, controller.board.size) {
+    background = new Color(0, 150, 0)
     gridColor = Color.DARK_GRAY
     rowHeight = 50
-    preferredSize = new Dimension(400,400)
+    preferredSize = new Dimension(400, 400)
     listenTo(mouse.clicks)
     reactions += {
-      case e: MouseClicked => controller.set(e.point.x / 50, e.point.y / 50)
+      case e: MouseClicked =>
+        if (controller.board.gameOver) controller.newGame()
+        else controller.set(e.point.x / 50, e.point.y / 50)
     }
     override def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = {
       controller.board.valueOf(column, row) match {
         case 1 => black
         case 2 => white
-        case 0 => empty
+        case 0 => new Label("")
         case -1 => if (controller.player.value == 1) highlightBlack else highlightWhite
       }
     }
   }
 
   def top: GridPanel = new GridPanel(1, 9) {
-    background = Color.LIGHT_GRAY
-    preferredSize = new Dimension(440, 40)
+    background = Color.lightGray
+    preferredSize = new Dimension(450, 50)
     contents += new Label("")
     contents += new Label("A")
     contents += new Label("B")
@@ -95,8 +88,8 @@ class SwingGui(controller: Controller) extends Frame with Observer {
   }
 
   def left: GridPanel = new GridPanel(8, 1) {
-    background = Color.LIGHT_GRAY
-    preferredSize = new Dimension(40, 400)
+    background = Color.lightGray
+    preferredSize = new Dimension(50, 400)
     contents += new Label("1")
     contents += new Label("2")
     contents += new Label("3")
@@ -116,9 +109,8 @@ class SwingGui(controller: Controller) extends Frame with Observer {
   contents = panel
 
   visible = true
-  location = new Point(200,200)
-  peer.setAlwaysOnTop(true)
-
+  location = new Point(200, 200)
+  // peer.setAlwaysOnTop(true)
   peer.setDefaultCloseOperation(3)
 
   def update: Boolean = {
