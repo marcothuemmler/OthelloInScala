@@ -52,7 +52,7 @@ class SwingGui(controller: Controller) extends Frame with Observer {
   }
 
   def table: Table = new Table(controller.board.size, controller.board.size) {
-    background = new Color(10, 90, 10)
+    background = new Color(10, 91, 10)
     gridColor = new Color(20, 20, 20)
     rowHeight = 50
     preferredSize = new Dimension(400, 400)
