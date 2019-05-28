@@ -3,7 +3,6 @@ package de.htwg.se.othello.controller
 import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
-
 import scala.util.Success
 
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
