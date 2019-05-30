@@ -10,9 +10,19 @@ class SwingGui(controller: Controller) extends Frame with Observer {
 
   controller.add(this)
 
-  title = "Othello"
+  lazy val tablePanel = new TablePanel(controller)
 
-  menuBar = new MenuBar {
+  lazy val mainFrame: MainFrame = new MainFrame {
+    title = "Othello"
+    menuBar = menus
+    contents = tablePanel
+    centerOnScreen
+    // peer.setAlwaysOnTop(true)
+    resizable = false
+    visible = true
+  }
+
+  def menus: MenuBar = new MenuBar {
     contents += new Menu("File") {
       mnemonic = Key.F
       contents += new MenuItem(Action("New Game") {
@@ -56,17 +66,11 @@ class SwingGui(controller: Controller) extends Frame with Observer {
     }
   }
 
-  lazy val tablePanel = new TablePanel(controller)
-  contents = tablePanel
-  // peer.setAlwaysOnTop(true)
-
   def update: Boolean = {
     tablePanel.redraw()
-    pack
-    centerOnScreen
-    repaint
-    resizable = false
-    visible = true
+    mainFrame.pack
+    mainFrame.centerOnScreen
+    mainFrame.repaint
     true
   }
 }

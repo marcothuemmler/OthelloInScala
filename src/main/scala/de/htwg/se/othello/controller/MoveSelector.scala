@@ -43,7 +43,7 @@ class MoveSelector(controller: Controller) {
         case ((b, prev), next) => if (beta > alpha) {
           val newBoard = simulate(n, betaP, next)
           min((b, prev), search(player, d - 1, newBoard, Option(next), alpha, b, Max))
-        } else (beta, prev)
+        } else (alpha, prev)
       }
     }
   }
