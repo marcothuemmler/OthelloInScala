@@ -9,14 +9,15 @@ import scala.swing.event.Key
 class SwingGui(controller: Controller) extends Frame with Observer {
 
   controller.add(this)
-
   lazy val tablePanel = new TablePanel(controller)
-  lazy val mainFrame: MainFrame = new MainFrame() {
+  lazy val mainFrame: MainFrame = new MainFrame {
     title = "Othello"
     menuBar = menus
     contents = tablePanel
     centerOnScreen()
     peer.setDefaultCloseOperation(3)
+    // peer.setAlwaysOnTop(true)
+    resizable = false
     visible = true
   }
 
@@ -53,11 +54,11 @@ class SwingGui(controller: Controller) extends Frame with Observer {
       contents += new MenuItem(Action("Reset board size") {
         controller.resizeBoard(".")
       })
-      contents += new Menu("Player count") {
-        contents += new MenuItem(Action("1") {
+      contents += new Menu("Game mode") {
+        contents += new MenuItem(Action("Player vs. Computer") {
           controller.setupPlayers("1")
         })
-        contents += new MenuItem(Action("2") {
+        contents += new MenuItem(Action("Player vs. Player") {
           controller.setupPlayers("2")
         })
       }
@@ -67,6 +68,7 @@ class SwingGui(controller: Controller) extends Frame with Observer {
   def update: Boolean = {
     tablePanel.redraw()
     mainFrame.pack
+    mainFrame.centerOnScreen
     mainFrame.repaint
     true
   }
