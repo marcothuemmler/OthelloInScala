@@ -15,11 +15,9 @@ object Othello {
 
   def main(args: Array[String]): Unit = {
     var input: String = ""
-    if (args.length > 0) input = args(0)
-    if (!input.isEmpty) tui.processInputLine(input)
-    else do {
+    while(true) {
       input = readLine()
       tui.processInputLine(input)
-    } while (true)
+    }
   }
 }

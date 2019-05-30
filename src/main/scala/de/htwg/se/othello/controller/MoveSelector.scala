@@ -21,40 +21,29 @@ class MoveSelector(controller: Controller) {
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99)
   )
 
-  // var maxdepth = 0
-  def select(depth: Int) = Try {
-    // maxdepth = depth
-    val result = search(depth, board, None, -1000, 1000, Max)
-    /*val test = */ result._2.getOrElse(controller.options.head)
-    // println("\nthis has been selected!: " + result._1 +", " + result._2.get)
-    // test
+  def select(depth: Int = 5) = Try {
+    search(player, depth, board, None, -1000, 1000, Max)._2.get
   }
 
   def max(x: Move, y: Move): Move = if (x._1 >= y._1) x else y
 
   def min(x: Move, y: Move): Move = if (x._1 <= y._1) x else (y._1, x._2)
 
-  def search(d: Int, n: Board, move: Option[(Int, Int)], alpha: Int, beta: Int, m: MinMax): Move = {
-    // val depth = (for { _ <- d to maxdepth } yield "").mkString("    ")
-    // if (d > 0) println("\n" + depth + d + "   " + move + "   " + alpha + "" + "   " + beta)
-    if (d == 0 || n.gameOver) {
-      /*val eval = */(evaluate(n), move)
-      // println(depth + d + "   " + eval)
-      // eval
-    }
+  def search(p: Player, d: Int, n: Board, move: Option[(Int, Int)], alpha: Int, beta: Int, m: MinMax): Move = {
+    if (d == 0 || n.gameOver || n.moves(p.value).isEmpty) (evaluate(n), move)
     else if (m == Max) {
       n.moves(player.value).values.flatten.toSet.foldLeft(alpha, move) {
         case ((a, prev), next) => if (beta > alpha) {
           val newBoard = simulate(n, player, next)
-          max((a, prev), search(d - 1, newBoard, Option(next), a, beta, Min))
-        } else (alpha, prev) // pruning
+          max((a, prev), search(betaP, d - 1, newBoard, Option(next), a, beta, Min))
+        } else (alpha, prev)
       }
     } else {
       n.moves(betaP.value).values.flatten.toSet.foldLeft((beta, move)) {
         case ((b, prev), next) => if (beta > alpha) {
           val newBoard = simulate(n, betaP, next)
-          min((b, prev), search(d - 1, newBoard, Option(next), alpha, b, Max))
-        } else (beta, prev) // pruning
+          min((b, prev), search(player, d - 1, newBoard, Option(next), alpha, b, Max))
+        } else (beta, prev)
       }
     }
   }
@@ -68,7 +57,8 @@ class MoveSelector(controller: Controller) {
   }
 
   def evaluate(b: Board): Int = {
-    (for {
+    if (b.gameOver) b.count(player.value)
+    else (for {
       x <- b.grid.indices
       y <- b.grid.indices
       if b.setBy(player.value, x, y)

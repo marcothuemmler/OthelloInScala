@@ -49,7 +49,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   }
 
   def selectAndSet(): Unit = if (!board.gameOver && player.isBot) {
-    new MoveSelector(this).select(5) match {
+    new MoveSelector(this).select() match {
       case Success(square) => set(square)
       case _ => omitPlayer()
     }

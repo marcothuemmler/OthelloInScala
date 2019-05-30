@@ -9,19 +9,10 @@ import scala.swing.event.Key
 class SwingGui(controller: Controller) extends Frame with Observer {
 
   controller.add(this)
-  lazy val tablePanel = new TablePanel(controller)
-  lazy val mainFrame: MainFrame = new MainFrame {
-    title = "Othello"
-    menuBar = menus
-    contents = tablePanel
-    centerOnScreen()
-    peer.setDefaultCloseOperation(3)
-    // peer.setAlwaysOnTop(true)
-    resizable = false
-    visible = true
-  }
 
-  def menus: MenuBar = new MenuBar {
+  title = "Othello"
+
+  menuBar = new MenuBar {
     contents += new Menu("File") {
       mnemonic = Key.F
       contents += new MenuItem(Action("New Game") {
@@ -65,11 +56,17 @@ class SwingGui(controller: Controller) extends Frame with Observer {
     }
   }
 
+  lazy val tablePanel = new TablePanel(controller)
+  contents = tablePanel
+  // peer.setAlwaysOnTop(true)
+
   def update: Boolean = {
     tablePanel.redraw()
-    mainFrame.pack
-    mainFrame.centerOnScreen
-    mainFrame.repaint
+    pack
+    centerOnScreen
+    repaint
+    resizable = false
+    visible = true
     true
   }
 }
