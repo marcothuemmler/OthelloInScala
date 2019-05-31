@@ -6,7 +6,7 @@ import de.htwg.se.othello.util.Observer
 
 import scala.swing.event.Key
 
-class SwingGui(controller: Controller) extends Frame with Observer {
+class SwingGui(controller: Controller) extends Observer {
 
   controller.add(this)
 

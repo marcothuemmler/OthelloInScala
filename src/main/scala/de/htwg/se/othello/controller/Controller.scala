@@ -3,6 +3,8 @@ package de.htwg.se.othello.controller
 import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
+
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
@@ -48,13 +50,13 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     else selectAndSet()
   }
 
-  def selectAndSet(): Unit = if (!board.gameOver && player.isBot) {
+  def selectAndSet(): Future[_] = Future(if (!board.gameOver && player.isBot) {
     new MoveSelector(this).select() match {
       case Success(square) => set(square)
       case _ => omitPlayer()
     }
     selectAndSet()
-  }
+  })(ExecutionContext.global)
 
   def omitPlayer(): Unit = {
     player = nextPlayer
