@@ -6,6 +6,7 @@ import de.htwg.se.othello.controller.Controller
 import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.swing.event.MouseClicked
 import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, GridPanel, Label, Orientation}
 
@@ -57,7 +58,9 @@ class TablePanel(controller: Controller) extends FlowPanel {
     listenTo(mouse.clicks)
     reactions += {
       case _: MouseClicked =>
-        if (controller.options.contains((col, row))) controller.set(col, row)
+        if (controller.options.contains((col, row))) {
+          Future(controller.set(col, row))(ExecutionContext.global)
+        }
         else if (controller.board.gameOver) controller.newGame()
         else controller.highlight()
     }

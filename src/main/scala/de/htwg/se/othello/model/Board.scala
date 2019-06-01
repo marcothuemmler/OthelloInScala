@@ -8,20 +8,20 @@ case class Board(grid: Vector[Vector[Square]]) {
 
   def this(size: Int) = this(Vector.fill(size, size)(Square(0)))
 
-  def moves(value: Int): Map[(Int, Int), Stream[(Int, Int)]] = {
+  def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
       col <- grid.indices
       row <- grid.indices if setBy(value, col, row)
     } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
   }
 
-  def getMoves(value: Int, col: Int, row: Int): ((Int, Int), Stream[(Int, Int)]) = {
+  def getMoves(value: Int, col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
     ((col, row), (for {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
       if (grid.indices contains nX) && (grid.indices contains nY) && setByOpp(value, nX, nY)
-    } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)).toStream)
+    } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
   }
 
   def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
