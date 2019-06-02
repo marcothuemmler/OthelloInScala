@@ -8,7 +8,7 @@ import javax.swing.border.LineBorder
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.swing.event.MouseClicked
-import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, GridPanel, Label, Orientation}
+import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, GridPanel, Label, Orientation}
 
 class TablePanel(controller: Controller) extends FlowPanel {
 
@@ -47,33 +47,62 @@ class TablePanel(controller: Controller) extends FlowPanel {
   }
 
   def square(row: Int, col: Int): Label = new Label {
-    border = new LineBorder(new Color(30, 30, 30, 140), 1)
+    border = new LineBorder(new Color(30, 30, 30, 140))
     preferredSize = new Dimension(squareSize, squareSize)
-    icon = controller.board.valueOf(col, row) match {
-      case -1 => new ImageIcon("resources/big_dot.png")
-      case 0  => new ImageIcon("resources/empty.png")
-      case 1  => new ImageIcon("resources/black_shadow.png")
-      case 2  => new ImageIcon("resources/white_shadow.png")
+    controller.board.valueOf(col, row) match {
+      case -1 => icon = new ImageIcon("resources/big_dot.png")
+      case 1 => icon = new ImageIcon("resources/black_shadow.png")
+      case 2 => icon = new ImageIcon("resources/white_shadow.png")
+      case _ =>
     }
     listenTo(mouse.clicks)
     reactions += {
       case _: MouseClicked =>
         if (controller.options.contains((col, row))) {
           Future(controller.set(col, row))(ExecutionContext.global)
-        }
-        else if (controller.board.gameOver) controller.newGame()
+        } else if (controller.board.gameOver) controller.newGame()
         else controller.highlight()
+    }
+  }
+
+  def scorePanel: GridPanel = {
+    if (!controller.board.gameOver) new GridPanel(1, 2) {
+      contents += new Label {
+        icon = new ImageIcon("resources/black_shadow.png")
+        text = s"${controller.board.count(1)}"
+        foreground = new Color(200, 200, 200)
+      }
+      contents += new Label {
+        icon = new ImageIcon("resources/white_shadow.png")
+        text = s"${controller.board.count(2)}"
+        foreground = new Color(200, 200, 200)
+      }
+      background = Color.darkGray
+      preferredSize = new Dimension(edgeLength, 60)
+    }
+    else new GridPanel(1, 1) {
+      contents += new Label {
+        text = controller.board.score
+        val test: Font = font
+        font = new Font(test.getName,0, 28)
+        foreground = new Color(200, 200, 200)
+      }
+      background = Color.darkGray
+      preferredSize = new Dimension(edgeLength, 60)
     }
   }
 
   def redraw(): Unit = {
     contents.clear
-    contents += new BorderPanel {
-      add(rows, BorderPanel.Position.West)
-      add(new BoxPanel(Orientation.Vertical) {
-        contents += columns
-        contents += table
-      }, BorderPanel.Position.East)
+    contents += new BoxPanel(Orientation.Vertical) {
+      contents += scorePanel
+      contents += new BorderPanel {
+        add(rows, BorderPanel.Position.West)
+        add(new BoxPanel(Orientation.Vertical) {
+          contents += columns
+          contents += table
+        }, BorderPanel.Position.East)
+      }
     }
     repaint
   }

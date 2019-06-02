@@ -40,17 +40,17 @@ class MoveSelector(controller: Controller) {
     if (d == 0 || n.gameOver || n.moves(p.value).isEmpty) (evaluate(n), move)
     else if (m == Max) {
       n.moves(player.value).values.flatten.toSet.foldLeft(alpha, move) {
-        case ((a, prev), next) => if (beta > alpha) {
+        case ((a, prev), next) if beta > a =>
           val newBoard = simulate(n, player, next)
           max((a, prev), search(betaP, d - 1, newBoard, Option(next), a, beta, Min))
-        } else (alpha, prev)
+        case ((a, prev), _) if beta <= a => (a, prev)
       }
     } else {
       n.moves(betaP.value).values.flatten.toSet.foldLeft((beta, move)) {
-        case ((b, prev), next) => if (beta > alpha) {
+        case ((b, prev), next) if b > alpha =>
           val newBoard = simulate(n, betaP, next)
           min((b, prev), search(player, d - 1, newBoard, Option(next), alpha, b, Max))
-        } else (alpha, prev)
+        case ((b, prev), _) if b <= alpha => (alpha, prev)
       }
     }
   }
