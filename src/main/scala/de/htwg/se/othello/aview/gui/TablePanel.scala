@@ -39,7 +39,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
   }
 
   def table: GridPanel = new GridPanel(tableSize, tableSize) {
-    background = new Color(10, 90, 10)
+    background = new Color(10, 95, 10)
     for {
       col <- 0 until columns
       row <- 0 until rows
@@ -50,9 +50,9 @@ class TablePanel(controller: Controller) extends FlowPanel {
     border = new LineBorder(new Color(30, 30, 30, 140))
     preferredSize = new Dimension(squareSize, squareSize)
     controller.board.valueOf(col, row) match {
-      case -1 => icon = new ImageIcon("resources/big_dot.png")
-      case 1 => icon = new ImageIcon("resources/black_shadow.png")
-      case 2 => icon = new ImageIcon("resources/white_shadow.png")
+      case -1 => icon = new ImageIcon("resources/dot.png")
+      case 1 => icon = new ImageIcon("resources/black.png")
+      case 2 => icon = new ImageIcon("resources/white.png")
       case _ =>
     }
     listenTo(mouse.clicks)
@@ -68,27 +68,26 @@ class TablePanel(controller: Controller) extends FlowPanel {
   def scorePanel: GridPanel = {
     if (!controller.board.gameOver) new GridPanel(1, 2) {
       contents += new Label {
-        icon = new ImageIcon("resources/black_shadow.png")
+        icon = new ImageIcon("resources/black.png")
         text = s"${controller.board.count(1)}"
         foreground = new Color(200, 200, 200)
       }
       contents += new Label {
-        icon = new ImageIcon("resources/white_shadow.png")
+        icon = new ImageIcon("resources/white.png")
         text = s"${controller.board.count(2)}"
         foreground = new Color(200, 200, 200)
       }
       background = Color.darkGray
-      preferredSize = new Dimension(edgeLength, 60)
+      preferredSize = new Dimension(edgeLength, squareSize)
     }
     else new GridPanel(1, 1) {
       contents += new Label {
         text = controller.board.score
-        val test: Font = font
-        font = new Font(test.getName,0, 28)
+        font = new Font(font.getName, font.getStyle, 28)
         foreground = new Color(200, 200, 200)
       }
       background = Color.darkGray
-      preferredSize = new Dimension(edgeLength, 60)
+      preferredSize = new Dimension(edgeLength, squareSize)
     }
   }
 

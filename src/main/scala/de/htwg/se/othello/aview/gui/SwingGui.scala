@@ -3,7 +3,6 @@ package de.htwg.se.othello.aview.gui
 import scala.swing._
 import de.htwg.se.othello.controller._
 import de.htwg.se.othello.util.Observer
-
 import scala.swing.event.Key
 
 class SwingGui(controller: Controller) extends Observer {
@@ -19,27 +18,18 @@ class SwingGui(controller: Controller) extends Observer {
     centerOnScreen
     // peer.setAlwaysOnTop(true)
     resizable = false
-    visible = true
   }
 
   def menus: MenuBar = new MenuBar {
     contents += new Menu("File") {
       mnemonic = Key.F
-      contents += new MenuItem(Action("New Game") {
-        controller.newGame()
-      })
-      contents += new MenuItem(Action("Quit") {
-        controller.exit()
-      })
+      contents += new MenuItem(Action("New Game") { controller.newGame() })
+      contents += new MenuItem(Action("Quit") { controller.exit() })
     }
     contents += new Menu("Edit") {
       mnemonic = Key.E
-      contents += new MenuItem(Action("Undo") {
-        controller.undo()
-      })
-      contents += new MenuItem(Action("Redo") {
-        controller.redo()
-      })
+      contents += new MenuItem(Action("Undo") { controller.undo() })
+      contents += new MenuItem(Action("Redo") { controller.redo() })
     }
     contents += new Menu("Options") {
       mnemonic = Key.O
@@ -69,8 +59,8 @@ class SwingGui(controller: Controller) extends Observer {
   def update: Boolean = {
     tablePanel.redraw()
     mainFrame.pack
-    mainFrame.centerOnScreen
     mainFrame.repaint
+    mainFrame.visible = true
     true
   }
 }
