@@ -15,9 +15,9 @@ class TablePanel(controller: Controller) extends FlowPanel {
   val sides = 32
   val sidesColor: Color = Color.lightGray
   val squareSize = 52
+  val operationsides = 150
 
   def tableSize: Int = controller.board.size
-
   def edgeLength: Int = tableSize * squareSize
 
   def rows: BoxPanel = new BoxPanel(Orientation.Vertical) {
@@ -31,6 +31,51 @@ class TablePanel(controller: Controller) extends FlowPanel {
       for { i <- 1 to rows } contents += new Label(s"$i")
     }
   }
+  def UndoPanel: BoxPanel = new BoxPanel(Orientation.Horizontal){
+    background = Color.darkGray
+    contents += new Label() {
+      icon = new ImageIcon("resources/undo.png")
+     // text = s"undo"
+      foreground = new Color(250, 250, 200)
+    }
+    listenTo(mouse.clicks)
+    reactions += {
+      case _: MouseClicked =>
+      controller.undo()
+    }
+
+  }
+
+  def RedoPanel: BoxPanel = new BoxPanel(Orientation.Horizontal){
+    background = Color.darkGray
+    contents += new Label() {
+      icon = new ImageIcon("resources/redo.png")
+    //  text = s"redo"
+      foreground = new Color(250, 250, 200)
+    }
+    listenTo(mouse.clicks)
+    reactions += {
+      case _: MouseClicked =>
+        controller.redo()
+    }
+  }
+  def TippsPanel: BoxPanel = new BoxPanel(Orientation.Horizontal){
+    background = Color.darkGray
+    contents += new Label() {
+      icon = new ImageIcon("resources/tipps.png")
+      text = s"Hightlights"
+      foreground = new Color(250, 250, 200)
+    }
+    listenTo(mouse.clicks)
+    reactions += {
+      case _: MouseClicked =>
+        controller.highlight()
+    }
+  }
+
+
+
+
 
   def columns: GridPanel = new GridPanel(1, tableSize) {
     background = sidesColor
@@ -77,6 +122,12 @@ class TablePanel(controller: Controller) extends FlowPanel {
         text = s"${controller.board.count(2)}"
         foreground = new Color(200, 200, 200)
       }
+      contents += new BoxPanel(Orientation.Vertical){
+        background = Color.darkGray
+        contents += UndoPanel
+        contents += RedoPanel
+        //contents += TippsPanel
+      }
       background = Color.darkGray
       preferredSize = new Dimension(edgeLength, 60)
     }
@@ -87,10 +138,24 @@ class TablePanel(controller: Controller) extends FlowPanel {
         font = new Font(test.getName,0, 28)
         foreground = new Color(200, 200, 200)
       }
+      contents += new Label {
+        text = "New Game!"
+        val test: Font = font
+        font = new Font(test.getName,0, 28)
+        foreground = new Color(200, 200, 200)
+        listenTo(mouse.clicks)
+        reactions += {
+          case _: MouseClicked =>
+            controller.newGame()
+        }
+
+      }
+
       background = Color.darkGray
       preferredSize = new Dimension(edgeLength, 60)
     }
   }
+
 
   def redraw(): Unit = {
     contents.clear
