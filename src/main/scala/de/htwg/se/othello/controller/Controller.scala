@@ -11,6 +11,8 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
+  var playerAmount : Int = 0
+
   def this(players: Vector[Player]) = this(new Board, players)
 
   def this() = this(Vector(new Player(1), new Bot(2)))
@@ -29,9 +31,32 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   }
 
   def setupPlayers(number: String): Unit = number match {
-    case "0" => players = Vector(new Bot(1), new Bot(2))
-    case "1" => players = Vector(new Player(1), new Bot(2))
-    case "2" => players = Vector(new Player(1), new Player(2))
+    case "0" =>
+      players = Vector(new Bot(1), new Bot(2))
+      playerAmount = 0
+    case "1" =>
+      players = Vector(new Player(1), new Bot(2))
+      playerAmount = 1
+    case "2" =>
+      players = Vector(new Player(1), new Player(2))
+      playerAmount = 2
+  }
+
+  def gameStart(name1: String, name2: String) :Unit = {
+    if(playerAmount == 0){
+      players = players.updated(0, Player("Computer", 1))
+      players = players.updated(1, Player("Computer", 2))
+    }
+    if(playerAmount == 1){
+      players = players.updated(0, Player(name1, 1))
+      players = players.updated(1, Player("Computer", 2))
+    }
+    if(playerAmount == 2){
+      players = players.updated(0, Player(name1, 1))
+      players = players.updated(1, Player(name2, 2))
+    }
+    gameStatus = START
+    notifyObservers()
   }
 
   def newGame(): Unit = {

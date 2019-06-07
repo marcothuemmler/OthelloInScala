@@ -69,7 +69,6 @@ class SwingGui(controller: Controller) extends Observer {
   def update: Boolean = {
     tablePanel.redraw()
     mainFrame.pack
-    mainFrame.centerOnScreen
     mainFrame.repaint
     true
   }

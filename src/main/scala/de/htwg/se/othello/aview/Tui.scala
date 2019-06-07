@@ -4,7 +4,7 @@ import de.htwg.se.othello.controller.{Controller, GameStatus}
 import de.htwg.se.othello.util.Observer
 
 class Tui(controller: Controller) extends Observer {
-
+  val wort = "\\w+".r
   controller.add(this)
 
   def processInputLine(input: String): Unit = {
@@ -18,6 +18,7 @@ class Tui(controller: Controller) extends Observer {
       case "+" | "-" | "." => controller.resizeBoard(input)
       case "0" | "1" | "2" => controller.setupPlayers(input)
       case _ => input.toList.map(in => in.toString) match {
+        case _ matches (wort.toString) => println("hallo")
         case col :: row :: Nil =>
           val square = controller.mapToBoard(col + row)
           controller.set(square)
@@ -27,7 +28,9 @@ class Tui(controller: Controller) extends Observer {
   }
 
   override def update: Boolean = {
-    if (controller.gameStatus != GameStatus.GAME_OVER) {
+    if (controller.gameStatus == GameStatus.START){
+      println(GameStatus.message(controller.gameStatus))
+    } else if (controller.gameStatus != GameStatus.GAME_OVER) {
       println(GameStatus.message(controller.gameStatus))
       println(controller.boardToString)
     } else {

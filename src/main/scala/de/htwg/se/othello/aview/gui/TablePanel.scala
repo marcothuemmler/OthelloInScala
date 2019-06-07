@@ -35,7 +35,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
     background = Color.darkGray
     contents += new Label() {
       icon = new ImageIcon("resources/undo.png")
-     // text = s"undo"
+      text = s"undo"
       foreground = new Color(250, 250, 200)
     }
     listenTo(mouse.clicks)
@@ -50,7 +50,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
     background = Color.darkGray
     contents += new Label() {
       icon = new ImageIcon("resources/redo.png")
-    //  text = s"redo"
+      text = s"redo"
       foreground = new Color(250, 250, 200)
     }
     listenTo(mouse.clicks)
