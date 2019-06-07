@@ -64,7 +64,7 @@ class MoveSelector(controller: Controller) {
   }
 
   def evaluate(b: Board): Int = {
-    if (b.gameOver) b.count(player.value)
+    if (b.gameOver) b.count(player.value) * 15
     else (for {
       x <- b.grid.indices
       y <- b.grid.indices

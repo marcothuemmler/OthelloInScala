@@ -65,18 +65,20 @@ class TablePanel(controller: Controller) extends FlowPanel {
     }
   }
 
+  def scoreLabel(value: Int): Label = new Label {
+    text = s"${controller.board.count(value)}"
+    foreground = new Color(200, 200, 200)
+    value match {
+      case 1 => icon = new ImageIcon("resources/black.png")
+      case 2 => icon = new ImageIcon("resources/white.png")
+      case _ =>
+    }
+  }
+
   def scorePanel: GridPanel = {
     if (!controller.board.gameOver) new GridPanel(1, 2) {
-      contents += new Label {
-        icon = new ImageIcon("resources/black.png")
-        text = s"${controller.board.count(1)}"
-        foreground = new Color(200, 200, 200)
-      }
-      contents += new Label {
-        icon = new ImageIcon("resources/white.png")
-        text = s"${controller.board.count(2)}"
-        foreground = new Color(200, 200, 200)
-      }
+      contents += scoreLabel(1)
+      contents += scoreLabel(2)
       background = Color.darkGray
       preferredSize = new Dimension(edgeLength, squareSize)
     }
