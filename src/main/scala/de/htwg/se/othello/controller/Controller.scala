@@ -4,6 +4,7 @@ import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player}
 import de.htwg.se.othello.util.{Observable, UndoManager}
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
 class Controller(var board: Board, var players: Vector[Player]) extends Observable {
@@ -11,6 +12,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
+  var isReady = true
   def this(players: Vector[Player]) = this(new Board, players)
 
   def this() = this(Vector(new Player(1), new Bot(2)))
@@ -37,7 +39,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def newGame(): Unit = {
     createBoard(board.size)
     player = players(0)
-    selectAndSet()
+    Future(selectAndSet())(ExecutionContext.global)
   }
 
   def exit(): Unit = System.exit(0)
@@ -50,10 +52,12 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   }
 
   def selectAndSet(): Unit = if (!board.gameOver && player.isBot) {
+    isReady = false
     new MoveSelector(this).select() match {
       case Success(square) => set(square)
       case _ => omitPlayer()
     }
+    isReady = true
     selectAndSet()
   }
 

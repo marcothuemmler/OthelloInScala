@@ -3,7 +3,8 @@ package de.htwg.se.othello.aview.gui
 import scala.swing._
 import de.htwg.se.othello.controller._
 import de.htwg.se.othello.util.Observer
-import scala.swing.event.Key
+
+import scala.swing.event.{ButtonClicked, Key}
 
 class SwingGui(controller: Controller) extends Observer {
 
@@ -46,12 +47,20 @@ class SwingGui(controller: Controller) extends Observer {
         controller.resizeBoard(".")
       })
       contents += new Menu("Game mode") {
-        contents += new MenuItem(Action("Player vs. Computer") {
-          controller.setupPlayers("1")
-        })
-        contents += new MenuItem(Action("Player vs. Player") {
-          controller.setupPlayers("2")
-        })
+        val pvc: RadioMenuItem = new RadioMenuItem("Player vs. Computer") {
+          selected = true
+        }
+        val pvp = new RadioMenuItem("Player vs. Player")
+        val cvc = new RadioMenuItem("Demo mode (Computer vs Computer)")
+        val mode = new ButtonGroup(pvc, pvp, cvc)
+        contents ++= mode.buttons
+        listenTo(pvc, pvp, cvc)
+        reactions += {
+          case e: ButtonClicked =>
+            if (e.source == pvp) controller.setupPlayers("2")
+            if (e.source == pvc) controller.setupPlayers("1")
+            if (e.source == cvc) controller.setupPlayers("0")
+        }
       }
     }
   }

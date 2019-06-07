@@ -58,10 +58,13 @@ class TablePanel(controller: Controller) extends FlowPanel {
     listenTo(mouse.clicks)
     reactions += {
       case _: MouseClicked =>
-        if (controller.options.contains((col, row))) {
+        if (controller.options.contains((col, row)) && controller.isReady) {
           Future(controller.set(col, row))(ExecutionContext.global)
+
         } else if (controller.board.gameOver) controller.newGame()
-        else controller.highlight()
+        else {
+          if (controller.isReady) controller.highlight()
+        }
     }
   }
 
