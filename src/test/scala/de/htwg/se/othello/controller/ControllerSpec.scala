@@ -3,6 +3,9 @@ package de.htwg.se.othello.controller
 import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
   var c = new Controller(players)
@@ -25,9 +28,9 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "reset the board and make the first move if the first player ist a Bot" in {
       val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
-      ctrl.newGame()
-      ctrl.board should not equal b
-      ctrl.player should not be ctrl.players(0)
+      val newGame = Future(ctrl.newGame())(ExecutionContext.global)
+      Await.ready(newGame, Duration.Inf)
+      if (ctrl.isReady) ctrl.player should not be ctrl.players(0)
     }
   }
   "set" should {
@@ -160,6 +163,13 @@ class ControllerSpec extends WordSpec with Matchers {
       val size = c.board.size
       c.resizeBoard("-")
       c.board.size should equal(size - 2)
+    }
+    "not do anything on input - if the board size is 4x4" in {
+      val c = new Controller
+      c.createBoard(4)
+      val size = c.board.size
+      c.resizeBoard("-")
+      c.board.size should equal(size)
     }
     "reset the board size to 8 on input ." in {
       val c = new Controller(16)

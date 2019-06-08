@@ -25,7 +25,7 @@ class SwingGui(controller: Controller) extends Observer {
     contents += new Menu("File") {
       mnemonic = Key.F
       contents += new MenuItem(Action("New Game") { controller.newGame() })
-      contents += new MenuItem(Action("Quit") { controller.exit() })
+      contents += new MenuItem(Action("Quit") { sys.exit })
     }
     contents += new Menu("Edit") {
       mnemonic = Key.E
