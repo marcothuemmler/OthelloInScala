@@ -17,7 +17,6 @@ class SwingGui(controller: Controller) extends Observer {
     menuBar = menus
     contents = tablePanel
     centerOnScreen
-    // peer.setAlwaysOnTop(true)
     resizable = false
   }
 
@@ -68,7 +67,6 @@ class SwingGui(controller: Controller) extends Observer {
   def update: Boolean = {
     tablePanel.redraw()
     mainFrame.pack
-    mainFrame.repaint
     mainFrame.visible = true
     true
   }

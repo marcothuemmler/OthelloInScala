@@ -24,9 +24,7 @@ class MoveSelector(controller: Controller) {
     val before = System.currentTimeMillis()
     val res = if (controller.board.size == 8) {
       search(player, depth, controller.board, None, -1000, 1000, Max)._2.get
-    } else {
-      controller.options(Random.nextInt(controller.options.size))
-    }
+    } else controller.options(Random.nextInt(controller.options.size))
     val after = System.currentTimeMillis()
     if (after - before < 600) Thread.sleep(600 - after + before)
     res
