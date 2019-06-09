@@ -13,7 +13,7 @@ class ControllerSpec extends WordSpec with Matchers {
   val b: Board = strategy.createNewBoard(8)
 
   "A controller created without board parameter" should {
-    "have a default board" in {
+    "have an empty board of size 8x8" in {
       val ctrl = new Controller(players)
       ctrl.board should equal(new Board)
     }
@@ -45,7 +45,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board should equal(b)
     }
     "skip the player if there are no valid moves to be made" in {
-      c.board = Board(Vector.fill(8, 8)(Square(0)))
+      c.board = new Board
       val emptyBoard = c.board
       c.set(0, 0)
       c.board should equal(emptyBoard)
@@ -67,7 +67,7 @@ class ControllerSpec extends WordSpec with Matchers {
   "selectAndSet" should {
     "not change any square on the board if the player has no valid move" in {
       c.setupPlayers("1")
-      c.board = Board(Vector.fill(8, 8)(Square(0)))
+      c.board = new Board
       c.board = c.board.flipLine((0, 7), (5, 7), 1)
       c.board = c.board.flipLine((0, 6), (0, 5), 1)
       c.board = c.board.flipLine((1, 6), (3, 6), 2)
@@ -148,7 +148,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.createBoard(8)
       c.board should be((new CreateBoardStrategy).createNewBoard(8))
       c.board.size should be (8)
-      c.board.count._2 + c.board.count._2 should be (4)
+      c.board.count._1 + c.board.count._2 should be (4)
     }
   }
   "resizeBoard" should {

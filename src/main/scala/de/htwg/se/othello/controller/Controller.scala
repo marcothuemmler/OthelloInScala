@@ -13,16 +13,20 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
   var isReady = true
+
   def this(players: Vector[Player]) = this(new Board, players)
 
   def this() = this(Vector(new Player(1), new Bot(2)))
 
   def this(size: Int) = this(new Board(size), Vector(new Player(1), new Bot(2)))
 
-  def resizeBoard(op: String): Unit = op match {
-    case "+" => createBoard(board.size + 2)
-    case "-" => if (board.size > 4) createBoard(board.size - 2)
-    case "." => createBoard(8)
+  def resizeBoard(op: String): Unit = {
+    player = players(0)
+    op match {
+      case "+" => createBoard(board.size + 2)
+      case "-" => if (board.size > 4) createBoard(board.size - 2)
+      case "." => createBoard(8)
+    }
   }
 
   def createBoard(size: Int): Unit = {

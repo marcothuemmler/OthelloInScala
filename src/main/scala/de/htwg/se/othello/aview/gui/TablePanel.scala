@@ -57,14 +57,11 @@ class TablePanel(controller: Controller) extends FlowPanel {
     }
     listenTo(mouse.clicks)
     reactions += {
-      case _: MouseClicked =>
-        if (controller.options.contains((col, row)) && controller.isReady) {
+      case _: MouseClicked if controller.isReady =>
+        if (controller.options.contains((col, row))) {
           Future(controller.set(col, row))(ExecutionContext.global)
-
         } else if (controller.board.gameOver) controller.newGame()
-        else {
-          if (controller.isReady) controller.highlight()
-        }
+        else controller.highlight()
     }
   }
 
@@ -80,8 +77,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
 
   def scorePanel: GridPanel = {
     if (!controller.board.gameOver) new GridPanel(1, 2) {
-      contents += scoreLabel(1)
-      contents += scoreLabel(2)
+      contents ++= List(scoreLabel(1), scoreLabel(2))
       background = Color.darkGray
       preferredSize = new Dimension(edgeLength, squareSize)
     }
