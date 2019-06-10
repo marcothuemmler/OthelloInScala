@@ -9,6 +9,7 @@ class MoveSelector(controller: Controller) {
   val player: Player = controller.player
   val betaP: Player = if (player.value == 1) new Player(2) else new Player(1)
 
+
   val weightedBoard: Vector[Vector[Int]] = Vector(
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99),
     Vector(-8, -24, -4, -3, -3, -4, -24, -8),
@@ -20,7 +21,7 @@ class MoveSelector(controller: Controller) {
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99)
   )
 
-  def select(depth: Int = 5) = Try {
+  def select(depth: Int ) = Try {
     val before = System.currentTimeMillis()
     val res = if (controller.board.size == 8) {
       search(player, depth, controller.board, None, -1000, 1000, Max)._2.get

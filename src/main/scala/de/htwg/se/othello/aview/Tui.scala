@@ -17,8 +17,9 @@ class Tui(controller: Controller) extends Observer {
       case "s" => println(controller.suggestions)
       case "+" | "-" | "." => controller.resizeBoard(input)
       case "0" | "1" | "2" => controller.setupPlayers(input)
+      case "d" => println("Choose difficulty.")
       case _ => input.toList.map(in => in.toString) match {
-        case _ matches (wort.toString) => println("hallo")
+        //case _ matches (wort.toString) => println("hallo")
         case col :: row :: Nil =>
           val square = controller.mapToBoard(col + row)
           controller.set(square)

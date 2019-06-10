@@ -12,6 +12,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
   var playerAmount : Int = 0
+  var difficulty : Int = 0
 
   def this(players: Vector[Player]) = this(new Board, players)
 
@@ -62,7 +63,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def newGame(): Unit = {
     createBoard(board.size)
     player = players(0)
-    selectAndSet()
+    selectAndSet(difficulty)
   }
 
   def exit(): Unit = System.exit(0)
@@ -71,15 +72,16 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     undoManager.doStep(new SetCommand(square, player.value, this))
     notifyObservers()
     if (moves.isEmpty && !board.gameOver) omitPlayer()
-    else selectAndSet()
+    else selectAndSet(difficulty)
   }
 
-  def selectAndSet(): Unit = if (!board.gameOver && player.isBot) {
-    new MoveSelector(this).select() match {
+  def selectAndSet(diff : Int): Unit = if (!board.gameOver && player.isBot) {
+    var diff = difficulty
+    new MoveSelector(this).select(diff) match {
       case Success(square) => set(square)
       case _ => omitPlayer()
     }
-    selectAndSet()
+    selectAndSet(diff)
   }
 
   def omitPlayer(): Unit = {
