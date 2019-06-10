@@ -23,8 +23,8 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def resizeBoard(op: String): Unit = {
     player = players(0)
     op match {
-      case "+" => createBoard(board.size + 2)
-      case "-" => if (board.size > 4) createBoard(board.size - 2)
+      case "+" => createBoard(size + 2)
+      case "-" => if (size > 4) createBoard(size - 2)
       case "." => createBoard(8)
     }
   }
@@ -47,13 +47,16 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   }
 
   def set(square: (Int, Int)): Unit = {
-    undoManager.doStep(new SetCommand(square, player.value, this))
+    if (moves.filter(o => o._2.contains(square)).keys.isEmpty) {
+      gameStatus = ILLEGAL
+    } else undoManager.doStep(new SetCommand(square, player.value, this))
+    if (gameOver) gameStatus = GAME_OVER
     notifyObservers()
-    if (moves.isEmpty && !board.gameOver) omitPlayer()
+    if (!gameOver && moves.isEmpty) omitPlayer()
     else selectAndSet()
   }
 
-  def selectAndSet(): Unit = if (!board.gameOver && player.isBot) {
+  def selectAndSet(): Unit = if (player.isBot && !gameOver) {
     isReady = false
     new MoveSelector(this).select() match {
       case Success(square) => set(square)
@@ -98,9 +101,13 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
       yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
 
+  def size: Int = board.size
+
   def options: Seq[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
 
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
+
+  def gameOver: Boolean = board.gameOver
 
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 

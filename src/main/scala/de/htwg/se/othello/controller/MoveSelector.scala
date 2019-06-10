@@ -54,10 +54,10 @@ class MoveSelector(controller: Controller) {
   }
 
   def simulate(b: Board, p: Player, toSquare: (Int, Int)): Board = {
-    val legal = b.moves(p.value).filter(o => o._2.contains(toSquare))
     var newBoard = b
-    for { fromSquare <- legal.keys }
-      newBoard = b.flipLine(fromSquare, toSquare, p.value)
+    for {
+      fromSquare <- b.moves(p.value).filter(o => o._2.contains(toSquare)).keys
+    } newBoard = b.flipLine(fromSquare, toSquare, p.value)
     newBoard
   }
 

@@ -16,7 +16,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
   val sidesColor: Color = Color.lightGray
   val squareSize = 52
 
-  def tableSize: Int = controller.board.size
+  def tableSize: Int = controller.size
 
   def edgeLength: Int = tableSize * squareSize
 
@@ -60,7 +60,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
       case _: MouseClicked if controller.isReady =>
         if (controller.options.contains((col, row))) {
           Future(controller.set(col, row))(ExecutionContext.global)
-        } else if (controller.board.gameOver) controller.newGame()
+        } else if (controller.gameOver) controller.newGame()
         else controller.highlight()
     }
   }
@@ -76,7 +76,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
   }
 
   def scorePanel: GridPanel = {
-    if (!controller.board.gameOver) new GridPanel(1, 2) {
+    if (!controller.gameOver) new GridPanel(1, 2) {
       contents ++= List(scoreLabel(1), scoreLabel(2))
       background = Color.darkGray
       preferredSize = new Dimension(edgeLength, squareSize)
@@ -84,7 +84,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
     else new GridPanel(1, 1) {
       contents += new Label {
         text = controller.board.score
-        font = new Font(font.getName, font.getStyle, 28)
+        font = new Font(font.getName, font.getStyle, 26)
         foreground = new Color(200, 200, 200)
       }
       background = Color.darkGray
