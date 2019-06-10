@@ -3,12 +3,13 @@ package de.htwg.se.othello.aview.gui
 import java.awt.Color
 
 import de.htwg.se.othello.controller.Controller
+import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.swing.event.MouseClicked
-import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, GridPanel, Label, Orientation}
+import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, Graphics2D, GridPanel, Label, Orientation}
 
 class TablePanel(controller: Controller) extends FlowPanel {
 
@@ -39,7 +40,13 @@ class TablePanel(controller: Controller) extends FlowPanel {
   }
 
   def table: GridPanel = new GridPanel(tableSize, tableSize) {
-    background = new Color(10, 95, 10)
+    override def paintComponent(g: Graphics2D): Unit = {
+      if (controller.size == 8) {
+        g.drawImage(ImageIO.read(getClass.getResource("resources/back.jpg")), null, null)
+      } else {
+        g.drawImage(ImageIO.read(getClass.getResource("resources/empty.jpg")), 0, 0, edgeLength, edgeLength, null)
+      }
+    }
     for {
       col <- 0 until columns
       row <- 0 until rows
@@ -47,12 +54,12 @@ class TablePanel(controller: Controller) extends FlowPanel {
   }
 
   def square(row: Int, col: Int): Label = new Label {
-    border = new LineBorder(new Color(30, 30, 30, 140))
+    border = new LineBorder(new Color(0x20, 0x20, 0x20, 200))
     preferredSize = new Dimension(squareSize, squareSize)
     controller.board.valueOf(col, row) match {
-      case -1 => icon = new ImageIcon("resources/dot.png")
-      case 1 => icon = new ImageIcon("resources/black.png")
-      case 2 => icon = new ImageIcon("resources/white.png")
+      case -1 => icon = new ImageIcon(getClass.getResource("resources/dot.png"))
+      case 1 => icon = new ImageIcon(getClass.getResource("resources/black.png"))
+      case 2 => icon = new ImageIcon(getClass.getResource("resources/white.png"))
       case _ =>
     }
     listenTo(mouse.clicks)
@@ -69,8 +76,8 @@ class TablePanel(controller: Controller) extends FlowPanel {
     text = s"${controller.board.count(value)}"
     foreground = new Color(200, 200, 200)
     value match {
-      case 1 => icon = new ImageIcon("resources/black.png")
-      case 2 => icon = new ImageIcon("resources/white.png")
+      case 1 => icon = new ImageIcon(getClass.getResource("resources/black.png"))
+      case 2 => icon = new ImageIcon(getClass.getResource("resources/white.png"))
       case _ =>
     }
   }
