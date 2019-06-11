@@ -13,7 +13,7 @@ import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, Graphics2
 
 class TablePanel(controller: Controller) extends FlowPanel {
 
-  val sides = 32
+  val sides = 26
   val sidesColor: Color = Color.lightGray
   val squareSize = 52
 
@@ -41,11 +41,10 @@ class TablePanel(controller: Controller) extends FlowPanel {
 
   def table: GridPanel = new GridPanel(tableSize, tableSize) {
     override def paintComponent(g: Graphics2D): Unit = {
-      if (controller.size == 8) {
-        g.drawImage(ImageIO.read(getClass.getResource("resources/back.jpg")), null, null)
-      } else {
-        g.drawImage(ImageIO.read(getClass.getResource("resources/empty.jpg")), 0, 0, edgeLength, edgeLength, null)
-      }
+      g.drawImage(ImageIO.read(getClass.getResourceAsStream {
+        if (controller.size == 8) "resources/back.jpg"
+        else "resources/empty.jpg"
+      }), 0, 0, edgeLength, edgeLength, null)
     }
     for {
       col <- 0 until columns
