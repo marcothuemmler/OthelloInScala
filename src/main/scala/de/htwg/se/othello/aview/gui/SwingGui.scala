@@ -1,9 +1,12 @@
 package de.htwg.se.othello.aview.gui
 
+import java.awt.event.KeyEvent
+
 import scala.swing._
 import de.htwg.se.othello.controller._
 import de.htwg.se.othello.util.Observer
-
+import javax.swing.KeyStroke
+import scala.swing.event.Key.Modifier
 import scala.swing.event.{ButtonClicked, Key}
 
 class SwingGui(controller: Controller) extends Observer {
@@ -23,27 +26,51 @@ class SwingGui(controller: Controller) extends Observer {
   def menus: MenuBar = new MenuBar {
     contents += new Menu("File") {
       mnemonic = Key.F
-      contents += new MenuItem(Action("New Game") { controller.newGame() })
-      contents += new MenuItem(Action("Quit") { sys.exit })
+      contents += new MenuItem(new Action("New Game") {
+        accelerator = Some(KeyStroke.getKeyStroke("ctrl N"))
+
+        override def apply: Unit = controller.newGame()
+      })
+      contents += new MenuItem(new Action("Quit") {
+        accelerator = Some(KeyStroke.getKeyStroke("ctrl Q"))
+
+        override def apply: Unit = sys.exit
+      })
     }
     contents += new Menu("Edit") {
       mnemonic = Key.E
-      contents += new MenuItem(Action("Undo") { controller.undo() })
-      contents += new MenuItem(Action("Redo") { controller.redo() })
+      contents += new MenuItem(new Action("Undo") {
+        accelerator = Some(KeyStroke.getKeyStroke("ctrl Z"))
+
+        override def apply: Unit = controller.undo()
+      })
+      contents += new MenuItem(new Action("Redo") {
+        accelerator = Some(KeyStroke.getKeyStroke("ctrl Y"))
+
+        override def apply: Unit = controller.redo()
+      })
     }
     contents += new Menu("Options") {
       mnemonic = Key.O
-      contents += new MenuItem(Action("Highlight possible moves") {
-        controller.highlight()
+      contents += new MenuItem(new Action("Highlight possible moves") {
+        accelerator = Some(KeyStroke.getKeyStroke("ctrl H"))
+
+        override def apply: Unit = controller.highlight()
       })
-      contents += new MenuItem(Action("Reduce board size") {
-        controller.resizeBoard("-")
+      contents += new MenuItem(new Action("Reduce board size") {
+        accelerator = Some(KeyStroke.getKeyStroke(45, Modifier.Control))
+
+        override def apply: Unit = controller.resizeBoard("-")
       })
-      contents += new MenuItem(Action("Increase board size") {
-        controller.resizeBoard("+")
+      contents += new MenuItem(new Action("Increase board size") {
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Modifier.Control))
+
+        override def apply: Unit = controller.resizeBoard("+")
       })
-      contents += new MenuItem(Action("Reset board size") {
-        controller.resizeBoard(".")
+      contents += new MenuItem(new Action("Reset board size") {
+        accelerator = Some(KeyStroke.getKeyStroke(46, Modifier.Control))
+
+        override def apply: Unit = controller.resizeBoard(".")
       })
       contents += new Menu("Game mode") {
         val pvc: RadioMenuItem = new RadioMenuItem("Player vs. Computer") {
@@ -66,6 +93,7 @@ class SwingGui(controller: Controller) extends Observer {
 
   def update: Boolean = {
     tablePanel.redraw()
+    mainFrame.repaint
     mainFrame.pack
     mainFrame.visible = true
     true
