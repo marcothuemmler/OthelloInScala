@@ -6,7 +6,6 @@ import de.htwg.se.othello.controller.Controller
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.swing.event.MouseClicked
 import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, Graphics2D, GridPanel, Label, Orientation}
@@ -40,11 +39,16 @@ class TablePanel(controller: Controller) extends FlowPanel {
   }
 
   def table: GridPanel = new GridPanel(tableSize, tableSize) {
+    border = new LineBorder(Color.black, 2)
     override def paintComponent(g: Graphics2D): Unit = {
-      g.drawImage(ImageIO.read(getClass.getResourceAsStream {
-        if (controller.size == 8) "resources/back.jpg"
-        else "resources/empty.jpg"
-      }), 0, 0, edgeLength, edgeLength, null)
+      g.drawImage({
+        ImageIO.read(getClass.getResourceAsStream("resources/back.jpg"))
+      }, 2, 2, edgeLength, edgeLength, null)
+      g.setColor(new Color(0x20, 0x20, 0x20, 200))
+      g.fillOval(2 * squareSize - 5, 2 * squareSize - 5, 14, 14)
+      g.fillOval(2 * squareSize - 5, edgeLength - 2 * squareSize - 5, 14, 14)
+      g.fillOval(edgeLength - 2 * squareSize - 5, 2 * squareSize - 5, 14, 14)
+      g.fillOval(edgeLength - 2 * squareSize - 5, edgeLength - 2 * squareSize - 5, 14, 14)
     }
     for {
       col <- 0 until columns
