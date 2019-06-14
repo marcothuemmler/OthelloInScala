@@ -25,7 +25,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     op match {
       case "+" => createBoard(size + 2)
       case "-" => if (size > 4) createBoard(size - 2)
-      case "." => createBoard(8)
+      case "." => if (size != 8) createBoard(8)
     }
   }
 
@@ -110,6 +110,8 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   def gameOver: Boolean = board.gameOver
 
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
+
+  def playerCount: Int = players.size - players.count(o => o.isBot)
 
   def boardToString: String = board.toString
 }

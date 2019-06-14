@@ -33,6 +33,16 @@ class ControllerSpec extends WordSpec with Matchers {
       if (ctrl.isReady) ctrl.player should not be ctrl.players(0)
     }
   }
+  "playerCount" should {
+    "return the amount of human players" in {
+      val ctrl = new Controller
+      ctrl.playerCount should be (1)
+      ctrl.setupPlayers("0")
+      ctrl.playerCount should be (0)
+      ctrl.setupPlayers("2")
+      ctrl.playerCount should be (2)
+    }
+  }
   "set" should {
     "set one disk and flip at least one of the opponents disks" in {
       c.newGame()

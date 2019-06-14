@@ -7,22 +7,20 @@ class Tui(controller: Controller) extends Observer {
 
   controller.add(this)
 
-  def processInputLine(input: String): Unit = {
-    input match {
-      case "q" => sys.exit
-      case "n" => controller.newGame()
-      case "h" => controller.highlight()
-      case "z" => controller.undo()
-      case "y" => controller.redo()
-      case "s" => println(controller.suggestions)
-      case "+" | "-" | "." => controller.resizeBoard(input)
-      case "0" | "1" | "2" => controller.setupPlayers(input)
-      case _ => input.toList.map(in => in.toString) match {
-        case col :: row :: Nil =>
-          val square = controller.mapToBoard(col + row)
-          controller.set(square)
-        case _ => println("Please try again. " + controller.suggestions)
-      }
+  def processInputLine: String => Unit = {
+    case "q" => sys.exit
+    case "n" => controller.newGame()
+    case "h" => controller.highlight()
+    case "z" => controller.undo()
+    case "y" => controller.redo()
+    case "s" => println(controller.suggestions)
+    case input@("+" | "-" | ".") => controller.resizeBoard(input)
+    case input@("0" | "1" | "2") => controller.setupPlayers(input)
+    case input => input.toList.map(in => in.toString) match {
+      case col :: row :: Nil =>
+        val square = controller.mapToBoard(col + row)
+        controller.set(square)
+      case _ => println("Please try again. " + controller.suggestions)
     }
   }
 

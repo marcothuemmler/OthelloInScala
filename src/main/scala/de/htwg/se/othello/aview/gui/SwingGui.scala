@@ -6,7 +6,8 @@ import scala.swing._
 import de.htwg.se.othello.controller._
 import de.htwg.se.othello.util.Observer
 import javax.swing.KeyStroke
-import scala.swing.event.Key.Modifier
+
+import scala.swing.event.Key.{Modifier, Modifiers}
 import scala.swing.event.{ButtonClicked, Key}
 
 class SwingGui(controller: Controller) extends Observer {
@@ -23,61 +24,65 @@ class SwingGui(controller: Controller) extends Observer {
     resizable = false
   }
 
+  val modifier: Modifiers = {
+    if (System.getProperty("os.name").startsWith("Mac")) Modifier.Meta
+    else Modifier.Control
+  }
+
   def menus: MenuBar = new MenuBar {
     contents += new Menu("File") {
       mnemonic = Key.F
       contents += new MenuItem(new Action("New Game") {
-        accelerator = Some(KeyStroke.getKeyStroke("ctrl N"))
-
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_N, modifier))
         override def apply: Unit = controller.newGame()
       })
       contents += new MenuItem(new Action("Quit") {
-        accelerator = Some(KeyStroke.getKeyStroke("ctrl Q"))
-
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Q, modifier))
         override def apply: Unit = sys.exit
       })
     }
     contents += new Menu("Edit") {
       mnemonic = Key.E
       contents += new MenuItem(new Action("Undo") {
-        accelerator = Some(KeyStroke.getKeyStroke("ctrl Z"))
-
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Z, modifier))
         override def apply: Unit = controller.undo()
       })
       contents += new MenuItem(new Action("Redo") {
-        accelerator = Some(KeyStroke.getKeyStroke("ctrl Y"))
-
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Y, modifier))
         override def apply: Unit = controller.redo()
       })
     }
     contents += new Menu("Options") {
       mnemonic = Key.O
       contents += new MenuItem(new Action("Highlight possible moves") {
-        accelerator = Some(KeyStroke.getKeyStroke("ctrl H"))
-
+        enabled = if (controller.moves.isEmpty) false else true
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_I, modifier))
         override def apply: Unit = controller.highlight()
       })
       contents += new MenuItem(new Action("Reduce board size") {
-        accelerator = Some(KeyStroke.getKeyStroke(45, Modifier.Control))
-
+        enabled = if (controller.size <= 4) false else true
+        accelerator = Some(KeyStroke.getKeyStroke(45, modifier))
         override def apply: Unit = controller.resizeBoard("-")
       })
       contents += new MenuItem(new Action("Increase board size") {
-        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Modifier.Control))
-
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, modifier))
         override def apply: Unit = controller.resizeBoard("+")
       })
       contents += new MenuItem(new Action("Reset board size") {
-        accelerator = Some(KeyStroke.getKeyStroke(46, Modifier.Control))
-
+        enabled = if (controller.size == 8) false else true
+        accelerator = Some(KeyStroke.getKeyStroke(46, modifier))
         override def apply: Unit = controller.resizeBoard(".")
       })
       contents += new Menu("Game mode") {
         val pvc: RadioMenuItem = new RadioMenuItem("Player vs. Computer") {
-          selected = true
+          selected = if (controller.playerCount == 1) true else false
         }
-        val pvp = new RadioMenuItem("Player vs. Player")
-        val cvc = new RadioMenuItem("Demo mode (Computer vs Computer)")
+        val pvp: RadioMenuItem = new RadioMenuItem("Player vs. Player") {
+          selected = if (controller.playerCount == 2) true else false
+        }
+        val cvc: RadioMenuItem = new RadioMenuItem("Demo mode (Computer vs Computer)") {
+          selected = if (controller.playerCount == 0) true else false
+        }
         val mode = new ButtonGroup(pvc, pvp, cvc)
         contents ++= mode.buttons
         listenTo(pvc, pvp, cvc)
@@ -95,6 +100,7 @@ class SwingGui(controller: Controller) extends Observer {
     tablePanel.redraw()
     mainFrame.repaint
     mainFrame.pack
+    mainFrame.menuBar = menus
     mainFrame.visible = true
     true
   }

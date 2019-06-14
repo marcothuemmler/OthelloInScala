@@ -23,10 +23,10 @@ class MoveSelector(controller: Controller) {
   def select(depth: Int = 5) = Try {
     val before = System.currentTimeMillis()
     val res = if (controller.board.size == 8) {
-      search(player, depth, controller.board, None, -1000, 1000, Max)._2.get
+      search(player, depth, controller.board, None, -10000, 10000, Max)._2.get
     } else controller.options(Random.nextInt(controller.options.size))
     val after = System.currentTimeMillis()
-    if (after - before < 600) Thread.sleep(600 - after + before)
+    if (after - before < 500) Thread.sleep(500 - after + before)
     res
   }
 
@@ -62,7 +62,7 @@ class MoveSelector(controller: Controller) {
   }
 
   def evaluate(b: Board): Int = {
-    if (b.gameOver) b.count(player.value) * 15
+    if (b.gameOver) b.count(player.value) * 15 - b.count(betaP.value) * 15
     else (for {
       x <- b.grid.indices
       y <- b.grid.indices
