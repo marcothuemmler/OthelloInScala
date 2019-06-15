@@ -1,11 +1,12 @@
 package de.htwg.se.othello.aview.gui
 
-import java.awt.Color
+import java.awt.{Color, GridLayout}
 
 import de.htwg.se.othello.controller.Controller
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.swing.event.MouseClicked
 import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, Graphics2D, GridPanel, Label, Orientation}
@@ -23,13 +24,12 @@ class TablePanel(controller: Controller) extends FlowPanel {
   def rows: BoxPanel = new BoxPanel(Orientation.Vertical) {
     background = sidesColor
     preferredSize = new Dimension(sides, edgeLength)
-    contents += new Label {
-      preferredSize = new Dimension(sides, sides)
-    }
-    contents += new GridPanel(tableSize, 1) {
+    contents ++= List(
+      new Label {preferredSize = new Dimension(sides, sides)},
+      new GridPanel(tableSize, 1) {
       background = sidesColor
       for { i <- 1 to rows } contents += new Label(s"$i")
-    }
+    })
   }
 
   def columns: GridPanel = new GridPanel(1, tableSize) {
@@ -44,7 +44,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
       g.drawImage({
         ImageIO.read(getClass.getResourceAsStream("resources/back.jpg"))
       }, 2, 2, edgeLength, edgeLength, null)
-      g.setColor(new Color(0x20, 0x20, 0x20, 200))
+      g.setColor(new Color(0x20, 0x20, 0x20))
       g.fillOval(2 * squareSize - 5, 2 * squareSize - 5, 14, 14)
       g.fillOval(2 * squareSize - 5, edgeLength - 2 * squareSize - 5, 14, 14)
       g.fillOval(edgeLength - 2 * squareSize - 5, 2 * squareSize - 5, 14, 14)
@@ -59,11 +59,17 @@ class TablePanel(controller: Controller) extends FlowPanel {
   def square(row: Int, col: Int): Label = new Label {
     border = new LineBorder(new Color(0x20, 0x20, 0x20, 200))
     preferredSize = new Dimension(squareSize, squareSize)
-    controller.board.valueOf(col, row) match {
-      case -1 => icon = new ImageIcon(getClass.getResource("resources/dot.png"))
-      case 1 => icon = new ImageIcon(getClass.getResource("resources/black.png"))
-      case 2 => icon = new ImageIcon(getClass.getResource("resources/white.png"))
-      case _ =>
+    override def paintComponent(g: Graphics2D): Unit = {
+      controller.board.valueOf(col, row) match {
+        case -1 =>
+          g.setColor(new Color(0, 0, 0, 120))
+          g.fillOval(15, 15, 23, 23)
+        case n @ (1 | 2) =>
+          g.drawImage({
+            ImageIO.read(getClass.getResource(f"resources/$n.png"))
+          }, 4, 4, null)
+        case _ =>
+      }
     }
     listenTo(mouse.clicks)
     reactions += {
@@ -75,30 +81,27 @@ class TablePanel(controller: Controller) extends FlowPanel {
     }
   }
 
-  def scoreLabel(value: Int): Label = new Label {
-    text = s"${controller.board.count(value)}"
-    foreground = new Color(200, 200, 200)
-    value match {
-      case 1 => icon = new ImageIcon(getClass.getResource("resources/black.png"))
-      case 2 => icon = new ImageIcon(getClass.getResource("resources/white.png"))
-      case _ =>
-    }
+  def scoreLabel: Int => Label = {
+    case n @ (1 | 2) =>
+      new Label {
+        icon = new ImageIcon(getClass.getResource(s"resources/$n.png"))
+        text = s"${controller.board.count(n)}"
+        foreground = new Color(200, 200, 200)
+      }
   }
 
-  def scorePanel: GridPanel = {
-    if (!controller.gameOver) new GridPanel(1, 2) {
+  def scorePanel: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+    peer.setLayout(new GridLayout)
+    preferredSize = new Dimension(edgeLength, squareSize)
+    background = Color.darkGray
+    if (!controller.gameOver) {
       contents ++= List(scoreLabel(1), scoreLabel(2))
-      background = Color.darkGray
-      preferredSize = new Dimension(edgeLength, squareSize)
-    }
-    else new GridPanel(1, 1) {
+    } else {
       contents += new Label {
         text = controller.board.score
         font = new Font(font.getName, font.getStyle, 26)
         foreground = new Color(200, 200, 200)
       }
-      background = Color.darkGray
-      preferredSize = new Dimension(edgeLength, squareSize)
     }
   }
 
@@ -114,6 +117,6 @@ class TablePanel(controller: Controller) extends FlowPanel {
         }, BorderPanel.Position.East)
       }
     }
-    repaint
+    revalidate
   }
 }

@@ -22,9 +22,13 @@ class MoveSelector(controller: Controller) {
 
   def select(depth: Int = 5) = Try {
     val before = System.currentTimeMillis()
-    val res = if (controller.board.size == 8) {
-      search(player, depth, controller.board, None, -10000, 10000, Max)._2.get
-    } else controller.options(Random.nextInt(controller.options.size))
+    val res = {
+      if (controller.board.count._1 + controller.board.count._2 <= 6 || controller.size != 8) {
+        controller.options(Random.nextInt(controller.options.size))
+      } else {
+        search(player, depth, controller.board, None, -10000, 10000, Max)._2.get
+      }
+    }
     val after = System.currentTimeMillis()
     if (after - before < 500) Thread.sleep(500 - after + before)
     res
@@ -62,12 +66,18 @@ class MoveSelector(controller: Controller) {
   }
 
   def evaluate(b: Board): Int = {
-    if (b.gameOver) b.count(player.value) * 15 - b.count(betaP.value) * 15
-    else (for {
-      x <- b.grid.indices
-      y <- b.grid.indices
-      if b.setBy(player.value, x, y)
-    } yield weightedBoard(x)(y)).sum
+    if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
+    else {
+      (for {
+        x <- b.grid.indices
+        y <- b.grid.indices
+        result = {
+          (if (b.setBy(player.value, x, y)) 1
+          else if(b.setBy(betaP.value, x, y)) -1
+          else 0) * weightedBoard(x)(y)
+        }
+      } yield result).sum
+    }
   }
 
   trait MinMax
