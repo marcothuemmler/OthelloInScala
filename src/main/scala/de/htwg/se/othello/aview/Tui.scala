@@ -14,6 +14,7 @@ class Tui(controller: Controller) extends Observer {
     case "z" => controller.undo()
     case "y" => controller.redo()
     case "s" => println(controller.suggestions)
+    case input@("e" | "m" |"d") => controller.setDifficulty(input)
     case input@("+" | "-" | ".") => controller.resizeBoard(input)
     case input@("0" | "1" | "2") => controller.setupPlayers(input)
     case input => input.toList.map(in => in.toString) match {

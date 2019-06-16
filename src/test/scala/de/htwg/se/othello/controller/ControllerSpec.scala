@@ -43,11 +43,31 @@ class ControllerSpec extends WordSpec with Matchers {
       ctrl.playerCount should be (2)
     }
   }
+  "setDifficulty" should {
+    "set the difficulty of the game" in {
+      val c = new Controller
+      c.setDifficulty("e")
+      c.difficulty should be (1)
+      c.setDifficulty("m")
+      c.difficulty should be (2)
+      c.setDifficulty("d")
+      c.difficulty should be (3)
+    }
+  }
+  "moveSelector" should {
+    "return a new MoveSelector with the given difficulty" in {
+      val c = new Controller
+      c.moveSelector(1) shouldBe a[EasyBot]
+      c.moveSelector(2) shouldBe a[MediumBot]
+      c.moveSelector(3) shouldBe a[HardBot]
+    }
+  }
   "set" should {
     "set one disk and flip at least one of the opponents disks" in {
       c.newGame()
       c.set(2, 3)
-      c.board.count should be(4, 1)
+      c.board.count(1) should be(4)
+      c.board.count(2) should be(1)
     }
     "not change any square on the board if the input is incorrect" in {
       c.newGame()
@@ -158,7 +178,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.createBoard(8)
       c.board should be((new CreateBoardStrategy).createNewBoard(8))
       c.board.size should be (8)
-      c.board.count._1 + c.board.count._2 should be (4)
+      c.board.count(1) + c.board.count(2) should be (4)
     }
   }
   "resizeBoard" should {

@@ -93,12 +93,31 @@ class SwingGui(controller: Controller) extends Observer {
             if (e.source == cvc) controller.setupPlayers("0")
         }
       }
+      contents += new Menu("Game Difficulty") {
+        val easy: RadioMenuItem = new RadioMenuItem("Easy") {
+          selected = if (controller.difficulty == 1) true else false
+        }
+        val medium: RadioMenuItem = new RadioMenuItem("Medium") {
+          selected = if (controller.difficulty == 2) true else false
+        }
+        val hard: RadioMenuItem = new RadioMenuItem("Hard") {
+          selected = if (controller.difficulty == 3) true else false
+        }
+        val mode = new ButtonGroup(easy, medium, hard)
+        contents ++= mode.buttons
+        listenTo(easy, medium, hard)
+        reactions += {
+          case e: ButtonClicked =>
+            if (e.source == easy) controller.setDifficulty("e")
+            if (e.source == medium) controller.setDifficulty("m")
+            if (e.source == hard) controller.setDifficulty("d")
+        }
+      }
     }
   }
 
   def update: Boolean = {
     tablePanel.redraw()
-    mainFrame.repaint
     mainFrame.pack
     mainFrame.menuBar = menus
     mainFrame.visible = true

@@ -93,7 +93,8 @@ class BoardSpec extends WordSpec with Matchers {
   "countAll" should {
     "count the disks of both players on the board" in {
       val b = strategy.createNewBoard(8)
-      b.count should be(2, 2)
+      b.count(1) should be(2)
+      b.count(2) should be(2)
     }
   }
   "count" should {

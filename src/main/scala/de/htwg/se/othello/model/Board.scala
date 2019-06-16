@@ -43,36 +43,40 @@ case class Board(grid: Vector[Vector[Square]]) {
     else board
   }
 
-  def deHighlight: Board = copy(Vector.tabulate(grid.size, grid.size)((col, row) => {
-    if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
-  }))
+  def deHighlight: Board = {
+    copy(Vector.tabulate(grid.size, grid.size)((col, row) => {
+      if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
+    }))
+  }
 
-  def highlight(value: Int): Board = copy(Vector.tabulate(grid.size, grid.size)((col, row) => {
-    if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
-    else grid(col)(row)
-  }))
+  def highlight(value: Int): Board = {
+    copy(Vector.tabulate(grid.size, grid.size)((col, row) => {
+      if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
+      else grid(col)(row)
+    }))
+  }
 
   def isSet(col: Int, row: Int): Boolean = grid(col)(row).isSet
 
   def setBy(value: Int, x: Int, y: Int): Boolean = valueOf(x, y) == value
 
-  def setByOpp(value: Int, x: Int, y: Int): Boolean = isSet(x, y) && !setBy(value, x, y)
+  def setByOpp(value: Int, x: Int, y: Int): Boolean = {
+    isSet(x, y) && !setBy(value, x, y)
+  }
 
   def valueOf(col: Int, row: Int): Int = grid(col)(row).value
 
   def isHighlighted: Boolean = grid.flatten.count(o => o.isHighlighted) > 0
 
-  def count: (Int, Int) = (count(1), count(2))
-
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
 
   def gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty
 
-  def isSet: Boolean = count._1 + count._2 > 0
+  def isSet: Boolean = count(1) + count(2) > 0
 
   def score: String = {
-    val (win, lose) = (count._1 max count._2, count._1 min count._2)
-    val winner = if (win == count._1) "Black" else "White"
+    val (win, lose) = (count(1) max count(2), count(1) min count(2))
+    val winner = if (win == count(1)) "Black" else "White"
     if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
   }
 

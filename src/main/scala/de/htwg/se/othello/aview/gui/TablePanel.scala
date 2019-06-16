@@ -1,6 +1,6 @@
 package de.htwg.se.othello.aview.gui
 
-import java.awt.{Color, GridLayout}
+import java.awt.{Color, GridLayout, RenderingHints}
 
 import de.htwg.se.othello.controller.Controller
 import javax.imageio.ImageIO
@@ -41,6 +41,9 @@ class TablePanel(controller: Controller) extends FlowPanel {
   def table: GridPanel = new GridPanel(tableSize, tableSize) {
     border = new LineBorder(Color.black, 2)
     override def paintComponent(g: Graphics2D): Unit = {
+      g.setRenderingHint(
+        RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON)
       g.drawImage({
         ImageIO.read(getClass.getResourceAsStream("resources/back.jpg"))
       }, 2, 2, edgeLength, edgeLength, null)
@@ -60,10 +63,13 @@ class TablePanel(controller: Controller) extends FlowPanel {
     border = new LineBorder(new Color(0x20, 0x20, 0x20, 200))
     preferredSize = new Dimension(squareSize, squareSize)
     override def paintComponent(g: Graphics2D): Unit = {
+      g.setRenderingHint(
+        RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON)
       controller.board.valueOf(col, row) match {
         case -1 =>
           g.setColor(new Color(0, 0, 0, 120))
-          g.fillOval(15, 15, 23, 23)
+          g.fillOval(16, 16, 21, 21)
         case n @ (1 | 2) =>
           g.drawImage({
             ImageIO.read(getClass.getResource(f"resources/$n.png"))

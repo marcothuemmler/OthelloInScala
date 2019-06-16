@@ -3,7 +3,9 @@ import de.htwg.se.othello.model.{Board, Player}
 
 import scala.util.{Random, Try}
 
-class MoveSelector(controller: Controller) {
+abstract class MoveSelector(controller: Controller) {
+
+  def evaluate(b: Board): Int
 
   private type Move = (Int, Option[(Int, Int)])
   val player: Player = controller.player
@@ -20,13 +22,13 @@ class MoveSelector(controller: Controller) {
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99)
   )
 
-  def select(depth: Int = 5) = Try {
+  def select = Try {
     val before = System.currentTimeMillis()
     val res = {
-      if (controller.board.count._1 + controller.board.count._2 <= 6 || controller.size != 8) {
+      if (controller.board.count(1) + controller.board.count(2) <= 6 || controller.size != 8) {
         controller.options(Random.nextInt(controller.options.size))
       } else {
-        search(player, depth, controller.board, None, -10000, 10000, Max)._2.get
+        search(player, 5, controller.board, None, -10000, 10000, Max)._2.get
       }
     }
     val after = System.currentTimeMillis()
@@ -65,7 +67,16 @@ class MoveSelector(controller: Controller) {
     newBoard
   }
 
-  def evaluate(b: Board): Int = {
+  trait MinMax
+
+  object Min extends MinMax
+
+  object Max extends MinMax
+}
+
+// Combination of positional strategy, absolute strategy and mobility
+class HardBot(controller: Controller) extends MoveSelector(controller) {
+  override def evaluate(b: Board): Int = {
     if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
     else {
       (for {
@@ -76,13 +87,39 @@ class MoveSelector(controller: Controller) {
           else if(b.setBy(betaP.value, x, y)) -1
           else 0) * weightedBoard(x)(y)
         }
-      } yield result).sum
+      } yield result).sum - b.moves(betaP.value).values.flatten.toSet.size * 10
     }
   }
+}
 
-  trait MinMax
+// The above strategies reversed. Essentially gives the opponent the best moves
+class EasyBot(controller: Controller) extends MoveSelector(controller) {
+  override def evaluate(b: Board): Int = {
+    if (b.gameOver) b.count(betaP.value).compare(b.count(player.value)) * 5000
+    else {
+      (for {
+        x <- b.grid.indices
+        y <- b.grid.indices
+        result = {
+          (if (b.setBy(player.value, x, y)) -1
+          else if(b.setBy(betaP.value, x, y)) 1
+          else 0) * weightedBoard(x)(y)
+        }
+      } yield result).sum + b.moves(betaP.value).values.flatten.toSet.size * 10
+    }
+  }
+}
 
-  object Min extends MinMax
-
-  object Max extends MinMax
+// Positional strategy and absolute strategy
+class MediumBot(controller: Controller) extends MoveSelector(controller) {
+  override def evaluate(b: Board): Int = {
+    if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
+    else {
+      (for {
+        x <- b.grid.indices
+        y <- b.grid.indices
+        if b.valueOf(x, y) == player.value
+      } yield weightedBoard(x)(y)).sum
+    }
+  }
 }

@@ -12,6 +12,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
+  var difficulty = 2 // medium
   var isReady = true
 
   def this(players: Vector[Player]) = this(new Board, players)
@@ -34,10 +35,26 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
     notifyObservers()
   }
 
-  def setupPlayers(number: String): Unit = number match {
+  def setupPlayers: String => Unit = {
     case "0" => players = Vector(new Bot(1), new Bot(2))
     case "1" => players = Vector(new Player(1), new Bot(2))
     case "2" => players = Vector(new Player(1), new Player(2))
+  }
+
+  def moveSelector: Int => MoveSelector = {
+    case 1 => new EasyBot(this)
+    case 2 => new MediumBot(this)
+    case 3 => new HardBot(this)
+  }
+
+  def setDifficulty(value: String): Unit = {
+    value match {
+      case "e" => difficulty = 1
+      case "m" => difficulty = 2
+      case "d" => difficulty = 3
+    }
+    gameStatus = DIFFICULTY_CHANGED
+    notifyObservers()
   }
 
   def newGame(): Unit = {
@@ -58,7 +75,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def selectAndSet(): Unit = if (player.isBot && !gameOver) {
     isReady = false
-    new MoveSelector(this).select() match {
+    moveSelector(difficulty).select match {
       case Success(square) => set(square)
       case _ => omitPlayer()
     }
