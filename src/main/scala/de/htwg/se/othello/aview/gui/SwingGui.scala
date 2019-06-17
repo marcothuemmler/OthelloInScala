@@ -4,15 +4,14 @@ import java.awt.event.KeyEvent
 
 import scala.swing._
 import de.htwg.se.othello.controller._
-import de.htwg.se.othello.util.Observer
 import javax.swing.KeyStroke
 
 import scala.swing.event.Key.{Modifier, Modifiers}
 import scala.swing.event.{ButtonClicked, Key}
 
-class SwingGui(controller: Controller) extends Observer {
+class SwingGui(controller: Controller) extends Reactor {
 
-  controller.add(this)
+  listenTo(controller)
 
   lazy val tablePanel = new TablePanel(controller)
 
@@ -34,7 +33,7 @@ class SwingGui(controller: Controller) extends Observer {
       mnemonic = Key.F
       contents += new MenuItem(new Action("New Game") {
         accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_N, modifier))
-        override def apply: Unit = controller.newGame()
+        override def apply: Unit = controller.newGame
       })
       contents += new MenuItem(new Action("Quit") {
         accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Q, modifier))
@@ -95,12 +94,15 @@ class SwingGui(controller: Controller) extends Observer {
       }
       contents += new Menu("Game Difficulty") {
         val easy: RadioMenuItem = new RadioMenuItem("Easy") {
+          enabled = if (controller.size == 8) true else false
           selected = if (controller.difficulty == 1) true else false
         }
-        val medium: RadioMenuItem = new RadioMenuItem("Medium") {
+        val medium: RadioMenuItem = new RadioMenuItem("Normal") {
+          enabled = if (controller.size == 8) true else false
           selected = if (controller.difficulty == 2) true else false
         }
         val hard: RadioMenuItem = new RadioMenuItem("Hard") {
+          enabled = if (controller.size == 8) true else false
           selected = if (controller.difficulty == 3) true else false
         }
         val mode = new ButtonGroup(easy, medium, hard)
@@ -115,6 +117,8 @@ class SwingGui(controller: Controller) extends Observer {
       }
     }
   }
+
+  reactions += { case _: BoardChanged | _: PlayerOmitted => update }
 
   def update: Boolean = {
     tablePanel.redraw()

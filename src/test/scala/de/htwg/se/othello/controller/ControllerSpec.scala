@@ -22,13 +22,13 @@ class ControllerSpec extends WordSpec with Matchers {
     "reset the board" in {
       c.set(2, 3)
       c.board should not equal b
-      c.newGame()
+      c.newGame
       c.board should equal(b)
       c.player should be(c.players(0))
     }
     "reset the board and make the first move if the first player ist a Bot" in {
       val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
-      val newGame = Future(ctrl.newGame())(ExecutionContext.global)
+      val newGame = Future(ctrl.newGame)(ExecutionContext.global)
       Await.ready(newGame, Duration.Inf)
       if (ctrl.isReady) ctrl.player should not be ctrl.players(0)
     }
@@ -64,13 +64,13 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "set" should {
     "set one disk and flip at least one of the opponents disks" in {
-      c.newGame()
+      c.newGame
       c.set(2, 3)
       c.board.count(1) should be(4)
       c.board.count(2) should be(1)
     }
     "not change any square on the board if the input is incorrect" in {
-      c.newGame()
+      c.newGame
       c.set(0, 0)
       c.board should equal(b)
     }
@@ -79,7 +79,7 @@ class ControllerSpec extends WordSpec with Matchers {
       val emptyBoard = c.board
       c.set(0, 0)
       c.board should equal(emptyBoard)
-      c.newGame()
+      c.newGame
     }
     "omit a player who doesn't have valid moves" in {
       val controller = new Controller(Vector(new Player(1), new Player(2)))
@@ -105,7 +105,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.player = c.players(1)
       c.selectAndSet()
       c.board should equal(cBoard)
-      c.newGame()
+      c.newGame
     }
   }
   "omit" should {
@@ -158,7 +158,7 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "highlight " should {
     "highlight settable squares" in {
-      c.newGame()
+      c.newGame
       c.highlight()
       c.board.isHighlighted should be(true)
       c.board.valueOf(3, 2) should be(-1)

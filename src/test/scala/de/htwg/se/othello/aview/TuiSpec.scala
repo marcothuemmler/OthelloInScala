@@ -95,7 +95,7 @@ class TuiSpec extends WordSpec with Matchers {
       ctrl.set(7, 7)
     }
     "print the gameStatus and the current board if the game is not over " in {
-      controller.newGame()
+      controller.newGame
     }
   }
 }

@@ -1,15 +1,16 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.{Controller, GameStatus}
-import de.htwg.se.othello.util.Observer
+import de.htwg.se.othello.controller.{BoardChanged, Controller, GameStatus, PlayerOmitted}
 
-class Tui(controller: Controller) extends Observer {
+import scala.swing.Reactor
 
-  controller.add(this)
+class Tui(controller: Controller) extends Reactor {
+
+  listenTo(controller)
 
   def processInputLine: String => Unit = {
     case "q" => sys.exit
-    case "n" => controller.newGame()
+    case "n" => controller.newGame
     case "h" => controller.highlight()
     case "z" => controller.undo()
     case "y" => controller.redo()
@@ -25,7 +26,9 @@ class Tui(controller: Controller) extends Observer {
     }
   }
 
-  override def update: Boolean = {
+  reactions += { case _: BoardChanged | _: PlayerOmitted => update }
+
+  def update: Boolean = {
     if (controller.gameStatus != GameStatus.GAME_OVER) {
       println(GameStatus.message(controller.gameStatus))
       println(controller.boardToString)

@@ -1,5 +1,7 @@
 package de.htwg.se.othello.model
 
+import scala.annotation.tailrec
+
 case class Board(grid: Vector[Vector[Square]]) {
 
   def this() = this(Vector.fill(8, 8)(Square(0)))
@@ -24,7 +26,8 @@ case class Board(grid: Vector[Vector[Square]]) {
     } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
   }
 
-  def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
+  @tailrec
+  final def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val (nX, nY) = (x + direction._1, y + direction._2)
     if (nX < 0 || nX >= grid.size || nY < 0 || nY >= grid.size || setBy(value, nX, nY)) (-1, -1)
     else if (setByOpp(value, nX, nY)) checkRec(value, nX, nY, direction)
@@ -35,7 +38,8 @@ case class Board(grid: Vector[Vector[Square]]) {
     copy(grid.updated(col, grid(col).updated(row, Square(value))))
   }
 
-  def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
+  @tailrec
+  final def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
     val board = flip(current._1, current._2, value)
     val nextH = current._1 - current._1.compare(end._1)
     val nextV = current._2 - current._2.compare(end._2)

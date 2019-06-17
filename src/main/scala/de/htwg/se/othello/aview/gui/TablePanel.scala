@@ -68,7 +68,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
         RenderingHints.VALUE_ANTIALIAS_ON)
       controller.board.valueOf(col, row) match {
         case -1 =>
-          g.setColor(new Color(0, 0, 0, 120))
+          g.setColor(new Color(0, 0, 0, 135))
           g.fillOval(16, 16, 21, 21)
         case n @ (1 | 2) =>
           g.drawImage({
@@ -82,7 +82,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
       case _: MouseClicked if controller.isReady =>
         if (controller.options.contains((col, row))) {
           Future(controller.set(col, row))(ExecutionContext.global)
-        } else if (controller.gameOver) controller.newGame()
+        } else if (controller.gameOver) controller.newGame
         else controller.highlight()
     }
   }
@@ -104,8 +104,9 @@ class TablePanel(controller: Controller) extends FlowPanel {
       contents ++= List(scoreLabel(1), scoreLabel(2))
     } else {
       contents += new Label {
+        val fontSize: Int = if (controller.size > 4) 26 else 20
         text = controller.board.score
-        font = new Font(font.getName, font.getStyle, 26)
+        font = new Font(font.getName, font.getStyle, fontSize)
         foreground = new Color(200, 200, 200)
       }
     }

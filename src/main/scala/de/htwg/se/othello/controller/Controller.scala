@@ -2,12 +2,15 @@ package de.htwg.se.othello.controller
 
 import de.htwg.se.othello.controller.GameStatus._
 import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player}
-import de.htwg.se.othello.util.{Observable, UndoManager}
+import de.htwg.se.othello.util.UndoManager
 
+import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
+import scala.swing.Publisher
+import scala.swing.event.Event
 import scala.util.Success
 
-class Controller(var board: Board, var players: Vector[Player]) extends Observable {
+class Controller(var board: Board, var players: Vector[Player]) extends Publisher {
 
   private val undoManager = new UndoManager
   var player: Player = players(0)
@@ -32,7 +35,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def createBoard(size: Int): Unit = {
     board = (new CreateBoardStrategy).createNewBoard(size)
-    notifyObservers()
+    publish(new BoardChanged)
   }
 
   def setupPlayers: String => Unit = {
@@ -54,10 +57,10 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
       case "d" => difficulty = 3
     }
     gameStatus = DIFFICULTY_CHANGED
-    notifyObservers()
+    publish(new BoardChanged)
   }
 
-  def newGame(): Unit = {
+  def newGame: Future[Unit] = {
     createBoard(board.size)
     player = players(0)
     Future(selectAndSet())(ExecutionContext.global)
@@ -68,12 +71,13 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
       gameStatus = ILLEGAL
     } else undoManager.doStep(new SetCommand(square, player.value, this))
     if (gameOver) gameStatus = GAME_OVER
-    notifyObservers()
+    publish(new BoardChanged)
     if (!gameOver && moves.isEmpty) omitPlayer()
     else selectAndSet()
   }
 
-  def selectAndSet(): Unit = if (player.isBot && !gameOver) {
+  @tailrec
+  final def selectAndSet(): Unit = if (player.isBot && !gameOver) {
     isReady = false
     moveSelector(difficulty).select match {
       case Success(square) => set(square)
@@ -84,21 +88,22 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
   }
 
   def omitPlayer(): Unit = {
+    val omittedPlayer = player
     player = nextPlayer
     gameStatus = OMITTED
-    notifyObservers()
+    publish(new PlayerOmitted(omittedPlayer))
   }
 
   def undo(): Unit = {
     undoManager.undoStep()
     undoManager.undoStep()
-    notifyObservers()
+    publish(new BoardChanged)
   }
 
   def redo(): Unit = {
     undoManager.redoStep()
     undoManager.redoStep()
-    notifyObservers()
+    publish(new BoardChanged)
   }
 
   def highlight(): Unit = {
@@ -106,7 +111,7 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
       if (board.isHighlighted) board.deHighlight
       else board.highlight(player.value)
     }
-    notifyObservers()
+    publish(new BoardChanged)
   }
 
   def mapToBoard(input: String): (Int, Int) = {
@@ -132,3 +137,6 @@ class Controller(var board: Board, var players: Vector[Player]) extends Observab
 
   def boardToString: String = board.toString
 }
+
+class BoardChanged extends Event
+class PlayerOmitted(player: Player) extends Event
