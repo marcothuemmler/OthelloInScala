@@ -19,7 +19,7 @@ object Othello {
     if (args.nonEmpty) {
       input = args(0)
       tui.processInputLine(input)
-    }else {
+    } else {
       while (true) {
         input = readLine
         tui.processInputLine(input)

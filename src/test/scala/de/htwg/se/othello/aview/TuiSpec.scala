@@ -83,6 +83,24 @@ class TuiSpec extends WordSpec with Matchers {
       t.processInputLine(".")
       ctrl.board.size should be (8)
     }
+    "set the difficulty of the bot to easy on input e" in {
+      val ctrl = new Controller
+      val t = new Tui(ctrl)
+      t.processInputLine("e")
+      ctrl.difficulty should be(1)
+    }
+    "set the difficulty of the bot to normal on input m" in {
+      val ctrl = new Controller
+      val t = new Tui(ctrl)
+      t.processInputLine("m")
+      ctrl.difficulty should be(2)
+    }
+    "set the difficulty of the bot to hard on input d" in {
+      val ctrl = new Controller
+      val t = new Tui(ctrl)
+      t.processInputLine("d")
+      ctrl.difficulty should be (3)
+    }
   }
   "update" should {
     "print the current board and the gameStatus if the game is over" in {
