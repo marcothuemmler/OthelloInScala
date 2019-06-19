@@ -1,11 +1,11 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.model.Board
+import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.util.Command
 
 class SetCommand(toSquare: (Int, Int), value: Int, controller: Controller) extends Command {
 
-  var memento: Board = controller.board.deHighlight
+  var memento: BoardInterface = controller.board.deHighlight
 
   override def doStep(): Unit = {
     for {

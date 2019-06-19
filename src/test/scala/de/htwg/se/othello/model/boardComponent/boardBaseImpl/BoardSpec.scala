@@ -1,15 +1,15 @@
-package de.htwg.se.othello.model
+package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 
 import org.scalatest.{Matchers, WordSpec}
 
 class BoardSpec extends WordSpec with Matchers {
-  var board = new Board
-  val strategy = new CreateBoardStrategy
-  board = strategy.createNewBoard(8)
+  var board: Board = new Board
+  board = new Board(8)
+  board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
 
   "A board without parameters" should {
     "be a board with no squares set" in {
-      val b = new Board()
+      val b = new Board
       b.count(1) should be(0)
       b.count(2) should be(0)
     }
@@ -45,7 +45,7 @@ class BoardSpec extends WordSpec with Matchers {
     "be empty if there are no valid moves" in {
       board = Board(Vector.fill(8, 8)(Square(0)))
       board.moves(1) should be(Map())
-      board = strategy.createNewBoard(8)
+      board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
     }
   }
   "getMoves" should {
@@ -92,20 +92,20 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "countAll" should {
     "count the disks of both players on the board" in {
-      val b = strategy.createNewBoard(8)
+      val b = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
       b.count(1) should be(2)
       b.count(2) should be(2)
     }
   }
   "count" should {
     "count the disks of one player on the board" in {
-      val b = strategy.createNewBoard(8)
+      val b = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
       b.count(1) should be(2)
     }
   }
   "deHighlight" should {
     "remove all the highlights on the board" in {
-      var b = strategy.createNewBoard(8)
+      var b = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
       b = b.highlight(1)
       b = b.deHighlight
       b.isHighlighted should be(false)
@@ -127,16 +127,16 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "score" should {
     "be a draw if the amount of tiles is equal" in {
-      board = strategy.createNewBoard(8)
+      board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
       board.score should be("Draw. 2:2")
     }
     "declare the Black player as winner if there are more black disks" in {
-      board = strategy.createNewBoard(8)
+      board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
       board = board.flipLine((2, 3), (3, 3), 1)
       board.score should be(s"Black wins by 4:1!")
     }
     "declare the White player as  winner if there are more white disks" in {
-      board = strategy.createNewBoard(8)
+      board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
       board = board.flipLine((4, 2), (4, 3), 2)
       board.score should be(s"White wins by 4:1!")
     }

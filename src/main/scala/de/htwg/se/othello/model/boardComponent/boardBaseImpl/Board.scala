@@ -1,10 +1,14 @@
-package de.htwg.se.othello.model
+package de.htwg.se.othello.model.boardComponent.boardBaseImpl
+
+import de.htwg.se.othello.model.boardComponent.BoardInterface
 
 import scala.annotation.tailrec
 
-case class Board(grid: Vector[Vector[Square]]) {
+case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   val size: Int = grid.size
+
+  def indices: Range = grid.indices
 
   def this() = this(Vector.fill(8, 8)(Square(0)))
 

@@ -1,18 +1,18 @@
-package de.htwg.se.othello.controller
+package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.{Controller, EasyBot, HardBot, MediumBot}
 import de.htwg.se.othello.controller.controllerComponent.GameStatus
-import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player, Square}
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
+import de.htwg.se.othello.model.{Bot, Player}
 import org.scalatest.{Matchers, WordSpec}
 
-import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
   var c = new Controller(players)
   val strategy = new CreateBoardStrategy
-  val b: Board = strategy.createNewBoard(8)
+  val b: Board = strategy.createNewBoard(8).asInstanceOf[Board]
 
   "A controller created without board parameter" should {
     "have an empty board of size 8x8" in {
@@ -30,9 +30,11 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "reset the board and make the first move if the first player ist a Bot" in {
       val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
+      val freshBoard = ctrl.board
       val newGame = Future(ctrl.newGame)(ExecutionContext.global)
       Await.ready(newGame, Duration.Inf)
       if (ctrl.isReady) ctrl.player should not be ctrl.players(0)
+      ctrl.board should not equal freshBoard
     }
   }
   "playerCount" should {

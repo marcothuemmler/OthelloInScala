@@ -1,7 +1,9 @@
-package de.htwg.se.othello.model
+package de.htwg.se.othello.model.boardComponent.boardBaseImpl
+
+import de.htwg.se.othello.model.boardComponent.BoardInterface
 
 class CreateBoardStrategy extends CreateBoardTemplate {
-  override def fill(board: Board): Board = {
+  override def fill(board: BoardInterface): BoardInterface = {
     val size = board.size
     val half = size / 2
     Board(Vector.tabulate(size, size)((i, j) => {

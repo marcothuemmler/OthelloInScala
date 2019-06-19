@@ -1,6 +1,7 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.model.{Board, Player}
+import de.htwg.se.othello.model.Player
+import de.htwg.se.othello.model.boardComponent.BoardInterface
 
 import scala.util.{Random, Try}
 
@@ -20,7 +21,7 @@ abstract class MoveSelector(controller: Controller) {
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99)
   )
 
-  def evaluate(b: Board): Int
+  def evaluate(b: BoardInterface): Int
 
   def select = Try {
     val before = System.currentTimeMillis()
@@ -40,7 +41,7 @@ abstract class MoveSelector(controller: Controller) {
 
   def min(x: Move, y: Move): Move = if (x._1 <= y._1) x else (y._1, x._2)
 
-  def search(p: Player, d: Int, n: Board, move: Option[(Int, Int)], alpha: Int, beta: Int, m: MinMax): Move = {
+  def search(p: Player, d: Int, n: BoardInterface, move: Option[(Int, Int)], alpha: Int, beta: Int, m: MinMax): Move = {
     if (d == 0 || n.gameOver || n.moves(p.value).isEmpty) (evaluate(n), move)
     else if (m == Max) {
       n.moves(player.value).values.flatten.toSet.foldLeft(alpha, move) {
@@ -59,7 +60,7 @@ abstract class MoveSelector(controller: Controller) {
     }
   }
 
-  def simulate(b: Board, p: Player, toSquare: (Int, Int)): Board = {
+  def simulate(b: BoardInterface, p: Player, toSquare: (Int, Int)): BoardInterface = {
     var newBoard = b
     for {
       fromSquare <- b.moves(p.value).filter(o => o._2.contains(toSquare)).keys
@@ -76,12 +77,12 @@ abstract class MoveSelector(controller: Controller) {
 
 // Combination of positional strategy, absolute strategy and mobility
 class HardBot(controller: Controller) extends MoveSelector(controller) {
-  override def evaluate(b: Board): Int = {
+  override def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
     else {
       (for {
-        x <- b.grid.indices
-        y <- b.grid.indices
+        x <- b.indices
+        y <- b.indices
         result = {
           if (b.setBy(player.value, x, y)) 1
           else if (b.setBy(betaP.value, x, y)) -1
@@ -94,12 +95,12 @@ class HardBot(controller: Controller) extends MoveSelector(controller) {
 
 // Positional strategy and absolute strategy
 class MediumBot(controller: Controller) extends MoveSelector(controller) {
-  override def evaluate(b: Board): Int = {
+  override def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
     else {
       (for {
-        x <- b.grid.indices
-        y <- b.grid.indices
+        x <- b.indices
+        y <- b.indices
         if b.valueOf(x, y) == player.value
       } yield weightedBoard(x)(y)).sum
     }
@@ -108,10 +109,10 @@ class MediumBot(controller: Controller) extends MoveSelector(controller) {
 
 // Positional strategy reversed
 class EasyBot(controller: Controller) extends MoveSelector(controller) {
-  override def evaluate(b: Board): Int = {
+  override def evaluate(b: BoardInterface): Int = {
     (for {
-      x <- b.grid.indices
-      y <- b.grid.indices
+      x <- b.indices
+      y <- b.indices
       if b.valueOf(x, y) == player.value
     } yield -weightedBoard(x)(y)).sum
   }

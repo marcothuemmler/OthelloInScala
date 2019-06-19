@@ -2,14 +2,16 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, PlayerOmitted}
-import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player}
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy}
+import de.htwg.se.othello.model.boardComponent.BoardInterface
+import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
-class Controller(var board: Board, var players: Vector[Player]) extends ControllerInterface {
+class Controller(var board: BoardInterface, var players: Vector[Player]) extends ControllerInterface {
 
   private val undoManager = new UndoManager
   var player: Player = players(0)

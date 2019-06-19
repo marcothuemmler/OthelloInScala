@@ -1,7 +1,8 @@
 package de.htwg.se.othello.aview
 
 import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
-import de.htwg.se.othello.model.{Board, CreateBoardStrategy, Player, Square}
+import de.htwg.se.othello.model.Player
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
 import org.scalatest.{Matchers, WordSpec}
 
 class TuiSpec extends WordSpec with Matchers {
