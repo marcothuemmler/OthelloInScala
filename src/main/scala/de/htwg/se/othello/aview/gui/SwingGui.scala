@@ -3,13 +3,13 @@ package de.htwg.se.othello.aview.gui
 import java.awt.event.KeyEvent
 
 import scala.swing._
-import de.htwg.se.othello.controller._
+import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, PlayerOmitted}
 import javax.swing.KeyStroke
 
 import scala.swing.event.Key.{Modifier, Modifiers}
 import scala.swing.event.{ButtonClicked, Key}
 
-class SwingGui(controller: Controller) extends Reactor {
+class SwingGui(controller: ControllerInterface) extends Reactor {
 
   listenTo(controller)
 

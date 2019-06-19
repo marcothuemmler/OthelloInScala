@@ -1,8 +1,8 @@
 package de.htwg.se.othello
 
 import de.htwg.se.othello.aview.Tui
-import de.htwg.se.othello.aview.gui._
-import de.htwg.se.othello.controller.Controller
+import de.htwg.se.othello.aview.gui.SwingGui
+import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
 
 import scala.io.StdIn.readLine
 
@@ -12,7 +12,7 @@ object Othello {
     val controller = new Controller
     var input: String = ""
     val tui = new Tui(controller)
-    if (args.isEmpty) {
+    if (args.length == 0) {
       new SwingGui(controller)
     }
     controller.newGame

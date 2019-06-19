@@ -1,5 +1,7 @@
 package de.htwg.se.othello.controller
 
+import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.{Controller, EasyBot, HardBot, MediumBot}
+import de.htwg.se.othello.controller.controllerComponent.GameStatus
 import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 

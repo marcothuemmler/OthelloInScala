@@ -1,16 +1,15 @@
-package de.htwg.se.othello.controller
+package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.controller.GameStatus._
+import de.htwg.se.othello.controller.controllerComponent.GameStatus._
+import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, PlayerOmitted}
 import de.htwg.se.othello.model.{Board, Bot, CreateBoardStrategy, Player}
 import de.htwg.se.othello.util.UndoManager
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
-import scala.swing.Publisher
-import scala.swing.event.Event
 import scala.util.Success
 
-class Controller(var board: Board, var players: Vector[Player]) extends Publisher {
+class Controller(var board: Board, var players: Vector[Player]) extends ControllerInterface {
 
   private val undoManager = new UndoManager
   var player: Player = players(0)
@@ -23,6 +22,8 @@ class Controller(var board: Board, var players: Vector[Player]) extends Publishe
   def this() = this(Vector(new Player(1), new Bot(2)))
 
   def this(size: Int) = this(new Board(size), Vector(new Player(1), new Bot(2)))
+
+  def size: Int = board.size
 
   def resizeBoard(op: String): Unit = {
     player = players(0)
@@ -123,8 +124,6 @@ class Controller(var board: Board, var players: Vector[Player]) extends Publishe
       yield (col + 65).toChar.toString + (row + 1)).mkString(" ")
   }
 
-  def size: Int = board.size
-
   def options: Seq[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
 
   def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
@@ -136,7 +135,10 @@ class Controller(var board: Board, var players: Vector[Player]) extends Publishe
   def playerCount: Int = players.size - players.count(o => o.isBot)
 
   def boardToString: String = board.toString
-}
 
-class BoardChanged extends Event
-class PlayerOmitted(player: Player) extends Event
+  def valueOf(col: Int, row: Int): Int = board.valueOf(col, row)
+
+  def count(value: Int): Int = board.count(value)
+
+  def score: String = board.score
+}

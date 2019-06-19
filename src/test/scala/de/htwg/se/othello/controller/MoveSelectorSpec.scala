@@ -1,5 +1,6 @@
 package de.htwg.se.othello.controller
 
+import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.{Controller, EasyBot, HardBot, MediumBot}
 import org.scalatest.{Matchers, WordSpec}
 
 class MoveSelectorSpec extends WordSpec with Matchers {

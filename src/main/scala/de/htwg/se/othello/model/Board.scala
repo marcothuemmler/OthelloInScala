@@ -4,9 +4,9 @@ import scala.annotation.tailrec
 
 case class Board(grid: Vector[Vector[Square]]) {
 
-  def this() = this(Vector.fill(8, 8)(Square(0)))
-
   val size: Int = grid.size
+
+  def this() = this(Vector.fill(8, 8)(Square(0)))
 
   def this(size: Int) = this(Vector.fill(size, size)(Square(0)))
 
@@ -91,8 +91,10 @@ case class Board(grid: Vector[Vector[Square]]) {
     for {
       col <- grid.indices
       row <- grid.indices
-    } board = board.replaceFirst("row",
-      f"${row + 1}" + (if (row + 1 > 9) " |" else "  |"))
+    } board = board.replaceFirst(
+      "row",
+      f"${row + 1}" + (if (row + 1 > 9) " |" else "  |")
+    )
       .replaceFirst("X", f"${grid(row)(col)}")
     top + board + "    " + "⎺" * (grid.size * 2 - 1) +
       (if (gameOver && isSet) "\n" + score else "")

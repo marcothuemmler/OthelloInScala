@@ -1,4 +1,4 @@
-package de.htwg.se.othello.controller
+package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
 import de.htwg.se.othello.model.Board
 import de.htwg.se.othello.util.Command

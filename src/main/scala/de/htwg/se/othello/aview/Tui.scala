@@ -1,10 +1,10 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.{BoardChanged, Controller, GameStatus, PlayerOmitted}
+import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, GameStatus, PlayerOmitted}
 
 import scala.swing.Reactor
 
-class Tui(controller: Controller) extends Reactor {
+class Tui(controller: ControllerInterface) extends Reactor {
 
   listenTo(controller)
 

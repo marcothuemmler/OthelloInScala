@@ -1,6 +1,6 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.Controller
+import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
 import de.htwg.se.othello.model.{Board, CreateBoardStrategy, Player, Square}
 import org.scalatest.{Matchers, WordSpec}
 

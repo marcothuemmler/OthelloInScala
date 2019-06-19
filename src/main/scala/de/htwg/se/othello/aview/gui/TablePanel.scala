@@ -2,7 +2,7 @@ package de.htwg.se.othello.aview.gui
 
 import java.awt.{Color, GridLayout, RenderingHints}
 
-import de.htwg.se.othello.controller.Controller
+import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.swing.event.MouseClicked
 import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, Graphics2D, GridPanel, Label, Orientation}
 
-class TablePanel(controller: Controller) extends FlowPanel {
+class TablePanel(controller: ControllerInterface) extends FlowPanel {
 
   val sides = 26
   val sidesColor: Color = Color.lightGray
@@ -66,7 +66,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
       g.setRenderingHint(
         RenderingHints.KEY_ANTIALIASING,
         RenderingHints.VALUE_ANTIALIAS_ON)
-      controller.board.valueOf(col, row) match {
+      controller.valueOf(col, row) match {
         case -1 =>
           g.setColor(new Color(0, 0, 0, 135))
           g.fillOval(16, 16, 21, 21)
@@ -91,7 +91,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
     case n @ (1 | 2) =>
       new Label {
         icon = new ImageIcon(getClass.getResource(s"resources/$n.png"))
-        text = s"${controller.board.count(n)}"
+        text = s"${controller.count(n)}"
         foreground = new Color(200, 200, 200)
       }
   }
@@ -105,7 +105,7 @@ class TablePanel(controller: Controller) extends FlowPanel {
     } else {
       contents += new Label {
         val fontSize: Int = if (controller.size > 4) 26 else 20
-        text = controller.board.score
+        text = controller.score
         font = new Font(font.getName, font.getStyle, fontSize)
         foreground = new Color(200, 200, 200)
       }
