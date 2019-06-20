@@ -40,22 +40,22 @@ class ControllerSpec extends WordSpec with Matchers {
   "playerCount" should {
     "return the amount of human players" in {
       val ctrl = new Controller
-      ctrl.playerCount should be (1)
+      ctrl.playerCount should be(1)
       ctrl.setupPlayers("0")
-      ctrl.playerCount should be (0)
+      ctrl.playerCount should be(0)
       ctrl.setupPlayers("2")
-      ctrl.playerCount should be (2)
+      ctrl.playerCount should be(2)
     }
   }
   "setDifficulty" should {
     "set the difficulty of the game" in {
       val c = new Controller
       c.setDifficulty("e")
-      c.difficulty should be (1)
+      c.difficulty should be(1)
       c.setDifficulty("m")
-      c.difficulty should be (2)
+      c.difficulty should be(2)
       c.setDifficulty("d")
-      c.difficulty should be (3)
+      c.difficulty should be(3)
     }
   }
   "moveSelector" should {
@@ -89,10 +89,10 @@ class ControllerSpec extends WordSpec with Matchers {
       val controller = new Controller(Vector(new Player(1), new Player(2)))
       controller.board = Board(Vector.fill(8, 8)(Square(1)))
       controller.board = controller.board.flipLine((0, 3), (0, 6), 2)
-      controller.board = controller.board.flip(0, 7, 0)
-      controller.board = controller.board.flip(7, 0, 0)
+      controller.board.flipLine((0, 7), (0, 7), 0)
+      controller.board.flipLine((7, 0), (7, 0), 0)
       controller.board = controller.board.flipLine((6, 0), (6, 1), 2)
-      controller.board = controller.board.flip(7, 1, 2)
+      controller.board.flipLine((7, 1), (7, 1), 2)
       val currentPlayer = controller.player
       controller.set(7, 0)
       controller.player should equal(currentPlayer)
@@ -112,13 +112,13 @@ class ControllerSpec extends WordSpec with Matchers {
       c.newGame
     }
   }
-  "omit" should {
+  "omitPlayer" should {
     "change the current player and set the gameStatus to omitted" in {
       val ctrl = new Controller
       val currentPlayer = ctrl.player
       ctrl.omitPlayer()
       ctrl.player should not equal currentPlayer
-      ctrl.gameStatus should equal (GameStatus.OMITTED)
+      ctrl.gameStatus should equal(GameStatus.OMITTED)
     }
   }
   "undo" should {
@@ -181,8 +181,8 @@ class ControllerSpec extends WordSpec with Matchers {
     "create a new instance of a game with the given dimensions" in {
       c.createBoard(8)
       c.board should be((new CreateBoardStrategy).createNewBoard(8))
-      c.board.size should be (8)
-      c.board.count(1) + c.board.count(2) should be (4)
+      c.board.size should be(8)
+      c.board.count(1) + c.board.count(2) should be(4)
     }
   }
   "resizeBoard" should {
@@ -217,6 +217,35 @@ class ControllerSpec extends WordSpec with Matchers {
       c.createBoard(8)
       c.player = c.players(0)
       c.suggestions should equal("C4 D3 E6 F5")
+    }
+  }
+  "valueOf" should {
+    "return the value of the square" in {
+      val c = new Controller
+      c.newGame
+      c.valueOf(0, 0) should be(0)
+      c.valueOf(4, 3) should be(1)
+      c.valueOf(3, 3) should be(2)
+    }
+  }
+  "score" should {
+    "be a draw if the amount of tiles is equal" in {
+      val c = new Controller
+      c.newGame
+      c.score should be("Draw. 2:2")
+    }
+    "declare the Black player as winner if there are more black disks" in {
+      val c = new Controller(Vector(new Player(1), new Player(2)))
+      c.newGame
+      c.set(2, 3)
+      c.score should be(s"Black wins by 4:1!")
+    }
+    "declare the White player as  winner if there are more white disks" in {
+      val c = new Controller(Vector(new Player(1), new Player(2)))
+      c.newGame
+      c.player = c.players(1)
+      c.set(4, 2)
+      c.score should be(s"White wins by 4:1!")
     }
   }
 }

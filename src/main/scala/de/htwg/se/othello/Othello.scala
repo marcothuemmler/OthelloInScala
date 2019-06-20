@@ -8,22 +8,14 @@ import scala.io.StdIn.readLine
 
 object Othello {
 
+  val controller = new Controller
+  val tui = new Tui(controller)
+  new SwingGui(controller)
+  controller.newGame
+
   def main(args: Array[String]): Unit = {
-    val controller = new Controller
-    var input: String = ""
-    val tui = new Tui(controller)
-    if (args.length == 0) {
-      new SwingGui(controller)
-    }
-    controller.newGame
-    if (args.nonEmpty) {
-      input = args(0)
-      tui.processInputLine(input)
-    } else {
-      while (true) {
-        input = readLine
-        tui.processInputLine(input)
-      }
+    while (true) {
+      tui.processInputLine(readLine)
     }
   }
 }

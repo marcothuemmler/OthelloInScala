@@ -1,6 +1,5 @@
-package de.htwg.se.othello.controller
+package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.{Controller, EasyBot, HardBot, MediumBot}
 import org.scalatest.{Matchers, WordSpec}
 
 class MoveSelectorSpec extends WordSpec with Matchers {
@@ -21,7 +20,7 @@ class MoveSelectorSpec extends WordSpec with Matchers {
       val moveSelector = new EasyBot(ctrl)
       ctrl.createBoard(8)
       ctrl.board = ctrl.board.flipLine((4, 3), (2, 3), 1)
-      ctrl.board = ctrl.board.flip(2, 4, 2)
+      ctrl.board.flipLine((2, 4), (2, 4), 2)
       ctrl.board = ctrl.board.flipLine((4, 4), (4, 5), 1)
       ctrl.board = ctrl.board.flipLine((3, 4), (5, 4), 2)
       val selection = moveSelector.select.get
@@ -34,7 +33,7 @@ class MoveSelectorSpec extends WordSpec with Matchers {
       val moveSelector = new MediumBot(ctrl)
       ctrl.createBoard(8)
       ctrl.board = ctrl.board.flipLine((4, 3), (2, 3), 1)
-      ctrl.board = ctrl.board.flip(2, 4, 2)
+      ctrl.board.flipLine((2, 4), (2, 4), 2)
       ctrl.board = ctrl.board.flipLine((4, 4), (4, 5), 1)
       ctrl.board = ctrl.board.flipLine((3, 4), (5, 4), 2)
       val selection = moveSelector.select.get
@@ -47,7 +46,7 @@ class MoveSelectorSpec extends WordSpec with Matchers {
       val moveSelector = new HardBot(ctrl)
       ctrl.createBoard(8)
       ctrl.board = ctrl.board.flipLine((4, 3), (2, 3), 1)
-      ctrl.board = ctrl.board.flip(2, 4, 2)
+      ctrl.board.flipLine((2, 4), (2, 4), 2)
       ctrl.board = ctrl.board.flipLine((4, 4), (4, 5), 1)
       ctrl.board = ctrl.board.flipLine((3, 4), (5, 4), 2)
       val selection = moveSelector.select.get

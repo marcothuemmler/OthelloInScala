@@ -1,6 +1,5 @@
-package de.htwg.se.othello.model
+package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Square
 import org.scalatest.{Matchers, WordSpec}
 
 class SquareSpec extends WordSpec with Matchers {

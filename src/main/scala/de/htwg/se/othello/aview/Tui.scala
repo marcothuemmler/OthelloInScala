@@ -15,9 +15,9 @@ class Tui(controller: ControllerInterface) extends Reactor {
     case "z" => controller.undo()
     case "y" => controller.redo()
     case "s" => println(controller.suggestions)
-    case input@("e" | "m" |"d") => controller.setDifficulty(input)
-    case input@("+" | "-" | ".") => controller.resizeBoard(input)
-    case input@("0" | "1" | "2") => controller.setupPlayers(input)
+    case input @ ("e" | "m" | "d") => controller.setDifficulty(input)
+    case input @ ("+" | "-" | ".") => controller.resizeBoard(input)
+    case input @ ("0" | "1" | "2") => controller.setupPlayers(input)
     case input => input.toList.map(in => in.toString) match {
       case col :: row :: Nil =>
         val square = controller.mapToBoard(col + row)
@@ -33,7 +33,7 @@ class Tui(controller: ControllerInterface) extends Reactor {
       println(GameStatus.message(controller.gameStatus))
       println(controller.boardToString)
     } else {
-      println(controller.boardToString)
+      println(controller.boardToString + "\n" + controller.score)
       println(GameStatus.message(controller.gameStatus))
     }
     controller.gameStatus = GameStatus.IDLE

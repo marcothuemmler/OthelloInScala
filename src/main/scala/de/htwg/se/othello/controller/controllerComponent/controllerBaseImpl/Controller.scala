@@ -25,8 +25,6 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   def this(size: Int) = this(new Board(size), Vector(new Player(1), new Bot(2)))
 
-  def size: Int = board.size
-
   def resizeBoard(op: String): Unit = {
     player = players(0)
     op match {
@@ -35,6 +33,8 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
       case "." => if (size != 8) createBoard(8)
     }
   }
+
+  def size: Int = board.size
 
   def createBoard(size: Int): Unit = {
     board = (new CreateBoardStrategy).createNewBoard(size)
@@ -142,5 +142,9 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   def count(value: Int): Int = board.count(value)
 
-  def score: String = board.score
+  def score: String = {
+    val (win, lose) = (count(1) max count(2), count(1) min count(2))
+    val winner = if (win == count(1)) players(0) else players(1)
+    if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
+  }
 }

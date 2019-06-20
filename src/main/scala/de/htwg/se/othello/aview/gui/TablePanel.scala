@@ -25,11 +25,12 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
     background = sidesColor
     preferredSize = new Dimension(sides, edgeLength)
     contents ++= List(
-      new Label {preferredSize = new Dimension(sides, sides)},
+      new Label { preferredSize = new Dimension(sides, sides) },
       new GridPanel(tableSize, 1) {
-      background = sidesColor
-      for { i <- 1 to rows } contents += new Label(s"$i")
-    })
+        background = sidesColor
+        for { i <- 1 to rows } contents += new Label(s"$i")
+      }
+    )
   }
 
   def columns: GridPanel = new GridPanel(1, tableSize) {
@@ -43,7 +44,8 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
     override def paintComponent(g: Graphics2D): Unit = {
       g.setRenderingHint(
         RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON)
+        RenderingHints.VALUE_ANTIALIAS_ON
+      )
       g.drawImage({
         ImageIO.read(getClass.getResourceAsStream("resources/back.jpg"))
       }, 2, 2, edgeLength, edgeLength, null)
@@ -65,7 +67,8 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
     override def paintComponent(g: Graphics2D): Unit = {
       g.setRenderingHint(
         RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON)
+        RenderingHints.VALUE_ANTIALIAS_ON
+      )
       controller.valueOf(col, row) match {
         case -1 =>
           g.setColor(new Color(0, 0, 0, 135))

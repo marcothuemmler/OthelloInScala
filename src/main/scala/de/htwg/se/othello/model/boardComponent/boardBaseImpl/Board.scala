@@ -16,8 +16,8 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
-      col <- grid.indices
-      row <- grid.indices if setBy(value, col, row)
+      col <- indices
+      row <- indices if setBy(value, col, row)
     } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
   }
 
@@ -26,14 +26,14 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
-      if (grid.indices contains nX) && (grid.indices contains nY) && setByOpp(value, nX, nY)
+      if (indices contains nX) && (indices contains nY) && setByOpp(value, nX, nY)
     } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
   }
 
   @tailrec
   final def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
     val (nX, nY) = (x + direction._1, y + direction._2)
-    if (nX < 0 || nX >= grid.size || nY < 0 || nY >= grid.size || setBy(value, nX, nY)) (-1, -1)
+    if (nX < 0 || nX >= size || nY < 0 || nY >= size || setBy(value, nX, nY)) (-1, -1)
     else if (setByOpp(value, nX, nY)) checkRec(value, nX, nY, direction)
     else (nX, nY)
   }
@@ -52,13 +52,13 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   }
 
   def deHighlight: Board = {
-    copy(Vector.tabulate(grid.size, grid.size)((col, row) => {
+    copy(Vector.tabulate(size, size)((col, row) => {
       if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
     }))
   }
 
   def highlight(value: Int): Board = {
-    copy(Vector.tabulate(grid.size, grid.size)((col, row) => {
+    copy(Vector.tabulate(size, size)((col, row) => {
       if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
       else grid(col)(row)
     }))
@@ -78,29 +78,22 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
 
-  def gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty
+  def gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty && isSet
 
   def isSet: Boolean = count(1) + count(2) > 0
 
-  def score: String = {
-    val (win, lose) = (count(1) max count(2), count(1) min count(2))
-    val winner = if (win == count(1)) "Black" else "White"
-    if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
-  }
-
   override def toString: String = {
-    val cols = (for { i <- grid.indices } yield (i + 65).toChar).mkString(" ")
-    val top = "\n    " + cols + "\n    " + "_" * (grid.size * 2 - 1)
-    var board = ("\nrow" + ("X" * grid.size)) * grid.size + "\n"
+    val cols = (for { i <- indices } yield (i + 65).toChar).mkString(" ")
+    val top = "\n    " + cols + "\n    " + "_" * (size * 2 - 1)
+    var board = ("\nrow" + ("X" * size)) * size + "\n"
     for {
-      col <- grid.indices
-      row <- grid.indices
+      col <- indices
+      row <- indices
     } board = board.replaceFirst(
       "row",
       f"${row + 1}" + (if (row + 1 > 9) " |" else "  |")
     )
       .replaceFirst("X", f"${grid(row)(col)}")
-    top + board + "    " + "⎺" * (grid.size * 2 - 1) +
-      (if (gameOver && isSet) "\n" + score else "")
+    top + board + "    " + "⎺" * (size * 2 - 1)
   }
 }

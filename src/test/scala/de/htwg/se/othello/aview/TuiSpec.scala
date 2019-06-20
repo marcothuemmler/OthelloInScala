@@ -68,21 +68,21 @@ class TuiSpec extends WordSpec with Matchers {
       val t = new Tui(ctrl)
       val size = ctrl.board.size
       t.processInputLine("+")
-      ctrl.board.size should be (size + 2)
+      ctrl.board.size should be(size + 2)
     }
     "resize the board on input -" in {
       val ctrl = new Controller
       val t = new Tui(ctrl)
       val size = ctrl.board.size
       t.processInputLine("-")
-      ctrl.board.size should be (size - 2)
+      ctrl.board.size should be(size - 2)
     }
     "reset the board size on input ." in {
       val ctrl = new Controller(16)
       val t = new Tui(ctrl)
       ctrl.board.size should equal(16)
       t.processInputLine(".")
-      ctrl.board.size should be (8)
+      ctrl.board.size should be(8)
     }
     "set the difficulty of the bot to easy on input e" in {
       val ctrl = new Controller
@@ -100,7 +100,7 @@ class TuiSpec extends WordSpec with Matchers {
       val ctrl = new Controller
       val t = new Tui(ctrl)
       t.processInputLine("d")
-      ctrl.difficulty should be (3)
+      ctrl.difficulty should be(3)
     }
   }
   "update" should {

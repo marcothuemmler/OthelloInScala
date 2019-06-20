@@ -56,7 +56,7 @@ class BoardSpec extends WordSpec with Matchers {
       board.getMoves(1, 4, 3) should be(((4, 3), Vector((2, 3), (4, 5))))
     }
   }
-  "checkRecursive" should {
+  "checkRec" should {
     "return a tuple with values between 0 and 7 if there is a valid move" in {
       board.checkRec(1, 3, 4, (1, 0)) should be(5, 4)
     }
@@ -65,11 +65,19 @@ class BoardSpec extends WordSpec with Matchers {
     }
   }
   "isSet" should {
-    "be true if there is a disk" in {
+    "be true if there is at least one disk on the board" in {
       board.isSet(3, 4) should be(true)
     }
-    "be false if there is no disk" in {
+    "be false if there is no disk on the board" in {
       board.isSet(0, 0) should be(false)
+    }
+  }
+  "(Board).isSet" should {
+    "return true if there is at least one disk on the board" in {
+      var b = new Board
+      b.isSet should be(false)
+      b = (new CreateBoardStrategy).fill(b).asInstanceOf[Board]
+      b.isSet should be(true)
     }
   }
   "valueOf" should {
@@ -90,17 +98,11 @@ class BoardSpec extends WordSpec with Matchers {
       b.isHighlighted should be(true)
     }
   }
-  "countAll" should {
-    "count the disks of both players on the board" in {
-      val b = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
-      b.count(1) should be(2)
-      b.count(2) should be(2)
-    }
-  }
   "count" should {
     "count the disks of one player on the board" in {
       val b = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
       b.count(1) should be(2)
+      b.count(2) should be(2)
     }
   }
   "deHighlight" should {
@@ -123,22 +125,6 @@ class BoardSpec extends WordSpec with Matchers {
       board.grid(5)(4).value should be(1)
       board.grid(4)(4).value should be(1)
       board.grid(3)(4).value should be(1)
-    }
-  }
-  "score" should {
-    "be a draw if the amount of tiles is equal" in {
-      board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
-      board.score should be("Draw. 2:2")
-    }
-    "declare the Black player as winner if there are more black disks" in {
-      board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
-      board = board.flipLine((2, 3), (3, 3), 1)
-      board.score should be(s"Black wins by 4:1!")
-    }
-    "declare the White player as  winner if there are more white disks" in {
-      board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
-      board = board.flipLine((4, 2), (4, 3), 2)
-      board.score should be(s"White wins by 4:1!")
     }
   }
   "toString" should {
