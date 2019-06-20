@@ -1,5 +1,6 @@
 package de.htwg.se.othello.model
 
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
 import org.scalatest.{Matchers, WordSpec}
 
 class PlayerSpec extends WordSpec with Matchers {

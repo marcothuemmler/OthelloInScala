@@ -1,7 +1,8 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.Controller
-import de.htwg.se.othello.model.{Board, CreateBoardStrategy, Player, Square}
+import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
+import de.htwg.se.othello.model.Player
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
 import org.scalatest.{Matchers, WordSpec}
 
 class TuiSpec extends WordSpec with Matchers {
@@ -30,7 +31,7 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "highlight possible moves on the board on input h" in {
       tui.processInputLine("h")
-      controller.board.isHighlighted should be(true)
+      controller.board.asInstanceOf[Board].isHighlighted should be(true)
     }
     "set a square and flip a disk on input c4" in {
       tui.processInputLine("c4")
@@ -67,21 +68,39 @@ class TuiSpec extends WordSpec with Matchers {
       val t = new Tui(ctrl)
       val size = ctrl.board.size
       t.processInputLine("+")
-      ctrl.board.size should be (size + 2)
+      ctrl.board.size should be(size + 2)
     }
     "resize the board on input -" in {
       val ctrl = new Controller
       val t = new Tui(ctrl)
       val size = ctrl.board.size
       t.processInputLine("-")
-      ctrl.board.size should be (size - 2)
+      ctrl.board.size should be(size - 2)
     }
     "reset the board size on input ." in {
       val ctrl = new Controller(16)
       val t = new Tui(ctrl)
       ctrl.board.size should equal(16)
       t.processInputLine(".")
-      ctrl.board.size should be (8)
+      ctrl.board.size should be(8)
+    }
+    "set the difficulty of the bot to easy on input e" in {
+      val ctrl = new Controller
+      val t = new Tui(ctrl)
+      t.processInputLine("e")
+      ctrl.difficulty should be(1)
+    }
+    "set the difficulty of the bot to normal on input m" in {
+      val ctrl = new Controller
+      val t = new Tui(ctrl)
+      t.processInputLine("m")
+      ctrl.difficulty should be(2)
+    }
+    "set the difficulty of the bot to hard on input d" in {
+      val ctrl = new Controller
+      val t = new Tui(ctrl)
+      t.processInputLine("d")
+      ctrl.difficulty should be(3)
     }
   }
   "update" should {
@@ -95,7 +114,7 @@ class TuiSpec extends WordSpec with Matchers {
       ctrl.set(7, 7)
     }
     "print the gameStatus and the current board if the game is not over " in {
-      controller.newGame()
+      controller.newGame
     }
   }
 }

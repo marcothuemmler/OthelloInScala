@@ -1,41 +1,39 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.{Controller, GameStatus}
-import de.htwg.se.othello.util.Observer
+import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, GameStatus, PlayerOmitted}
 
-class Tui(controller: Controller) extends Observer {
-  val wort = "\\w+".r
-  controller.add(this)
+import scala.swing.Reactor
 
-  def processInputLine(input: String): Unit = {
-    input match {
-      case "q" => controller.exit()
-      case "n" => controller.newGame()
-      case "h" => controller.highlight()
-      case "z" => controller.undo()
-      case "y" => controller.redo()
-      case "s" => println(controller.suggestions)
-      case "+" | "-" | "." => controller.resizeBoard(input)
-      case "0" | "1" | "2" => controller.setupPlayers(input)
-      case "d" => println("Choose difficulty.")
-      case _ => input.toList.map(in => in.toString) match {
-        //case _ matches (wort.toString) => println("hallo")
-        case col :: row :: Nil =>
-          val square = controller.mapToBoard(col + row)
-          controller.set(square)
-        case _ => println("Please try again. " + controller.suggestions)
-      }
+class Tui(controller: ControllerInterface) extends Reactor {
+
+  listenTo(controller)
+
+  def processInputLine: String => Unit = {
+    case "q" => sys.exit
+    case "n" => controller.newGame
+    case "h" => controller.highlight()
+    case "z" => controller.undo()
+    case "y" => controller.redo()
+    case "s" => println(controller.suggestions)
+    case input @ ("e" | "m" | "d") => controller.setDifficulty(input)
+    case input @ ("+" | "-" | ".") => controller.resizeBoard(input)
+    case input @ ("0" | "1" | "2") => controller.setupPlayers(input)
+    case input => input.toList match {
+      case col :: row :: Nil =>
+        val square = (col.toUpper.toInt - 65, row.asDigit - 1)
+        controller.set(square)
+      case _ => println("Please try again. " + controller.suggestions)
     }
   }
 
-  override def update: Boolean = {
-    if (controller.gameStatus == GameStatus.START){
-      println(GameStatus.message(controller.gameStatus))
-    } else if (controller.gameStatus != GameStatus.GAME_OVER) {
+  reactions += { case _: BoardChanged | _: PlayerOmitted => update }
+
+  def update: Boolean = {
+    if (controller.gameStatus != GameStatus.GAME_OVER) {
       println(GameStatus.message(controller.gameStatus))
       println(controller.boardToString)
     } else {
-      println(controller.boardToString)
+      println(controller.boardToString + "\n" + controller.score)
       println(GameStatus.message(controller.gameStatus))
     }
     controller.gameStatus = GameStatus.IDLE
