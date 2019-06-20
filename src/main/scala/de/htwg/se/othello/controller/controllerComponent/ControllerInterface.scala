@@ -14,7 +14,6 @@ trait ControllerInterface extends Publisher {
   def isReady: Boolean
   def size: Int
   def resizeBoard(op: String): Unit
-  def createBoard(size: Int): Unit
   def setupPlayers: String => Unit
   def setDifficulty(value: String): Unit
   def newGame: Future[Unit]

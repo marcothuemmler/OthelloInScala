@@ -6,7 +6,7 @@ import de.htwg.se.othello.model.{Bot, Player}
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.Await
 
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
@@ -16,7 +16,7 @@ class ControllerSpec extends WordSpec with Matchers {
 
   "A controller created without board parameter" should {
     "have an empty board of size 8x8" in {
-      val ctrl = new Controller(players)
+      val ctrl = new Controller
       ctrl.board should equal(new Board)
     }
   }
@@ -31,8 +31,7 @@ class ControllerSpec extends WordSpec with Matchers {
     "reset the board and make the first move if the first player ist a Bot" in {
       val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
       val freshBoard = ctrl.board
-      val newGame = Future(ctrl.newGame)(ExecutionContext.global)
-      Await.ready(newGame, Duration.Inf)
+      Await.ready(ctrl.newGame, Duration.Inf)
       if (ctrl.isReady) ctrl.player should not be ctrl.players(0)
       ctrl.board should not equal freshBoard
     }

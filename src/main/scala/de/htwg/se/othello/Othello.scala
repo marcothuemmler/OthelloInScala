@@ -10,7 +10,7 @@ object Othello {
 
   val controller = new Controller
   val tui = new Tui(controller)
-  new SwingGui(controller)
+  val gui = new SwingGui(controller)
   controller.newGame
 
   def main(args: Array[String]): Unit = {

@@ -84,8 +84,8 @@ class HardBot(controller: Controller) extends MoveSelector(controller) {
         x <- b.indices
         y <- b.indices
         result = {
-          if (b.setBy(player.value, x, y)) 1
-          else if (b.setBy(betaP.value, x, y)) -1
+          if (b.valueOf(x, y) == player.value) 1
+          else if (b.valueOf(x, y) == betaP.value) -1
           else 0
         } * weightedBoard(x)(y)
       } yield result).sum - b.moves(betaP.value).values.flatten.toSet.size * 10
