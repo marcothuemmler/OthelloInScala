@@ -149,11 +149,6 @@ class ControllerSpec extends WordSpec with Matchers {
       c.players.count(o => o.isBot) should be(0)
     }
   }
-  "mapToBoard" should {
-    "take a string and return a tuple of Ints" in {
-      c.mapToBoard("a1") should be(0, 0)
-    }
-  }
   "nextPlayer" should {
     "return the player who's next" in {
       c.player = c.players(0)
@@ -164,12 +159,12 @@ class ControllerSpec extends WordSpec with Matchers {
     "highlight settable squares" in {
       c.newGame
       c.highlight()
-      c.board.isHighlighted should be(true)
+      c.board.asInstanceOf[Board].isHighlighted should be(true)
       c.board.valueOf(3, 2) should be(-1)
     }
     "de-highlight settable squares if already highlighted" in {
       c.highlight()
-      c.board.isHighlighted should be(false)
+      c.board.asInstanceOf[Board].isHighlighted should be(false)
     }
   }
   "boardToString" should {

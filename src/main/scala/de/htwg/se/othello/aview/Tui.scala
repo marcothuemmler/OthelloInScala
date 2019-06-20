@@ -18,9 +18,9 @@ class Tui(controller: ControllerInterface) extends Reactor {
     case input @ ("e" | "m" | "d") => controller.setDifficulty(input)
     case input @ ("+" | "-" | ".") => controller.resizeBoard(input)
     case input @ ("0" | "1" | "2") => controller.setupPlayers(input)
-    case input => input.toList.map(in => in.toString) match {
+    case input => input.toList match {
       case col :: row :: Nil =>
-        val square = controller.mapToBoard(col + row)
+        val square = (col.toUpper.toInt - 65, row.asDigit - 1)
         controller.set(square)
       case _ => println("Please try again. " + controller.suggestions)
     }

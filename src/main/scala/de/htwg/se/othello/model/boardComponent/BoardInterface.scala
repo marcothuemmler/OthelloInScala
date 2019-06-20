@@ -3,8 +3,7 @@ package de.htwg.se.othello.model.boardComponent
 trait BoardInterface {
 
   def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]]
-  def isHighlighted: Boolean
-  def highlight(value: Int): BoardInterface
+  def changeHighlight(value: Int): BoardInterface
   def deHighlight: BoardInterface
   def gameOver: Boolean
   def toString: String

@@ -82,6 +82,11 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   def isSet: Boolean = count(1) + count(2) > 0
 
+  def changeHighlight(value: Int): Board = {
+    if (isHighlighted) deHighlight
+    else highlight(value)
+  }
+
   override def toString: String = {
     val cols = (for { i <- indices } yield (i + 65).toChar).mkString(" ")
     val top = "\n    " + cols + "\n    " + "_" * (size * 2 - 1)

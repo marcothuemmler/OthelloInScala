@@ -16,7 +16,7 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
-  var difficulty = 2 // medium
+  var difficulty = 2 // normal
   var isReady = true
 
   def this(players: Vector[Player]) = this(new Board, players)
@@ -70,9 +70,8 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   }
 
   def set(square: (Int, Int)): Unit = {
-    if (moves.filter(o => o._2.contains(square)).keys.isEmpty) {
-      gameStatus = ILLEGAL
-    } else undoManager.doStep(new SetCommand(square, player.value, this))
+    if (!moves.exists(o => o._2.contains(square))) gameStatus = ILLEGAL
+    else undoManager.doStep(new SetCommand(square, player.value, this))
     if (gameOver) gameStatus = GAME_OVER
     publish(new BoardChanged)
     if (!gameOver && moves.isEmpty) omitPlayer()
@@ -110,15 +109,8 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   }
 
   def highlight(): Unit = {
-    board = {
-      if (board.isHighlighted) board.deHighlight
-      else board.highlight(player.value)
-    }
+    board = board.changeHighlight(player.value)
     publish(new BoardChanged)
-  }
-
-  def mapToBoard(input: String): (Int, Int) = {
-    (input(0).toUpper.toInt - 65, input(1).asDigit - 1)
   }
 
   def suggestions: String = {

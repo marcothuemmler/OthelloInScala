@@ -31,7 +31,7 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "highlight possible moves on the board on input h" in {
       tui.processInputLine("h")
-      controller.board.isHighlighted should be(true)
+      controller.board.asInstanceOf[Board].isHighlighted should be(true)
     }
     "set a square and flip a disk on input c4" in {
       tui.processInputLine("c4")

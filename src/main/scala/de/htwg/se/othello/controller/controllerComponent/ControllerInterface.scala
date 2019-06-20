@@ -22,7 +22,6 @@ trait ControllerInterface extends Publisher {
   def undo(): Unit
   def redo(): Unit
   def highlight(): Unit
-  def mapToBoard(input: String): (Int, Int)
   def suggestions: String
   def options: Seq[(Int, Int)]
   def moves: Map[(Int, Int), Seq[(Int, Int)]]
