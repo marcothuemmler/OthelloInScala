@@ -23,8 +23,6 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   def this() = this(Vector(new Player(1), new Bot(2)))
 
-  def this(size: Int) = this(new Board(size), Vector(new Player(1), new Bot(2)))
-
   def resizeBoard(op: String): Unit = {
     player = players(0)
     op match {
@@ -90,10 +88,9 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   }
 
   def omitPlayer(): Unit = {
-    val omittedPlayer = player
-    player = nextPlayer
     gameStatus = OMITTED
-    publish(new PlayerOmitted(omittedPlayer))
+    publish(new PlayerOmitted(player))
+    player = nextPlayer
   }
 
   def undo(): Unit = {
@@ -132,11 +129,11 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   def valueOf(col: Int, row: Int): Int = board.valueOf(col, row)
 
-  def count(value: Int): Int = board.count(value)
-
   def score: String = {
     val (win, lose) = (count(1) max count(2), count(1) min count(2))
     val winner = if (win == count(1)) players(0) else players(1)
     if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
   }
+
+  def count(value: Int): Int = board.count(value)
 }
