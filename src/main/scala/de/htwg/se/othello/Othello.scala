@@ -1,14 +1,16 @@
 package de.htwg.se.othello
 
+import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.aview.Tui
 import de.htwg.se.othello.aview.gui.SwingGui
-import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
+import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 
 import scala.io.StdIn.readLine
 
 object Othello {
 
-  val controller = new Controller
+  val injector: Injector = Guice.createInjector(new OthelloModule)
+  val controller: ControllerInterface = injector.getInstance(classOf[ControllerInterface])
   val tui = new Tui(controller)
   val gui = new SwingGui(controller)
   controller.newGame
