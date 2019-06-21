@@ -200,7 +200,8 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board.size should equal(size)
     }
     "reset the board size to 8 on input ." in {
-      val c = new Controller(16)
+      val c = new Controller
+      c.createBoard(16)
       c.board.size should equal(16)
       c.resizeBoard(".")
       c.board.size should equal(8)

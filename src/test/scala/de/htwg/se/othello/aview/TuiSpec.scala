@@ -78,9 +78,10 @@ class TuiSpec extends WordSpec with Matchers {
       ctrl.board.size should be(size - 2)
     }
     "reset the board size on input ." in {
-      val ctrl = new Controller(16)
-      val t = new Tui(ctrl)
+      val ctrl = new Controller
+      ctrl.createBoard(16)
       ctrl.board.size should equal(16)
+      val t = new Tui(ctrl)
       t.processInputLine(".")
       ctrl.board.size should be(8)
     }

@@ -26,7 +26,7 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
-      if (indices contains nX) && (indices contains nY) && setByOpp(value, nX, nY)
+      if indices.contains(nX) && indices.contains(nY) && setByOpp(value, nX, nY)
     } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
   }
 

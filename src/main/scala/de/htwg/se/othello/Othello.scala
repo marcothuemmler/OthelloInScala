@@ -14,8 +14,6 @@ object Othello {
   controller.newGame
 
   def main(args: Array[String]): Unit = {
-    while (true) {
-      tui.processInputLine(readLine)
-    }
+    while (true) tui.processInputLine(readLine)
   }
 }
