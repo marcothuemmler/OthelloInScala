@@ -1,81 +1,37 @@
 package de.htwg.se.othello.aview.gui
 
-import java.awt.Color
+import java.awt.{Color, GridLayout, RenderingHints}
 
-import de.htwg.se.othello.controller.Controller
+import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
+import javax.imageio.ImageIO
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.swing.event.MouseClicked
-import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, GridPanel, Label, Orientation}
+import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, Graphics2D, GridPanel, Label, Orientation}
 
-class TablePanel(controller: Controller) extends FlowPanel {
+class TablePanel(controller: ControllerInterface) extends FlowPanel {
 
-  val sides = 32
+  val sides = 26
   val sidesColor: Color = Color.lightGray
   val squareSize = 52
-  val operationsides = 150
 
-  def tableSize: Int = controller.board.size
+  def tableSize: Int = controller.size
+
   def edgeLength: Int = tableSize * squareSize
 
   def rows: BoxPanel = new BoxPanel(Orientation.Vertical) {
     background = sidesColor
     preferredSize = new Dimension(sides, edgeLength)
-    contents += new Label {
-      preferredSize = new Dimension(sides, sides)
-    }
-    contents += new GridPanel(tableSize, 1) {
-      background = sidesColor
-      for { i <- 1 to rows } contents += new Label(s"$i")
-    }
+    contents ++= List(
+      new Label { preferredSize = new Dimension(sides, sides) },
+      new GridPanel(tableSize, 1) {
+        background = sidesColor
+        for { i <- 1 to rows } contents += new Label(s"$i")
+      }
+    )
   }
-  def UndoPanel: BoxPanel = new BoxPanel(Orientation.Horizontal){
-    background = Color.darkGray
-    contents += new Label() {
-      icon = new ImageIcon("resources/undo.png")
-      text = s"undo"
-      foreground = new Color(250, 250, 200)
-    }
-    listenTo(mouse.clicks)
-    reactions += {
-      case _: MouseClicked =>
-      controller.undo()
-    }
-
-  }
-
-  def RedoPanel: BoxPanel = new BoxPanel(Orientation.Horizontal){
-    background = Color.darkGray
-    contents += new Label() {
-      icon = new ImageIcon("resources/redo.png")
-      text = s"redo"
-      foreground = new Color(250, 250, 200)
-    }
-    listenTo(mouse.clicks)
-    reactions += {
-      case _: MouseClicked =>
-        controller.redo()
-    }
-  }
-  def TippsPanel: BoxPanel = new BoxPanel(Orientation.Horizontal){
-    background = Color.darkGray
-    contents += new Label() {
-      icon = new ImageIcon("resources/tipps.png")
-      text = s"Hightlights"
-      foreground = new Color(250, 250, 200)
-    }
-    listenTo(mouse.clicks)
-    reactions += {
-      case _: MouseClicked =>
-        controller.highlight()
-    }
-  }
-
-
-
-
 
   def columns: GridPanel = new GridPanel(1, tableSize) {
     background = sidesColor
@@ -84,7 +40,21 @@ class TablePanel(controller: Controller) extends FlowPanel {
   }
 
   def table: GridPanel = new GridPanel(tableSize, tableSize) {
-    background = new Color(10, 90, 10)
+    border = new LineBorder(Color.black, 2)
+    override def paintComponent(g: Graphics2D): Unit = {
+      g.setRenderingHint(
+        RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON
+      )
+      g.drawImage({
+        ImageIO.read(getClass.getResourceAsStream("resources/back.jpg"))
+      }, 2, 2, edgeLength, edgeLength, null)
+      g.setColor(new Color(0x20, 0x20, 0x20))
+      g.fillOval(2 * squareSize - 5, 2 * squareSize - 5, 14, 14)
+      g.fillOval(2 * squareSize - 5, edgeLength - 2 * squareSize - 5, 14, 14)
+      g.fillOval(edgeLength - 2 * squareSize - 5, 2 * squareSize - 5, 14, 14)
+      g.fillOval(edgeLength - 2 * squareSize - 5, edgeLength - 2 * squareSize - 5, 14, 14)
+    }
     for {
       col <- 0 until columns
       row <- 0 until rows
@@ -92,75 +62,64 @@ class TablePanel(controller: Controller) extends FlowPanel {
   }
 
   def square(row: Int, col: Int): Label = new Label {
-    border = new LineBorder(new Color(30, 30, 30, 140))
+    border = new LineBorder(new Color(0x20, 0x20, 0x20, 200))
     preferredSize = new Dimension(squareSize, squareSize)
-    controller.board.valueOf(col, row) match {
-      case -1 => icon = new ImageIcon("resources/big_dot.png")
-      case 1 => icon = new ImageIcon("resources/black_shadow.png")
-      case 2 => icon = new ImageIcon("resources/white_shadow.png")
-      case _ =>
+    override def paintComponent(g: Graphics2D): Unit = {
+      g.setRenderingHint(
+        RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON
+      )
+      controller.valueOf(col, row) match {
+        case -1 =>
+          g.setColor(new Color(0, 0, 0, 135))
+          g.fillOval(16, 16, 21, 21)
+        case n @ (1 | 2) =>
+          g.drawImage({
+            ImageIO.read(getClass.getResource(f"resources/$n.png"))
+          }, 4, 4, null)
+        case _ =>
+      }
     }
     listenTo(mouse.clicks)
     reactions += {
-      case _: MouseClicked =>
+      case _: MouseClicked if controller.isReady =>
         if (controller.options.contains((col, row))) {
           Future(controller.set(col, row))(ExecutionContext.global)
-        } else if (controller.board.gameOver) controller.newGame()
+        } else if (controller.gameOver) controller.newGame
         else controller.highlight()
     }
   }
 
-  def scorePanel: GridPanel = {
-    if (!controller.board.gameOver) new GridPanel(1, 2) {
-      contents += new Label {
-        icon = new ImageIcon("resources/black_shadow.png")
-        text = s"${controller.board.count(1)}"
+  def scoreLabel: Int => Label = {
+    case n @ (1 | 2) =>
+      new Label {
+        icon = new ImageIcon(getClass.getResource(s"resources/$n.png"))
+        text = s"${controller.count(n)}"
         foreground = new Color(200, 200, 200)
       }
-      contents += new Label {
-        icon = new ImageIcon("resources/white_shadow.png")
-        text = s"${controller.board.count(2)}"
-        foreground = new Color(200, 200, 200)
-      }
-      contents += new BoxPanel(Orientation.Vertical){
-        background = Color.darkGray
-        contents += UndoPanel
-        contents += RedoPanel
-        //contents += TippsPanel
-      }
-      background = Color.darkGray
-      preferredSize = new Dimension(edgeLength, 60)
-    }
-    else new GridPanel(1, 1) {
-      contents += new Label {
-        text = controller.board.score
-        val test: Font = font
-        font = new Font(test.getName,0, 28)
-        foreground = new Color(200, 200, 200)
-      }
-      contents += new Label {
-        text = "New Game!"
-        val test: Font = font
-        font = new Font(test.getName,0, 28)
-        foreground = new Color(200, 200, 200)
-        listenTo(mouse.clicks)
-        reactions += {
-          case _: MouseClicked =>
-            controller.newGame()
-        }
+  }
 
+  def scorePanel: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+    peer.setLayout(new GridLayout)
+    preferredSize = new Dimension(edgeLength, squareSize)
+    background = Color.darkGray
+    if (!controller.gameOver) {
+      contents ++= List(scoreLabel(1), scoreLabel(2))
+    } else {
+      contents += new Label {
+        val fontSize: Int = if (controller.size > 4) 26 else 20
+        text = controller.score
+        font = new Font(font.getName, font.getStyle, fontSize)
+        foreground = new Color(200, 200, 200)
       }
-
-      background = Color.darkGray
-      preferredSize = new Dimension(edgeLength, 60)
     }
   }
 
 
   def redraw(): Unit = {
     contents.clear
-    contents += new BoxPanel(Orientation.Vertical) {
-      contents += scorePanel
+    contents += new BoxPanel(Orientation.Horizontal) {
+      contents += new OperationPanel(controller, sides + edgeLength )
       contents += new BorderPanel {
         add(rows, BorderPanel.Position.West)
         add(new BoxPanel(Orientation.Vertical) {

@@ -106,7 +106,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board = c.board.flipLine((1, 6), (3, 6), 2)
       val cBoard = c.board
       c.player = c.players(1)
-      c.selectAndSet(diff = 0)
+      //c.selectAndSet(2)
       c.board should equal(cBoard)
       c.newGame
     }

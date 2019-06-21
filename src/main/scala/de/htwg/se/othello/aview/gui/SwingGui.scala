@@ -2,13 +2,14 @@ package de.htwg.se.othello.aview.gui
 
 import scala.swing._
 import de.htwg.se.othello.controller._
+import de.htwg.se.othello.controller.controllerComponent.{ControllerInterface, PlayerOmitted, BoardChanged}
 import de.htwg.se.othello.util.Observer
 
 import scala.swing.event.Key
 
-class SwingGui(controller: Controller) extends Observer {
+class SwingGui(controller: ControllerInterface) extends Reactor {
 
-  controller.add(this)
+  listenTo(controller)
 
   lazy val tablePanel = new TablePanel(controller)
 
@@ -26,10 +27,10 @@ class SwingGui(controller: Controller) extends Observer {
     contents += new Menu("File") {
       mnemonic = Key.F
       contents += new MenuItem(Action("New Game") {
-        controller.newGame()
+        controller.newGame
       })
       contents += new MenuItem(Action("Quit") {
-        controller.exit()
+        sys.exit()
       })
     }
     contents += new Menu("Edit") {
@@ -65,6 +66,8 @@ class SwingGui(controller: Controller) extends Observer {
       }
     }
   }
+
+  reactions += { case _: BoardChanged |_: PlayerOmitted => update }
 
   def update: Boolean = {
     tablePanel.redraw()
