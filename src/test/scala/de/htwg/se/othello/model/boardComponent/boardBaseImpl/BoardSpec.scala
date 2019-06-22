@@ -10,8 +10,7 @@ class BoardSpec extends WordSpec with Matchers {
   "A board without parameters" should {
     "be a board with no squares set" in {
       val b = new Board
-      b.count(1) should be(0)
-      b.count(2) should be(0)
+      b.isSet should be (false)
     }
   }
   "setByOpp" should {
@@ -23,17 +22,6 @@ class BoardSpec extends WordSpec with Matchers {
     }
     "be false if set by Player" in {
       board.setByOpp(1, 3, 4) should be(false)
-    }
-  }
-  "setByPl" should {
-    "be false if set by opponent" in {
-      board.setBy(1, 4, 4) should be(false)
-    }
-    "be false if not set" in {
-      board.setBy(1, 0, 0) should be(false)
-    }
-    "be true if set by Player " in {
-      board.setBy(1, 3, 4) should be(true)
     }
   }
   "moves" should {
@@ -66,14 +54,6 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "isSet" should {
     "be true if there is at least one disk on the board" in {
-      board.isSet(3, 4) should be(true)
-    }
-    "be false if there is no disk on the board" in {
-      board.isSet(0, 0) should be(false)
-    }
-  }
-  "(Board).isSet" should {
-    "return true if there is at least one disk on the board" in {
       var b = new Board
       b.isSet should be(false)
       b = (new CreateBoardStrategy).fill(b).asInstanceOf[Board]
@@ -81,12 +61,12 @@ class BoardSpec extends WordSpec with Matchers {
     }
   }
   "valueOf" should {
-    "return the value of the square" in {
+    "be the value of the square" in {
       board.valueOf(2, 2) should be(0)
     }
   }
   "highlight" should {
-    "return the value of the square" in {
+    "highlight possible moves on the board" in {
       val b = board.highlight(1)
       b.valueOf(2, 3) should be(-1)
       b.valueOf(4, 5) should be(-1)
@@ -111,12 +91,6 @@ class BoardSpec extends WordSpec with Matchers {
       b = b.highlight(1)
       b = b.deHighlight
       b.isHighlighted should be(false)
-    }
-  }
-  "flip" should {
-    "set the value of the square to new value" in {
-      board = board.flip(7, 7, 2)
-      board.grid(7)(7) should be(Square(2))
     }
   }
   "flipLine" should {

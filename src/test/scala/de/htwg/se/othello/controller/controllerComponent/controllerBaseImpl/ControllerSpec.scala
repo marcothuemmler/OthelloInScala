@@ -28,7 +28,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.board should equal(b)
       c.player should be(c.players(0))
     }
-    "reset the board and make the first move if the first player ist a Bot" in {
+    "reset the board and make the first move if the first player is a Bot" in {
       val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
       val freshBoard = ctrl.board
       Await.ready(ctrl.newGame, Duration.Inf)
@@ -37,7 +37,7 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "playerCount" should {
-    "return the amount of human players" in {
+    "count the amount of human players" in {
       val ctrl = new Controller
       ctrl.playerCount should be(1)
       ctrl.setupPlayers("0")
@@ -76,13 +76,6 @@ class ControllerSpec extends WordSpec with Matchers {
       c.newGame
       c.set(0, 0)
       c.board should equal(b)
-    }
-    "skip the player if there are no valid moves to be made" in {
-      c.board = new Board
-      val emptyBoard = c.board
-      c.set(0, 0)
-      c.board should equal(emptyBoard)
-      c.newGame
     }
     "omit a player who doesn't have valid moves" in {
       val controller = new Controller(Vector(new Player(1), new Player(2)))
@@ -158,12 +151,11 @@ class ControllerSpec extends WordSpec with Matchers {
     "highlight settable squares" in {
       c.newGame
       c.highlight()
-      c.board.asInstanceOf[Board].isHighlighted should be(true)
       c.board.valueOf(3, 2) should be(-1)
     }
     "de-highlight settable squares if already highlighted" in {
       c.highlight()
-      c.board.asInstanceOf[Board].isHighlighted should be(false)
+      c.count(-1) should be(0)
     }
   }
   "boardToString" should {
@@ -203,6 +195,13 @@ class ControllerSpec extends WordSpec with Matchers {
       val c = new Controller
       c.createBoard(16)
       c.board.size should equal(16)
+      c.resizeBoard(".")
+      c.board.size should equal(8)
+    }
+    "not do anything if the board size is 8 on input ." in {
+      val c = new Controller
+      c.createBoard(8)
+      c.board.size should equal(8)
       c.resizeBoard(".")
       c.board.size should equal(8)
     }

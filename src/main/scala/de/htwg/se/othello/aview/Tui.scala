@@ -1,6 +1,6 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, GameStatus, PlayerOmitted}
+import de.htwg.se.othello.controller.controllerComponent._
 
 import scala.swing.Reactor
 
@@ -29,7 +29,7 @@ class Tui(controller: ControllerInterface) extends Reactor {
   reactions += { case _: BoardChanged | _: PlayerOmitted => update }
 
   def update: Boolean = {
-    if (controller.gameStatus != GameStatus.GAME_OVER) {
+    if (!controller.gameOver) {
       println(GameStatus.message(controller.gameStatus))
       println(controller.boardToString)
     } else {
