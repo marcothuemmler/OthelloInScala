@@ -3,14 +3,11 @@ package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 import org.scalatest.{Matchers, WordSpec}
 
 class BoardSpec extends WordSpec with Matchers {
-  var board: Board = new Board
-  board = new Board(8)
-  board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
+  val board: Board = (new CreateBoardStrategy).createNewBoard(8).asInstanceOf[Board]
 
   "A board without parameters" should {
     "be a board with no squares set" in {
-      val b = new Board
-      b.isSet should be (false)
+      (new Board).isSet should be(false)
     }
   }
   "setByOpp" should {
@@ -31,14 +28,12 @@ class BoardSpec extends WordSpec with Matchers {
       )
     }
     "be empty if there are no valid moves" in {
-      board = Board(Vector.fill(8, 8)(Square(0)))
-      board.moves(1) should be(Map())
-      board = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
+      (new Board).moves(1) should be(Map.empty)
     }
   }
   "getMoves" should {
     "return the checked square and an empty list if there are no valid moves" in {
-      board.getMoves(1, 0, 0) should be((0, 0), Seq())
+      board.getMoves(1, 0, 0) should be((0, 0), Seq.empty)
     }
     "return the checked square and a list with possible moves" in {
       board.getMoves(1, 4, 3) should be(((4, 3), Vector((2, 3), (4, 5))))
@@ -54,10 +49,8 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "isSet" should {
     "be true if there is at least one disk on the board" in {
-      var b = new Board
-      b.isSet should be(false)
-      b = (new CreateBoardStrategy).fill(b).asInstanceOf[Board]
-      b.isSet should be(true)
+      (new Board).isSet should be(false)
+      board.isSet should be(true)
     }
   }
   "valueOf" should {
@@ -67,38 +60,27 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "highlight" should {
     "highlight possible moves on the board" in {
-      val b = board.highlight(1)
-      b.valueOf(2, 3) should be(-1)
-      b.valueOf(4, 5) should be(-1)
-    }
-  }
-  "isHighlighted" should {
-    "be true if there are highlighted squares" in {
-      val b = board.highlight(1)
-      b.isHighlighted should be(true)
+      board.highlight(1).valueOf(2, 3) should be(-1)
     }
   }
   "count" should {
     "count the disks of one player on the board" in {
-      val b = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
-      b.count(1) should be(2)
-      b.count(2) should be(2)
+      board.count(1) should be(2)
     }
   }
   "deHighlight" should {
     "remove all the highlights on the board" in {
-      var b = (new CreateBoardStrategy).fill(board).asInstanceOf[Board]
-      b = b.highlight(1)
+      var b = board.highlight(1)
       b = b.deHighlight
-      b.isHighlighted should be(false)
+      b.count(-1) should be(0)
     }
   }
   "flipLine" should {
     "change the value of a connected line to the new value" in {
-      board = board.flipLine((5, 4), (3, 4), 1)
-      board.grid(5)(4).value should be(1)
-      board.grid(4)(4).value should be(1)
-      board.grid(3)(4).value should be(1)
+      val b = board.flipLine((5, 4), (3, 4), 1)
+      b.grid(5)(4).value should be(1)
+      b.grid(4)(4).value should be(1)
+      b.grid(3)(4).value should be(1)
     }
   }
   "toString" should {

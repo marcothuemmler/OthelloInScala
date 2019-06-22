@@ -9,8 +9,6 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   lazy val gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty && isSet
   val isSet: Boolean = count(1) > 0 || count(2) > 0
   val size: Int = grid.size
-  val indices: Range = grid.indices
-  val isHighlighted: Boolean = grid.flatten.count(o => o.isHighlighted) > 0
 
   def this() = this(Vector.fill(8, 8)(Square(0)))
 
@@ -18,8 +16,8 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
-      col <- indices
-      row <- indices if valueOf(col, row) == value
+      col <- grid.indices
+      row <- grid.indices if valueOf(col, row) == value
     } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
   }
 
@@ -28,7 +26,7 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
-      if indices.contains(nX) && indices.contains(nY) && setByOpp(value, nX, nY)
+      if nX >= 0 && nX < size && nY >= 0 && nY < size && setByOpp(value, nX, nY)
     } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
   }
 
@@ -44,10 +42,13 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   final def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
     val (col, row) = current
     val board = copy(grid.updated(col, grid(col).updated(row, Square(value))))
-    val nextH = col - col.compare(end._1)
-    val nextV = row - row.compare(end._2)
-    if (current != end) board.flipLine((nextH, nextV), end, value)
+    val next = (col - col.compare(end._1), row - row.compare(end._2))
+    if (current != end) board.flipLine(next, end, value)
     else board
+  }
+
+  def changeHighlight(value: Int): Board = {
+    if (grid.flatten.contains(Square(-1))) deHighlight else highlight(value)
   }
 
   def deHighlight: Board = {
@@ -71,18 +72,13 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
 
-  def changeHighlight(value: Int): Board = {
-    if (isHighlighted) deHighlight
-    else highlight(value)
-  }
-
   override def toString: String = {
-    val cols = (for { i <- indices } yield (i + 65).toChar).mkString(" ")
+    val cols = (for { i <- grid.indices } yield (i + 65).toChar).mkString(" ")
     val top = "\n    " + cols + "\n    " + "_" * (size * 2 - 1)
     var board = ("\nrow" + ("X" * size)) * size + "\n"
     for {
-      col <- indices
-      row <- indices
+      col <- grid.indices
+      row <- grid.indices
     } board = board.replaceFirst(
       "row",
       f"${row + 1}" + (if (row + 1 > 9) " |" else "  |")

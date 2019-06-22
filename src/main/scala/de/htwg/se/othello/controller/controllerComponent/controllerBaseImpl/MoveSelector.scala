@@ -81,8 +81,8 @@ class HardBot(controller: Controller) extends MoveSelector(controller) {
     if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
     else {
       (for {
-        x <- b.indices
-        y <- b.indices
+        x <- 0 until b.size
+        y <- 0 until b.size
         result = {
           if (b.valueOf(x, y) == player.value) 1
           else if (b.valueOf(x, y) == betaP.value) -1
@@ -99,8 +99,8 @@ class MediumBot(controller: Controller) extends MoveSelector(controller) {
     if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
     else {
       (for {
-        x <- b.indices
-        y <- b.indices
+        x <- 0 until b.size
+        y <- 0 until b.size
         if b.valueOf(x, y) == player.value
       } yield weightedBoard(x)(y)).sum
     }
@@ -111,8 +111,8 @@ class MediumBot(controller: Controller) extends MoveSelector(controller) {
 class EasyBot(controller: Controller) extends MoveSelector(controller) {
   override def evaluate(b: BoardInterface): Int = {
     (for {
-      x <- b.indices
-      y <- b.indices
+      x <- 0 until b.size
+      y <- 0 until b.size
       if b.valueOf(x, y) == player.value
     } yield -weightedBoard(x)(y)).sum
   }

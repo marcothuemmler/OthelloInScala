@@ -10,8 +10,8 @@ import scala.swing.event.Event
 trait ControllerInterface extends Publisher {
 
   var gameStatus: GameStatus
-  def difficulty: Int
-  def isReady: Boolean
+  var difficulty: Int
+  var isReady: Boolean
   def size: Int
   def resizeBoard(op: String): Unit
   def setupPlayers: String => Unit

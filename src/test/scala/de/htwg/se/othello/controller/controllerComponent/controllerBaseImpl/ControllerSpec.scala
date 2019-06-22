@@ -1,6 +1,7 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
 import de.htwg.se.othello.controller.controllerComponent.GameStatus
+import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
 import de.htwg.se.othello.model.{Bot, Player}
 import org.scalatest.{Matchers, WordSpec}
@@ -11,8 +12,7 @@ import scala.concurrent.Await
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
   var c = new Controller(players)
-  val strategy = new CreateBoardStrategy
-  val b: Board = strategy.createNewBoard(8).asInstanceOf[Board]
+  val b: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
 
   "A controller created without board parameter" should {
     "have an empty board of size 8x8" in {
@@ -69,8 +69,8 @@ class ControllerSpec extends WordSpec with Matchers {
     "set one disk and flip at least one of the opponents disks" in {
       c.newGame
       c.set(2, 3)
-      c.board.count(1) should be(4)
-      c.board.count(2) should be(1)
+      c.count(1) should be(4)
+      c.count(2) should be(1)
     }
     "not change any square on the board if the input is incorrect" in {
       c.newGame
@@ -166,9 +166,9 @@ class ControllerSpec extends WordSpec with Matchers {
   "createBoard" should {
     "create a new instance of a game with the given dimensions" in {
       c.createBoard(8)
-      c.board should be((new CreateBoardStrategy).createNewBoard(8))
-      c.board.size should be(8)
-      c.board.count(1) + c.board.count(2) should be(4)
+      c.board should be(b)
+      c.size should be(8)
+      c.count(1) + c.board.count(2) should be(4)
     }
   }
   "resizeBoard" should {
@@ -176,34 +176,34 @@ class ControllerSpec extends WordSpec with Matchers {
       val c = new Controller
       val size = c.board.size
       c.resizeBoard("+")
-      c.board.size should equal(size + 2)
+      c.size should equal(size + 2)
     }
     "reduce the board size by 2 on input -" in {
       val c = new Controller
       val size = c.board.size
       c.resizeBoard("-")
-      c.board.size should equal(size - 2)
+      c.size should equal(size - 2)
     }
     "not do anything on input - if the board size is 4x4" in {
       val c = new Controller
       c.createBoard(4)
       val size = c.board.size
       c.resizeBoard("-")
-      c.board.size should equal(size)
+      c.size should equal(size)
     }
     "reset the board size to 8 on input ." in {
       val c = new Controller
       c.createBoard(16)
       c.board.size should equal(16)
       c.resizeBoard(".")
-      c.board.size should equal(8)
+      c.size should equal(8)
     }
     "not do anything if the board size is 8 on input ." in {
       val c = new Controller
       c.createBoard(8)
       c.board.size should equal(8)
       c.resizeBoard(".")
-      c.board.size should equal(8)
+      c.size should equal(8)
     }
   }
   "suggestions" should {
