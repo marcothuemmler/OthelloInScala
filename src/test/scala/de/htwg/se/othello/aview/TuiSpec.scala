@@ -43,56 +43,47 @@ class TuiSpec extends WordSpec with Matchers {
       tui.processInputLine("a12")
       controller.board should equal(board)
     }
+    val ctrl = new Controller(players)
+    val t = new Tui(ctrl)
+    var changedBoard = ctrl.board
     "undo a step on input z" in {
-      val ctrl = new Controller
       ctrl.createBoard(8)
-      val t = new Tui(ctrl)
       t.processInputLine("c4")
+      t.processInputLine("c5")
+      changedBoard = ctrl.board
       t.processInputLine("z")
       ctrl.board should equal((new CreateBoardStrategy).createNewBoard(8))
     }
     "redo a step on input y" in {
-      val ctrl = new Controller
-      ctrl.createBoard(8)
-      val t = new Tui(ctrl)
-      t.processInputLine("c4")
-      val changedBoard = ctrl.board
-      t.processInputLine("z")
       t.processInputLine("y")
       ctrl.board should equal(changedBoard)
     }
     "resize the board on input +" in {
-      val ctrl = new Controller
       val size = ctrl.size
-      new Tui(ctrl).processInputLine("+")
+      t.processInputLine("+")
       ctrl.size should be(size + 2)
     }
     "resize the board on input -" in {
-      val ctrl = new Controller
       val size = ctrl.size
-      new Tui(ctrl).processInputLine("-")
+      t.processInputLine("-")
       ctrl.size should be(size - 2)
     }
     "reset the board size on input ." in {
-      val ctrl = new Controller
       ctrl.createBoard(16)
       ctrl.size should equal(16)
-      new Tui(ctrl).processInputLine(".")
+      t.processInputLine(".")
       ctrl.size should be(8)
     }
     "set the difficulty of the bot to easy on input e" in {
-      val ctrl = new Controller
-      new Tui(ctrl).processInputLine("e")
+      t.processInputLine("e")
       ctrl.difficulty should be(1)
     }
     "set the difficulty of the bot to normal on input m" in {
-      val ctrl = new Controller
-      new Tui(ctrl).processInputLine("m")
+      t.processInputLine("m")
       ctrl.difficulty should be(2)
     }
     "set the difficulty of the bot to hard on input d" in {
-      val ctrl = new Controller
-      new Tui(ctrl).processInputLine("d")
+      t.processInputLine("d")
       ctrl.difficulty should be(3)
     }
   }

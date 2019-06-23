@@ -17,7 +17,7 @@ trait ControllerInterface extends Publisher {
   def setupPlayers: String => Unit
   def setDifficulty(value: String): Unit
   def newGame: Future[Unit]
-  def set(square: (Int, Int))
+  def set(square: (Int, Int)): Unit
   def undo(): Unit
   def redo(): Unit
   def highlight(): Unit

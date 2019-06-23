@@ -16,7 +16,7 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
-  var difficulty = 2 // normal
+  var difficulty = 2
   var isReady = true
 
   def this(players: Vector[Player]) = this(new Board, players)
@@ -123,7 +123,7 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 
-  def playerCount: Int = players.size - players.count(o => o.isBot)
+  def playerCount: Int = players.count(o => !o.isBot)
 
   def boardToString: String = board.toString
 
