@@ -10,15 +10,14 @@ import scala.swing.event.Event
 trait ControllerInterface extends Publisher {
 
   var gameStatus: GameStatus
-  def playerPresent: Int
-  def difficulty: Int
-  def isReady: Boolean
+  var difficulty: Int
+  var isReady: Boolean
   def size: Int
   def resizeBoard(op: String): Unit
   def setupPlayers: String => Unit
   def setDifficulty(value: String): Unit
   def newGame: Future[Unit]
-  def set(square: (Int, Int))
+  def set(square: (Int, Int)): Unit
   def undo(): Unit
   def redo(): Unit
   def highlight(): Unit
