@@ -2,7 +2,7 @@ package de.htwg.se.othello.aview.gui
 
 import java.awt.{Color, GridLayout, RenderingHints}
 
-import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
+import de.htwg.se.othello.controller.controllerComponent.{ControllerInterface, GameStatus}
 import de.htwg.se.othello.model.Player
 import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
@@ -23,7 +23,35 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     } else {
       contents += playerBlack
     }
+    contents += infoBox
   }
+
+  def infoBox: BoxPanel = new BoxPanel(Orientation.Vertical){
+    if(controller.gameOver){
+      contents += NewGame
+    } else {
+      contents += new Label(){
+        text = " 's Turn"
+      }
+
+    }
+    if(!controller.gameOver && controller.gameStatus == GameStatus. OMITTED){
+      contents += new Label(){
+        text = "No legal moves."
+      }
+    }
+  }
+
+  def NewGame: Label = new Label(){
+    text = "New Game!"
+    listenTo(mouse.clicks)
+    reactions += {
+      case _: MouseClicked if controller.isReady =>
+        controller.newGame
+    }
+  }
+
+
   def playerWhite: Label = new Label()  {
     icon = new ImageIcon(getClass.getResource(s"resources/2.png"))
     foreground = new Color(200, 200, 200)
@@ -61,14 +89,12 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     contents += Redo
   }
 
-
   contents += new BorderPanel {
     add(presentPlayer, BorderPanel.Position.Center)
     add(Operation, BorderPanel.Position.South)
   }
 
-//  contents += Undo
-//  contents += Redo
+
 
 
 
