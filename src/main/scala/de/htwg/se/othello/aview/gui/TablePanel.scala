@@ -128,6 +128,6 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
         }, BorderPanel.Position.East)
       }
     }
-    repaint
+    revalidate
   }
 }
