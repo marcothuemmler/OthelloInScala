@@ -2,8 +2,8 @@ package de.htwg.se.othello.aview.gui
 
 import java.awt.{Color, GridLayout, RenderingHints}
 
-
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
+import de.htwg.se.othello.model.Player
 import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
 import javax.imageio.ImageIO
@@ -18,7 +18,11 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
   preferredSize = new Dimension(operationsides, Hoehe)
 
   def presentPlayer: BoxPanel =  new BoxPanel(Orientation.Vertical){
-
+    if(controller.isReady) {
+      contents += playerWhite
+    } else {
+      contents += playerBlack
+    }
   }
   def playerWhite: Label = new Label()  {
     icon = new ImageIcon(getClass.getResource(s"resources/2.png"))
@@ -30,16 +34,21 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
   }
 
   def Undo: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-      if (controller.isReady){
-        contents
+      contents += new Label{
+        text = "Undo"
       }
+
   }
 
   def Redo: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-
+    contents += new Label{
+      text = "Redo"
+    }
   }
 
-
+  contents += presentPlayer
+  contents += Undo
+  contents += Redo
 
 
 
