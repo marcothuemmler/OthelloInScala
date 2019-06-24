@@ -18,7 +18,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
   preferredSize = new Dimension(operationsides, Hoehe)
 
   def presentPlayer: BoxPanel =  new BoxPanel(Orientation.Vertical){
-    if(controller.isReady) {
+    if(controller.playerPresent == 1) {
       contents += playerWhite
     } else {
       contents += playerBlack
@@ -37,6 +37,11 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
       contents += new Label{
         text = "Undo"
       }
+    listenTo(mouse.clicks)
+    reactions += {
+      case _: MouseClicked if controller.isReady =>
+        controller.undo()
+    }
 
   }
 
@@ -44,11 +49,26 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     contents += new Label{
       text = "Redo"
     }
+    listenTo(mouse.clicks)
+    reactions += {
+      case _: MouseClicked if controller.isReady =>
+        controller.redo()
+    }
   }
 
-  contents += presentPlayer
-  contents += Undo
-  contents += Redo
+  def Operation: BoxPanel = new BoxPanel(Orientation.Vertical){
+    contents += Undo
+    contents += Redo
+  }
+
+
+  contents += new BorderPanel {
+    add(presentPlayer, BorderPanel.Position.Center)
+    add(Operation, BorderPanel.Position.South)
+  }
+
+//  contents += Undo
+//  contents += Redo
 
 
 
