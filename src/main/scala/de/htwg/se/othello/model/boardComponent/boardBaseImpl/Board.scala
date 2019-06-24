@@ -7,7 +7,7 @@ import scala.annotation.tailrec
 case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   lazy val gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty && isSet
-  val isSet: Boolean = count(1) > 0 || count(2) > 0
+  val isSet: Boolean = grid.flatten.exists(o => o.isSet)
   val size: Int = grid.size
 
   def this() = this(Vector.fill(8, 8)(Square(0)))
@@ -27,15 +27,15 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
       if nX >= 0 && nX < size && nY >= 0 && nY < size && setByOpp(value, nX, nY)
-    } yield checkRec(value, nX, nY, (x, y))).filter(o => o != (-1, -1)))
+    } yield checkRec(value, nX, nY, (x, y))).filter(o => o.isDefined).flatten)
   }
 
   @tailrec
-  final def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): (Int, Int) = {
+  final def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): Option[(Int, Int)] = {
     val (nX, nY) = (x + direction._1, y + direction._2)
-    if (nX < 0 || nX >= size || nY < 0 || nY >= size || valueOf(nX, nY) == value) (-1, -1)
+    if (nX < 0 || nX >= size || nY < 0 || nY >= size || valueOf(nX, nY) == value) None
     else if (setByOpp(value, nX, nY)) checkRec(value, nX, nY, direction)
-    else (nX, nY)
+    else Some(nX, nY)
   }
 
   @tailrec

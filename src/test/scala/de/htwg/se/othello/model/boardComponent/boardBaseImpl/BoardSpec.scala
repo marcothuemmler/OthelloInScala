@@ -40,11 +40,11 @@ class BoardSpec extends WordSpec with Matchers {
     }
   }
   "checkRec" should {
-    "return a tuple with values between 0 and 7 if there is a valid move" in {
-      board.checkRec(1, 3, 4, (1, 0)) should be(5, 4)
+    "be a tuple with values between 0 and 7 if there is a valid move" in {
+      board.checkRec(1, 3, 4, (1, 0)) should be(Some(5, 4))
     }
-    "return (-1, -1) if there is no valid move in this direction" in {
-      board.checkRec(1, 0, 0, (-1, 0)) should be(-1, -1)
+    "be None if there is no valid move in this direction" in {
+      board.checkRec(1, 0, 0, (-1, 0)) should be(None)
     }
   }
   "isSet" should {

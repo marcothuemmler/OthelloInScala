@@ -3,7 +3,7 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import de.htwg.se.othello.controller.controllerComponent.GameStatus
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
-import de.htwg.se.othello.model.Player
+import de.htwg.se.othello.model.{Bot, Player}
 import org.scalatest.{Matchers, WordSpec}
 
 class ControllerSpec extends WordSpec with Matchers {
@@ -76,6 +76,13 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "selectAndSet" should {
+    "set a square" in {
+      val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
+      ctrl.createBoard(8)
+      val board = ctrl.board
+      ctrl.selectAndSet()
+      ctrl.board should not equal board
+    }
     "not change any square on the board if the player has no valid move" in {
       controller.setupPlayers("1")
       controller.board = (new Board).flipLine((0, 7), (5, 7), 1)
