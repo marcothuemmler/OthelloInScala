@@ -1,10 +1,11 @@
 package de.htwg.se.othello.model.fileIOComponent.fileIoJsonImpl
 
 import de.htwg.se.othello.model.boardComponent.BoardInterface
-import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import play.api.libs.json._
+
+import scala.io.Source
 
 class FileIO extends FileIOInterface {
 

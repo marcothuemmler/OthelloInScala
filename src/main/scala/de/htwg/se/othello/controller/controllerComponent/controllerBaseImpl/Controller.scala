@@ -1,11 +1,15 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
+import com.google.inject.{Guice, Injector}
+import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, PlayerOmitted}
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy}
 import de.htwg.se.othello.model.boardComponent.BoardInterface
+import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,6 +22,8 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   var gameStatus: GameStatus = IDLE
   var difficulty = 2 // normal
   var isReady = true
+  val injector: Injector = Guice.createInjector(new OthelloModule)
+  val fileIo: FileIOInterface = injector.instance[FileIOInterface]
 
   def this(players: Vector[Player]) = this(new Board, players)
 
@@ -65,6 +71,13 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
     createBoard(board.size)
     player = players(0)
     Future(selectAndSet())(ExecutionContext.global)
+  }
+
+  def save(): Unit = fileIo.save(board)
+
+  def load(): Unit = {
+    board = fileIo.load
+    publish(new BoardChanged)
   }
 
   def set(square: (Int, Int)): Unit = {
