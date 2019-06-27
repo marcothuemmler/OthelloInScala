@@ -32,7 +32,7 @@ class FileIO extends FileIOInterface{
           val row: Int = (cell \ "@row").text.toInt
           val col: Int = (cell \ "@col").text.toInt
           val value: Int = cell.text.trim.toInt
-          _board = _board.setByOpp(row, col, value)
+          _board = _board.flip(col, row, value)
         }
         boardOption = Some(_board)
       case None =>
