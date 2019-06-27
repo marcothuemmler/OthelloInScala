@@ -6,13 +6,13 @@ import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Cont
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
-import de.htwg.se.othello.model.fileIOComponent.fileIoJsonImpl
+import de.htwg.se.othello.model.fileIOComponent.fileIoXmlImpl
 import net.codingwell.scalaguice.ScalaModule
 
 class OthelloModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[ControllerInterface].to[Controller]
     bind[BoardInterface].to[Board]
-    bind[FileIOInterface].to[fileIoJsonImpl.FileIO]
+    bind[FileIOInterface].to[fileIoXmlImpl.FileIO]
   }
 }
