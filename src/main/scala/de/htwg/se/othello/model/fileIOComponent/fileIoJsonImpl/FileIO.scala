@@ -1,28 +1,20 @@
 package de.htwg.se.othello.model.fileIOComponent.fileIoJsonImpl
 
-import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
+import play.api.libs.json._
 
 import scala.io.Source
 
 class FileIO extends FileIOInterface {
 
-  override def load: Option[BoardInterface] = {
-    var boardOption :Option[BoardInterface] = None
+  override def load: BoardInterface = {
     val source = Source.fromFile("board.json")
     val content: String = source.getLines.mkString
     val json: JsValue = Json.parse(content)
     source.close()
     val size = (json \ "board" \ "size").get.toString.toInt
-    val injector = Guice.createInjector(new OthelloModule)
-    size match {
-      case 1 => boardOption = Some(injector.instance[BoardInterface](Names.named("tiny")))
-      case 4 => boardOption = Some(injector.instance[BoardInterface](Names.named("small")))
-      case 8 => boardOption = Some(injector.instance[BoardInterface](Names.named("normal")))
-      case _ =>
-    }
     var board: BoardInterface = new Board(size)
     for (index <- 0 until size * size) {
       val col = (json \\ "col") (index).as[Int]
