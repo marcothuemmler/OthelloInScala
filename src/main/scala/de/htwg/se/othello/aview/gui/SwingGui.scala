@@ -21,6 +21,7 @@ class SwingGui(controller: ControllerInterface) extends Reactor {
     contents = tablePanel
     centerOnScreen
     resizable = false
+    visible = true
   }
 
   val modifier: Modifiers = {
@@ -35,6 +36,15 @@ class SwingGui(controller: ControllerInterface) extends Reactor {
         accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_N, modifier))
         override def apply: Unit = controller.newGame
       })
+      contents += new MenuItem(new Action("Save") {
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_F, modifier))
+        override def apply: Unit = controller.save()
+      })
+      contents += new MenuItem(new Action("Load") {
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_L, modifier))
+        override def apply: Unit = controller.load()
+      })
+      contents += new Separator
       contents += new MenuItem(new Action("Quit") {
         accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Q, modifier))
         override def apply: Unit = sys.exit
@@ -82,8 +92,7 @@ class SwingGui(controller: ControllerInterface) extends Reactor {
         val cvc: RadioMenuItem = new RadioMenuItem("Demo mode (Computer vs Computer)") {
           selected = if (controller.playerCount == 0) true else false
         }
-        val mode = new ButtonGroup(pvc, pvp, cvc)
-        contents ++= mode.buttons
+        contents ++= new ButtonGroup(pvc, pvp, cvc).buttons
         listenTo(pvc, pvp, cvc)
         reactions += {
           case e: ButtonClicked =>
@@ -105,8 +114,7 @@ class SwingGui(controller: ControllerInterface) extends Reactor {
           enabled = if (controller.size == 8) true else false
           selected = if (controller.difficulty == 3) true else false
         }
-        val mode = new ButtonGroup(easy, medium, hard)
-        contents ++= mode.buttons
+        contents ++= new ButtonGroup(easy, medium, hard).buttons
         listenTo(easy, medium, hard)
         reactions += {
           case e: ButtonClicked =>
@@ -122,9 +130,8 @@ class SwingGui(controller: ControllerInterface) extends Reactor {
 
   def update: Boolean = {
     tablePanel.redraw()
-    mainFrame.pack
     mainFrame.menuBar = menus
-    mainFrame.visible = true
+    mainFrame.pack
     true
   }
 }
