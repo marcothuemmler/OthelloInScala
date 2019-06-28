@@ -7,54 +7,42 @@ import scala.xml.{Elem, PrettyPrinter}
 
 class FileIO extends FileIOInterface {
   override def load: BoardInterface = {
-    var board: BoardInterface = null
-    val file = scala.xml.XML.loadFile("grid.xml")
-    val sizeAttr = file \\ "board" \ "@size"
-    val size = sizeAttr.text.toInt
-    board = new Board(size)
-    /**
-     * size match {
-     * case 1 => board = Some(injector.instance[BoardInterface](Names.named("tiny")))
-     * case 4 => board = Some(injector.instance[BoardInterface](Names.named("small")))
-     * case 8 => board = Some(injector.instance[BoardInterface](Names.named("normal")))
-     * case _ =>
-     * }
-     */
-    val cellNodes = file \\ "cell"
-        for (cell <- cellNodes) {
-          val row: Int = (cell \ "@row").text.toInt
-          val col: Int = (cell \ "@col").text.toInt
-          val value: Int = cell.text.trim.toInt
-          board = board.flip(row, col, value)
-        }
+    val file = scala.xml.XML.loadFile("board.xml")
+    val size = (file \\ "board" \ "@size").text.toInt
 
+    var board = new Board(size)
+
+    val squares = file \\ "square"
+    for {
+      square <- squares
+      row = (square \ "@row").text.toInt
+      col = (square \ "@col").text.toInt
+      value = square.text.trim.toInt
+    } board = board.flip(row, col, value)
     board
-    }
+  }
 
-  def save(board: BoardInterface): Unit = saveString(board)
-
-  def saveString(grid: BoardInterface): Unit = {
+  def save(board: BoardInterface): Unit = {
     import java.io._
-    val pw = new PrintWriter(new File("grid.xml"))
+    val pw = new PrintWriter(new File("board.xml"))
     val prettyPrinter = new PrettyPrinter(120, 4)
-    val xml = prettyPrinter.format(boardToXml(grid))
+    val xml = prettyPrinter.format(boardToXml(board))
     pw.write(xml)
     pw.close()
   }
 
   def boardToXml(board: BoardInterface): Elem = {
-    <board size={ board.size.toString }>
-      {
-      for {
-        row <- 0 until board.size
-        col <- 0 until board.size
-      } yield cellToXml(board, row, col) }
+    <board size={board.size.toString}>
+      {for {
+      row <- 0 until board.size
+      col <- 0 until board.size
+    } yield squareToXml(board, row, col)}
     </board>
   }
 
-  def cellToXml(board: BoardInterface, row: Int, col: Int): Elem = {
-    <cell row={ row.toString } col={ col.toString }>
-      { board.valueOf(row, col) }
-    </cell>
+  def squareToXml(board: BoardInterface, row: Int, col: Int): Elem = {
+    <square row={row.toString} col={col.toString}>
+      {board.valueOf(row, col)}
+    </square>
   }
 }

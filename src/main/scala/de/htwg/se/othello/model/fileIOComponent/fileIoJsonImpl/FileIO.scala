@@ -11,17 +11,17 @@ class FileIO extends FileIOInterface {
 
   override def load: BoardInterface = {
     val source = Source.fromFile("board.json")
-    val content: String = source.getLines.mkString
+    val content = source.getLines.mkString
     val json: JsValue = Json.parse(content)
-    source.close()
+    source.close
     val size = (json \ "board" \ "size").get.toString.toInt
-    var board: BoardInterface = new Board(size)
-    for (index <- 0 until size * size) {
-      val col = (json \\ "col") (index).as[Int]
-      val row = (json \\ "row") (index).as[Int]
-      val value = (json \\ "value") (index).as[Int]
-      board = board.flip(col, row, value)
-    }
+    var board = new Board(size)
+    for {
+      index <- 0 until size * size
+      col = (json \\ "col") (index).as[Int]
+      row = (json \\ "row") (index).as[Int]
+      value = (json \\ "value") (index).as[Int]
+    } board = board.flip(col, row, value)
     board
   }
 

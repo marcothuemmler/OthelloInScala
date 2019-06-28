@@ -13,7 +13,7 @@ object Othello {
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val controller: ControllerInterface = injector.instance[ControllerInterface]
   val tui = new Tui(controller)
-  val gui = new SwingGui(controller)
+  // val gui = new SwingGui(controller)
   controller.newGame
 
   def main(args: Array[String]): Unit = {
