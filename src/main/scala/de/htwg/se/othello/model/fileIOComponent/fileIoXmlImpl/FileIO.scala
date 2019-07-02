@@ -10,8 +10,7 @@ import scala.xml.{Elem, PrettyPrinter}
 class FileIO extends FileIOInterface {
   override def load: (BoardInterface, Player, Int) = {
     val file = scala.xml.XML.loadFile("savegame.xml")
-    val sizeAttr = file \\ "board" \ "@size"
-    val size = sizeAttr.text.toInt
+    val size = (file \\ "board" \ "@size").text.toInt
     var board = new Board(size)
     val cellNodes = file \\ "cell"
     for (cell <- cellNodes) {
@@ -20,11 +19,10 @@ class FileIO extends FileIOInterface {
       val value: Int = cell.text.trim.toInt
       board = board.flip(row, col, value)
     }
-    val playerName = (file \\ "player" \ "@name").text.toString
-    val playerValue = (file \\ "player" \ "@value").text.toInt
-    val player = Player(playerName, playerValue)
-    val diff = (file \\ "diff" \ "@level").text.toInt
-    (board, player, diff)
+    val name = (file \\ "player" \ "@name").text.toString
+    val color = (file \\ "player").text.trim.toInt
+    val difficulty = (file \\ "difficulty").text.trim.toInt
+    (board, Player(name, color), difficulty)
   }
 
   def save(board: BoardInterface, player: Player, difficulty: Int): Unit = {
@@ -42,21 +40,20 @@ class FileIO extends FileIOInterface {
 
   def stateToXml(board: BoardInterface, player: Player, difficulty: Int): Elem = {
     <root>
-      <board size={board.size.toString}>
-        {for {
+      <board size={ board.size.toString }>
+        { for {
         row <- 0 until board.size
         col <- 0 until board.size
-      } yield cellToXml(board, row, col)}
+      } yield cellToXml(board, row, col) }
       </board>
-      <player name={player.name.toString} value={player.value.toString}>
-      </player>
-      <diff level={difficulty.toString}></diff>
+      <player name={ player.name }> { player.value } </player>
+      <difficulty> { difficulty } </difficulty>
     </root>
   }
 
   def cellToXml(board: BoardInterface, row: Int, col: Int): Elem = {
-    <cell row={row.toString} col={col.toString}>
-      {board.valueOf(row, col)}
+    <cell row={ row.toString } col={ col.toString }>
+      { board.valueOf(row, col) }
     </cell>
   }
 }

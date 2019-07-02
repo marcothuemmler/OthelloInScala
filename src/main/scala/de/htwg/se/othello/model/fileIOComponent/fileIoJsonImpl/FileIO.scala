@@ -12,16 +12,15 @@ class FileIO extends FileIOInterface {
 
   override def load: (BoardInterface, Player, Int) = {
     val source = Source.fromFile("savegame.json")
-    val content: String = source.getLines.mkString
-    val json: JsValue = Json.parse(content)
+    val json: JsValue = Json.parse(source.getLines.mkString)
     source.close()
     val size = (json \ "board" \ "size").as[Int]
     var board: BoardInterface = new Board(size)
     for (index <- 0 until size * size) {
-      val col = (json \\ "col") (index).as[Int]
       val row = (json \\ "row") (index).as[Int]
+      val col = (json \\ "col") (index).as[Int]
       val value = (json \\ "value") (index).as[Int]
-      board = board.flip(col, row, value)
+      board = board.flip(row, col, value)
     }
     val color = (json \ "player" \ "value").as[Int]
     val name = (json \ "player" \ "name").toString
@@ -32,22 +31,22 @@ class FileIO extends FileIOInterface {
   override def save(board: BoardInterface, player: Player, difficulty: Int): Unit = {
     import java.io._
     val pw = new PrintWriter(new File("savegame.json"))
-    pw.write(Json.prettyPrint(boardToJson(board, player, difficulty)))
+    pw.write(Json.prettyPrint(stateToJson(board, player, difficulty)))
     pw.close()
   }
 
-  def boardToJson(board: BoardInterface, player: Player, difficulty: Int): JsObject = {
+  def stateToJson(board: BoardInterface, player: Player, difficulty: Int): JsObject = {
     Json.obj(
       "board" -> Json.obj(
         "size" -> board.size,
         "content" -> Json.toJson(
           for {
-            col <- 0 until board.size
             row <- 0 until board.size
+            col <- 0 until board.size
           } yield Json.obj(
-            "value" -> board.valueOf(col, row),
-            "col" -> col,
-            "row" -> row
+            "value" -> board.valueOf(row, col),
+            "row" -> row,
+            "col" -> col
           )
         )
       ),
