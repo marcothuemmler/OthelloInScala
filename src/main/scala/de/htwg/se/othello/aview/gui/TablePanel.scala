@@ -8,7 +8,7 @@ import javax.swing.ImageIcon
 import javax.swing.border.LineBorder
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.swing.event.ButtonClicked
+import scala.swing.event.MouseClicked
 import scala.swing._
 
 class TablePanel(controller: ControllerInterface) extends FlowPanel {
@@ -61,7 +61,8 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
     } contents += square(col, row)
   }
 
-  def square(row: Int, col: Int): Button = new Button {
+  def square(row: Int, col: Int): Label = new Label {
+    listenTo(mouse.clicks)
     border = new LineBorder(new Color(30, 30, 30, 200))
     preferredSize = new Dimension(squareSize, squareSize)
     override def paintComponent(g: Graphics2D): Unit = {
@@ -81,7 +82,7 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
       }
     }
     reactions += {
-      case _: ButtonClicked if controller.isReady =>
+      case _: MouseClicked if controller.isReady =>
         if (controller.options.contains((col, row))) {
           Future(controller.set(col, row))(ExecutionContext.global)
         } else if (controller.gameOver) controller.newGame
