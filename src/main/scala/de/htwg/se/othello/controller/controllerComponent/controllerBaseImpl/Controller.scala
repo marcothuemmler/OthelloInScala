@@ -73,10 +73,12 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
     Future(selectAndSet())(ExecutionContext.global)
   }
 
-  def save(): Unit = fileIo.save(board)
+  def save(): Unit = fileIo.save(board, player, difficulty)
 
   def load(): Unit = {
-    board = fileIo.load
+    board = fileIo.load._1
+    player = fileIo.load._2
+    difficulty = fileIo.load._3
     publish(new BoardChanged)
   }
 
