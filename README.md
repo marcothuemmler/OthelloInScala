@@ -8,7 +8,7 @@
 
 
 
-<p align="center"><img src="https://raw.githubusercontent.com/marcothuemmler/de.htwg.se.OthelloInScala/DI_Implementation/screenshot.png" width="568"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/marcothuemmler/de.htwg.se.OthelloInScala/dev/screenshot.png" width="568"/></p>
 
 
 ***&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;About Othello***

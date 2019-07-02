@@ -31,6 +31,8 @@ trait ControllerInterface extends Publisher {
   def valueOf(col: Int, row: Int): Int
   def count(value: Int): Int
   def score: String
+  def save(): Unit
+  def load(): Unit
 
 }
 

@@ -70,6 +70,10 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   def valueOf(col: Int, row: Int): Int = grid(col)(row).value
 
+  def flip(col: Int, row: Int, value: Int): Board = {
+    copy(grid.updated(col, grid(col).updated(row, Square(value))))
+  }
+
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
 
   override def toString: String = {
