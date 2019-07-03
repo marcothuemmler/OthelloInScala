@@ -17,6 +17,12 @@ object Othello {
   controller.newGame
 
   def main(args: Array[String]): Unit = {
-    while (true) tui.processInputLine(readLine)
+    var input: String = ""
+    if (args.length>0) input=args(0)
+    if (!input.isEmpty) tui.processInputLine(input)
+    else do {
+      input = readLine()
+      tui.processInputLine(input)
+    } while (input != "q")
   }
 }

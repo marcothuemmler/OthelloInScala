@@ -3,8 +3,8 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, PlayerOmitted}
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy}
+import de.htwg.se.othello.controller.controllerComponent._
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl._
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
@@ -21,7 +21,6 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
   var difficulty = 2
-  var isReady = true
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.instance[FileIOInterface]
 
@@ -76,10 +75,17 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   def save(): Unit = fileIo.save(board, player, difficulty)
 
   def load(): Unit = {
-    board = fileIo.load._1
-    player = fileIo.load._2
-    difficulty = fileIo.load._3
-    publish(new BoardChanged)
+    fileIo.load match {
+      case Success(savegame) =>
+        board = savegame._1
+        player = savegame._2
+        difficulty = savegame._3
+        gameStatus = LOAD_SUCCESS
+        publish (new BoardChanged)
+      case _ =>
+        gameStatus = LOAD_FAIL
+        publish(new BoardChanged)
+    }
   }
 
   def set(square: (Int, Int)): Unit = {
@@ -93,12 +99,10 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   @tailrec
   final def selectAndSet(): Unit = if (player.isBot && !gameOver) {
-    isReady = false
     moveSelector(difficulty).select match {
       case Success(square) => set(square)
       case _ => omitPlayer()
     }
-    isReady = true
     selectAndSet()
   }
 

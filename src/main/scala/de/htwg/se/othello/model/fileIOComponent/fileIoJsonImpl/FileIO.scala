@@ -7,21 +7,22 @@ import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import play.api.libs.json._
 
 import scala.io.Source
+import scala.util.Try
 
 class FileIO extends FileIOInterface {
 
-  override def load: (BoardInterface, Player, Int) = {
+  override def load = Try {
     val source = Source.fromFile("savegame.json")
-    val json: JsValue = Json.parse(source.getLines.mkString)
-    source.close()
+    val json: JsValue = Json.parse (source.getLines.mkString)
+    source.close ()
     val size = (json \ "board" \ "size").as[Int]
-    var board: BoardInterface = new Board(size)
-    for (index <- 0 until size * size) {
-      val row = (json \\ "row") (index).as[Int]
-      val col = (json \\ "col") (index).as[Int]
-      val value = (json \\ "value") (index).as[Int]
-      board = board.flip(row, col, value)
-    }
+    var board: BoardInterface = new Board (size)
+    for {
+      index <- 0 until size * size
+      row = (json \\ "row") (index).as[Int]
+      col = (json \\ "col") (index).as[Int]
+      value = (json \\ "value") (index).as[Int]
+    } board = board.flip (row, col, value)
     val color = (json \ "player" \ "value").as[Int]
     val name = (json \ "player" \ "name").toString
     val difficulty = (json \ "difficulty").as[Int]
@@ -39,7 +40,7 @@ class FileIO extends FileIOInterface {
     Json.obj(
       "board" -> Json.obj(
         "size" -> board.size,
-        "content" -> Json.toJson(
+        "squares" -> Json.toJson(
           for {
             row <- 0 until board.size
             col <- 0 until board.size
@@ -53,7 +54,6 @@ class FileIO extends FileIOInterface {
       "player" -> Json.obj(
         "name" -> player.name,
         "value" -> player.value,
-        "isBot" -> player.isBot,
       ),
       "difficulty" -> difficulty
     )
