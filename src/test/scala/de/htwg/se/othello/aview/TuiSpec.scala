@@ -97,4 +97,20 @@ class TuiSpec extends WordSpec with Matchers {
       controller.newGame
     }
   }
+  "save and restore the whole game" in {
+    val board = controller.board
+    val player = controller.player
+    val difficulty = controller.difficulty
+    tui.processInputLine("f")
+    controller.difficulty = 3
+    controller.player = controller.players(1)
+    controller.board = controller.board.flip(0,0,1)
+    controller.board should not be board
+    controller.player should not be player
+    controller.difficulty should not be difficulty
+    tui.processInputLine("l")
+    controller.board should be(board)
+    controller.player should be(player)
+    controller.difficulty should be(difficulty)
+  }
 }

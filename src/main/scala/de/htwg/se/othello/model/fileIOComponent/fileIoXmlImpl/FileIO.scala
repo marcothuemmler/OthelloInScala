@@ -5,20 +5,21 @@ import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 
+import scala.util.Try
 import scala.xml.{Elem, PrettyPrinter}
 
 class FileIO extends FileIOInterface {
-  override def load: (BoardInterface, Player, Int) = {
+
+  override def load = Try {
     val file = scala.xml.XML.loadFile("savegame.xml")
     val size = (file \\ "board" \ "@size").text.toInt
     var board = new Board(size)
-    val cellNodes = file \\ "cell"
-    for (cell <- cellNodes) {
-      val row: Int = (cell \ "@row").text.toInt
-      val col: Int = (cell \ "@col").text.toInt
-      val value: Int = cell.text.trim.toInt
-      board = board.flip(row, col, value)
-    }
+    val squares = file \\ "square"
+    for {
+      square <- squares
+      (row, col) = ((square \ "@row").text.toInt ,(square \ "@col").text.toInt)
+      value = square.text.trim.toInt
+    } board = board.flip(row, col, value)
     val name = (file \\ "player" \ "@name").text.toString
     val color = (file \\ "player").text.trim.toInt
     val difficulty = (file \\ "difficulty").text.trim.toInt
@@ -39,21 +40,21 @@ class FileIO extends FileIOInterface {
   }
 
   def stateToXml(board: BoardInterface, player: Player, difficulty: Int): Elem = {
-    <root>
+    <savegame>
       <board size={ board.size.toString }>
         { for {
         row <- 0 until board.size
         col <- 0 until board.size
-      } yield cellToXml(board, row, col) }
+      } yield squareToXml(board, row, col) }
       </board>
       <player name={ player.name }> { player.value } </player>
       <difficulty> { difficulty } </difficulty>
-    </root>
+    </savegame>
   }
 
-  def cellToXml(board: BoardInterface, row: Int, col: Int): Elem = {
-    <cell row={ row.toString } col={ col.toString }>
+  def squareToXml(board: BoardInterface, row: Int, col: Int): Elem = {
+    <square row={ row.toString } col={ col.toString }>
       { board.valueOf(row, col) }
-    </cell>
+    </square>
   }
 }

@@ -23,6 +23,23 @@ class ControllerSpec extends WordSpec with Matchers {
       controller.player should be(controller.players(0))
     }
   }
+  "save and restore the whole game" in {
+    val controller = new Controller
+    val board = controller.board
+    val player = controller.player
+    val difficulty = controller.difficulty
+    controller.save()
+    controller.difficulty = 3
+    controller.player = controller.players(1)
+    controller.board = controller.board.flip(0,0,1)
+    controller.board should not be board
+    controller.player should not be player
+    controller.difficulty should not be difficulty
+    controller.load()
+    controller.board should be(board)
+    controller.player should be(player)
+    controller.difficulty should be(difficulty)
+  }
   "playerCount" should {
     "count the amount of human players" in {
       val ctrl = new Controller
