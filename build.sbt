@@ -11,3 +11,5 @@ libraryDependencies += "com.google.inject" % "guice" % "4.2.2"
 libraryDependencies += "net.codingwell" %% "scala-guice" % "4.2.5"
 libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.7.4"
+
+coverageExcludedPackages := ".*aview.gui.*"
