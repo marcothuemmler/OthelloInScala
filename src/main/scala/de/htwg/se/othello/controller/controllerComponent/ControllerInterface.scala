@@ -12,6 +12,7 @@ trait ControllerInterface extends Publisher {
   var gameStatus: GameStatus
   var difficulty: Int
   var isReady: Boolean
+  var player:Player
   def playerPresent: Int
   def size: Int
   def resizeBoard(op: String): Unit

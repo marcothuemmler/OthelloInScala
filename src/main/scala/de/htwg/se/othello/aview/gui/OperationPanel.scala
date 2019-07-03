@@ -17,7 +17,54 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
   background = Color.LIGHT_GRAY
   preferredSize = new Dimension(operationsides, Hoehe)
 
-  def presentPlayer: BoxPanel =  new BoxPanel(Orientation.Vertical){
+  def titel: BoxPanel = new BoxPanel(Orientation.Vertical){
+    background = Color.LIGHT_GRAY
+    contents += new Label(){
+      icon = new ImageIcon(getClass.getResource(s"resources/titel.png"))
+
+    }
+    contents += new Label(){
+     // text = "Reversi"
+    }
+  }
+  def mode: BoxPanel = new BoxPanel(Orientation.Horizontal){
+    background = Color.LIGHT_GRAY
+    preferredSize = new Dimension(operationsides, Hoehe/5)
+    if (controller.playerCount == 0){
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/botr.png"))
+      }
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/vsr.png"))
+      }
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/botr.png"))
+      }
+    } else if (controller.playerCount == 1){
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/playerr.png"))
+      }
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/vsr.png"))
+      }
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/botr.png"))
+      }
+    } else {
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/playerr.png"))
+      }
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/vsr.png"))
+      }
+      contents += new Label(){
+        icon = new ImageIcon(getClass.getResource(s"resources/playerr.png"))
+      }
+    }
+  }
+
+  def presentPlayer: BoxPanel =  new BoxPanel(Orientation.Horizontal){
+    background = Color.LIGHT_GRAY
     if(controller.playerPresent == 1) {
       contents += playerWhite
     } else {
@@ -26,12 +73,13 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     contents += infoBox
   }
 
-  def infoBox: BoxPanel = new BoxPanel(Orientation.Vertical){
+  def infoBox: BoxPanel = new BoxPanel(Orientation.Horizontal){
+    background = Color.LIGHT_GRAY
     if(controller.gameOver){
       contents += NewGame
     } else {
       contents += new Label(){
-        text = " 's Turn"
+        text = " to play"
       }
 
     }
@@ -42,8 +90,11 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     }
   }
 
-  def NewGame: Label = new Label(){
-    text = "New Game!"
+  def NewGame: BoxPanel = new BoxPanel(Orientation.Horizontal){
+    background = Color.LIGHT_GRAY
+    contents += new Label(){
+      icon = new ImageIcon(getClass.getResource(s"resources/new.png"))
+    }
     listenTo(mouse.clicks)
     reactions += {
       case _: MouseClicked if controller.isReady =>
@@ -62,8 +113,9 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
   }
 
   def Undo: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-      contents += new Label{
-        text = "Undo"
+    background = Color.LIGHT_GRAY
+    contents += new Label{
+      icon = new ImageIcon(getClass.getResource(s"resources/undo.png"))
       }
     listenTo(mouse.clicks)
     reactions += {
@@ -74,8 +126,9 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
   }
 
   def Redo: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+    background = Color.LIGHT_GRAY
     contents += new Label{
-      text = "Redo"
+      icon = new ImageIcon(getClass.getResource(s"resources/redo.png"))
     }
     listenTo(mouse.clicks)
     reactions += {
@@ -84,15 +137,32 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     }
   }
 
-  def Operation: BoxPanel = new BoxPanel(Orientation.Vertical){
+  def Operation: BoxPanel = new BoxPanel(Orientation.Horizontal){
+    background = Color.LIGHT_GRAY
     contents += Undo
     contents += Redo
+    contents += NewGame
   }
 
+
+  contents += new BoxPanel(Orientation.Vertical){
+    background = Color.LIGHT_GRAY
+    preferredSize = new Dimension(operationsides, Hoehe)
+    contents += titel
+    contents += mode
+    contents += presentPlayer
+    contents += Operation
+  }
+
+  /**
   contents += new BorderPanel {
+    background = Color.LIGHT_GRAY
+    preferredSize = new Dimension(operationsides, Hoehe)
+    add(titel, BorderPanel.Position.North)
     add(presentPlayer, BorderPanel.Position.Center)
     add(Operation, BorderPanel.Position.South)
   }
+  **/
 
 
 
