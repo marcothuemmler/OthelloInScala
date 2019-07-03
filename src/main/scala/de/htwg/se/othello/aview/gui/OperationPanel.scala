@@ -15,9 +15,11 @@ import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, Graphics2
 class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowPanel{
   val operationsides = 200
   background = Color.LIGHT_GRAY
+
   preferredSize = new Dimension(operationsides, Hoehe)
 
   def titel: BoxPanel = new BoxPanel(Orientation.Vertical){
+    preferredSize = new Dimension(operationsides, Hoehe/4)
     background = Color.LIGHT_GRAY
     contents += new Label(){
       icon = new ImageIcon(getClass.getResource(s"resources/titel.png"))
@@ -29,7 +31,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
   }
   def mode: BoxPanel = new BoxPanel(Orientation.Horizontal){
     background = Color.LIGHT_GRAY
-    preferredSize = new Dimension(operationsides, Hoehe/5)
+    preferredSize = new Dimension(operationsides, Hoehe/4)
     if (controller.playerCount == 0){
       contents += new Label(){
         icon = new ImageIcon(getClass.getResource(s"resources/botr.png"))
@@ -65,6 +67,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
 
   def presentPlayer: BoxPanel =  new BoxPanel(Orientation.Horizontal){
     background = Color.LIGHT_GRAY
+    preferredSize = new Dimension(operationsides, Hoehe/4)
     if(controller.playerPresent == 1) {
       contents += playerWhite
     } else {
@@ -99,6 +102,28 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     reactions += {
       case _: MouseClicked if controller.isReady =>
         controller.newGame
+    }
+  }
+  def scoreLabel: Int => Label = {
+    case n @ (1 | 2) =>
+      new Label {
+        icon = new ImageIcon(getClass.getResource(s"resources/$n.png"))
+        text = s"${controller.count(n)}"
+        foreground = new Color(200, 200, 200)
+      }
+  }
+  def scorePanel: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+    peer.setLayout(new GridLayout)
+    background = Color.lightGray
+    if (!controller.gameOver) {
+      contents ++= List(scoreLabel(1), scoreLabel(2))
+    } else {
+      contents += new Label {
+        val fontSize: Int = if (controller.size > 4) 26 else 20
+        text = controller.score
+        font = new Font(font.getName, font.getStyle, fontSize)
+        foreground = new Color(200, 200, 200)
+      }
     }
   }
 
@@ -137,32 +162,44 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     }
   }
 
+  def tip: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+    background = Color.LIGHT_GRAY
+    contents += new Label{
+      icon = new ImageIcon(getClass.getResource(s"resources/tip.png"))
+    }
+    listenTo(mouse.clicks)
+    reactions += {
+      case _: MouseClicked if controller.isReady =>
+        controller.highlight()
+    }
+
+  }
+
   def Operation: BoxPanel = new BoxPanel(Orientation.Horizontal){
     background = Color.LIGHT_GRAY
+    contents += tip
     contents += Undo
     contents += Redo
     contents += NewGame
+
   }
 
 
   contents += new BoxPanel(Orientation.Vertical){
     background = Color.LIGHT_GRAY
     preferredSize = new Dimension(operationsides, Hoehe)
-    contents += titel
-    contents += mode
+    contents += new BorderPanel{
+      background = Color.LIGHT_GRAY
+      add(titel, BorderPanel.Position.North)
+      add(mode, BorderPanel.Position.South)
+    }
+    contents += scorePanel
     contents += presentPlayer
     contents += Operation
   }
 
-  /**
-  contents += new BorderPanel {
-    background = Color.LIGHT_GRAY
-    preferredSize = new Dimension(operationsides, Hoehe)
-    add(titel, BorderPanel.Position.North)
-    add(presentPlayer, BorderPanel.Position.Center)
-    add(Operation, BorderPanel.Position.South)
-  }
-  **/
+
+
 
 
 
