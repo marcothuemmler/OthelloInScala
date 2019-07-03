@@ -62,6 +62,8 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
   }
 
   def square(row: Int, col: Int): Button = new Button {
+    opaque = false
+    contentAreaFilled = false
     border = new LineBorder(new Color(30, 30, 30, 200))
     preferredSize = new Dimension(squareSize, squareSize)
     override def paintComponent(g: Graphics2D): Unit = {
