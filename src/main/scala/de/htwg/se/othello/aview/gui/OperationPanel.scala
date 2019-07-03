@@ -22,12 +22,10 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     preferredSize = new Dimension(operationsides, Hoehe/4)
     background = Color.LIGHT_GRAY
     contents += new Label(){
-      icon = new ImageIcon(getClass.getResource(s"resources/titel.png"))
+      icon = new ImageIcon(getClass.getResource(s"resources/titel2.png"))
 
     }
-    contents += new Label(){
-     // text = "Reversi"
-    }
+
   }
   def mode: BoxPanel = new BoxPanel(Orientation.Horizontal){
     background = Color.LIGHT_GRAY
@@ -122,7 +120,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
         val fontSize: Int = if (controller.size > 4) 26 else 20
         text = controller.score
         font = new Font(font.getName, font.getStyle, fontSize)
-        foreground = new Color(200, 200, 200)
+        foreground = new Color(10, 10, 10)
       }
     }
   }
@@ -188,11 +186,14 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
   contents += new BoxPanel(Orientation.Vertical){
     background = Color.LIGHT_GRAY
     preferredSize = new Dimension(operationsides, Hoehe)
+
     contents += new BorderPanel{
       background = Color.LIGHT_GRAY
       add(titel, BorderPanel.Position.North)
       add(mode, BorderPanel.Position.South)
     }
+
+
     contents += scorePanel
     contents += presentPlayer
     contents += Operation
