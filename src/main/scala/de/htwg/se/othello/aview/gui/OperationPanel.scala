@@ -22,7 +22,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     preferredSize = new Dimension(operationsides, Hoehe/4)
     background = Color.LIGHT_GRAY
     contents += new Label(){
-      icon = new ImageIcon(getClass.getResource(s"resources/titel2.png"))
+      icon = new ImageIcon(getClass.getResource(s"resources/Othello.png"))
 
     }
 
@@ -117,7 +117,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
       contents ++= List(scoreLabel(1), scoreLabel(2))
     } else {
       contents += new Label {
-        val fontSize: Int = if (controller.size > 4) 56 else 40
+        val fontSize: Int = if (controller.size > 4) 15 else 12
         text = controller.score
         font = new Font(font.getName, font.getStyle, fontSize)
         foreground = new Color(0, 0, 0)
@@ -187,13 +187,14 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     background = Color.LIGHT_GRAY
     preferredSize = new Dimension(operationsides, Hoehe)
 
+
     contents += new BorderPanel{
       background = Color.LIGHT_GRAY
-      add(titel, BorderPanel.Position.North)
-      add(mode, BorderPanel.Position.Center)
+      add(titel, BorderPanel.Position.Center)
+     // add(mode, BorderPanel.Position.Center)
     }
 
-
+    contents += mode
     contents += scorePanel
     contents += presentPlayer
     contents += Operation
