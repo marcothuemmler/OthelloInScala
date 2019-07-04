@@ -107,7 +107,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
       new Label {
         icon = new ImageIcon(getClass.getResource(s"resources/$n.png"))
         text = s"${controller.count(n)}"
-        foreground = new Color(200, 200, 200)
+        foreground = new Color(10, 10, 10)
       }
   }
   def scorePanel: BoxPanel = new BoxPanel(Orientation.Horizontal) {
@@ -117,10 +117,10 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
       contents ++= List(scoreLabel(1), scoreLabel(2))
     } else {
       contents += new Label {
-        val fontSize: Int = if (controller.size > 4) 26 else 20
+        val fontSize: Int = if (controller.size > 4) 56 else 40
         text = controller.score
         font = new Font(font.getName, font.getStyle, fontSize)
-        foreground = new Color(10, 10, 10)
+        foreground = new Color(0, 0, 0)
       }
     }
   }
@@ -190,7 +190,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends  FlowP
     contents += new BorderPanel{
       background = Color.LIGHT_GRAY
       add(titel, BorderPanel.Position.North)
-      add(mode, BorderPanel.Position.South)
+      add(mode, BorderPanel.Position.Center)
     }
 
 
