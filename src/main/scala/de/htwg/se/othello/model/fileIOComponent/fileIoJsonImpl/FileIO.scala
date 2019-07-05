@@ -1,9 +1,11 @@
 package de.htwg.se.othello.model.fileIOComponent.fileIoJsonImpl
 
+import com.google.inject.{Guice, Injector}
+import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.model.Player
-import de.htwg.se.othello.model.boardComponent.BoardInterface
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
+import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import play.api.libs.json._
 
 import scala.io.Source
@@ -11,12 +13,14 @@ import scala.util.Try
 
 class FileIO extends FileIOInterface {
 
+  val injector: Injector = Guice.createInjector(new OthelloModule)
+
   override def load = Try {
     val source = Source.fromFile("savegame.json")
     val json: JsValue = Json.parse (source.getLines.mkString)
     source.close ()
     val size = (json \ "board" \ "size").as[Int]
-    var board: BoardInterface = new Board (size)
+    var board: BoardInterface = injector.instance[BoardFactory].create(size)
     for {
       index <- 0 until size * size
       row = (json \\ "row") (index).as[Int]

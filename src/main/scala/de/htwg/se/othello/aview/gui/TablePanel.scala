@@ -83,7 +83,7 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
       }
     }
     reactions += {
-      case _: ButtonClicked if !controller.player.isBot =>
+      case _: ButtonClicked if !controller.player.isBot && !controller.gameOver =>
         if (controller.options.contains((col, row)))
           Future(controller.set(col, row))(ExecutionContext.global)
         else controller.highlight()

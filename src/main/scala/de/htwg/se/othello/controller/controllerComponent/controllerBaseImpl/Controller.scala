@@ -4,8 +4,8 @@ import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.controller.controllerComponent._
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl._
-import de.htwg.se.othello.model.boardComponent.BoardInterface
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
+import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
@@ -24,7 +24,10 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.instance[FileIOInterface]
 
-  def this(players: Vector[Player]) = this(new Board, players)
+  def this(players: Vector[Player]) = this(
+    Guice.createInjector(new OthelloModule).instance[BoardFactory].create(8),
+    players
+  )
 
   def this() = this(Vector(new Player(1), new Bot(2)))
 
@@ -40,7 +43,8 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   def size: Int = board.size
 
   def createBoard(size: Int): Unit = {
-    board = (new CreateBoardStrategy).createNewBoard(size)
+    board = injector.instance[BoardFactory].create(size)
+    board = (new CreateBoardStrategy).fill(board)
     publish(new BoardChanged)
   }
 

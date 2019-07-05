@@ -1,6 +1,8 @@
 package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 
+import com.google.inject.Inject
 import de.htwg.se.othello.model.boardComponent.BoardInterface
+import com.google.inject.assistedinject.Assisted
 
 import scala.annotation.tailrec
 
@@ -12,7 +14,8 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   def this() = this(Vector.fill(8, 8)(Square(0)))
 
-  def this(size: Int) = this(Vector.fill(size, size)(Square(0)))
+  @Inject
+  def this(@Assisted size: Int) = this(Vector.fill(size, size)(Square(0)))
 
   def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
     (for {
