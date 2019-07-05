@@ -146,6 +146,8 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 
+  def playerPresent: Int = players.indexOf(player)
+
   def playerCount: Int = players.count(o => !o.isBot)
 
   def boardToString: String = board.toString
