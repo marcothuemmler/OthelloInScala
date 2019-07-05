@@ -14,3 +14,7 @@ trait BoardInterface {
   def flip(col: Int, row: Int, value: Int): BoardInterface
 
 }
+
+trait BoardFactory {
+  def create(size: Int): BoardInterface
+}

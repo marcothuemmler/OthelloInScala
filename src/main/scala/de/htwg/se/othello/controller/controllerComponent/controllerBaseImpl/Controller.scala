@@ -3,9 +3,9 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, PlayerOmitted}
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy}
-import de.htwg.se.othello.model.boardComponent.BoardInterface
+import de.htwg.se.othello.controller.controllerComponent._
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
+import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
@@ -20,12 +20,14 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   private val undoManager = new UndoManager
   var player: Player = players(0)
   var gameStatus: GameStatus = IDLE
-  var difficulty = 2 // normal
-  var isReady = true
+  var difficulty = 2
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.instance[FileIOInterface]
 
-  def this(players: Vector[Player]) = this(new Board, players)
+  def this(players: Vector[Player]) = this(
+    Guice.createInjector(new OthelloModule).instance[BoardFactory].create(8),
+    players
+  )
 
   def this() = this(Vector(new Player(1), new Bot(2)))
 
@@ -41,7 +43,8 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
   def size: Int = board.size
 
   def createBoard(size: Int): Unit = {
-    board = (new CreateBoardStrategy).createNewBoard(size)
+    board = injector.instance[BoardFactory].create(size)
+    board = (new CreateBoardStrategy).fill(board)
     publish(new BoardChanged)
   }
 
@@ -100,12 +103,10 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   @tailrec
   final def selectAndSet(): Unit = if (player.isBot && !gameOver) {
-    isReady = false
     moveSelector(difficulty).select match {
       case Success(square) => set(square)
       case _ => omitPlayer()
     }
-    isReady = true
     selectAndSet()
   }
 
@@ -145,9 +146,7 @@ class Controller(var board: BoardInterface, var players: Vector[Player]) extends
 
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 
-  def playerPresent: Int = if (player == players(0)) 0 else 1
-
-  def playerCount: Int = players.size - players.count(o => o.isBot)
+  def playerCount: Int = players.count(o => !o.isBot)
 
   def boardToString: String = board.toString
 
