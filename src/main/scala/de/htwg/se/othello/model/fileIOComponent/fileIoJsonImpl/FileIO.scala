@@ -6,7 +6,7 @@ import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
-import play.api.libs.json._
+import play.api.libs.json.{JsObject, JsValue, Json}
 
 import scala.io.Source
 import scala.util.Try
@@ -26,9 +26,9 @@ class FileIO extends FileIOInterface {
       row = (json \\ "row") (index).as[Int]
       col = (json \\ "col") (index).as[Int]
       value = (json \\ "value") (index).as[Int]
-    } board = board.flip (row, col, value)
-    val color = (json \ "player" \ "value").as[Int]
+    } board = board.flipLine((row, col), (row, col), value)
     val name = (json \ "player" \ "name").toString
+    val color = (json \ "player" \ "value").as[Int]
     val difficulty = (json \ "difficulty").as[Int]
     (board, Player(name, color), difficulty)
   }

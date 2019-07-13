@@ -1,10 +1,10 @@
 package de.htwg.se.othello
 
 import com.google.inject.{Guice, Injector}
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import de.htwg.se.othello.aview.Tui
 import de.htwg.se.othello.aview.gui.SwingGui
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 import scala.io.StdIn.readLine
 

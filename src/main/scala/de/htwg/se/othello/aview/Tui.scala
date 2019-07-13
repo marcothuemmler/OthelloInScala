@@ -1,12 +1,11 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.controllerComponent._
+import de.htwg.se.othello.controller.controllerComponent.{ControllerInterface, GameStatus}
+import de.htwg.se.othello.util.Observer
 
-import scala.swing.Reactor
+class Tui(controller: ControllerInterface) extends Observer {
 
-class Tui(controller: ControllerInterface) extends Reactor {
-
-  listenTo(controller)
+  controller.add(this)
 
   def processInputLine: String => Unit = {
     case "q" => sys.exit
@@ -27,8 +26,6 @@ class Tui(controller: ControllerInterface) extends Reactor {
       case _ => println("Please try again. " + controller.suggestions)
     }
   }
-
-  reactions += { case _: BoardChanged | _: PlayerOmitted => update }
 
   def update: Boolean = {
     if (!controller.gameOver) {

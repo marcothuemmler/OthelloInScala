@@ -1,13 +1,12 @@
 package de.htwg.se.othello.aview
 
 import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
-import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
 import org.scalatest.{Matchers, WordSpec}
 
 class TuiSpec extends WordSpec with Matchers {
-  val players: Vector[Player] = Vector(new Player(1), new Player(2))
-  val controller = new Controller(players)
+  val controller = new Controller
+  controller.setupPlayers("2")
   val tui = new Tui(controller)
   "A Tui " should {
     "set the amount of human players to 0 on input 0" in {
@@ -43,7 +42,8 @@ class TuiSpec extends WordSpec with Matchers {
       tui.processInputLine("a12")
       controller.board should equal(board)
     }
-    val ctrl = new Controller(players)
+    val ctrl = new Controller
+    ctrl.setupPlayers("2")
     val t = new Tui(ctrl)
     var changedBoard = ctrl.board
     "undo a step on input z" in {
@@ -104,7 +104,7 @@ class TuiSpec extends WordSpec with Matchers {
     tui.processInputLine("f")
     controller.difficulty = 3
     controller.player = controller.players(1)
-    controller.board = controller.board.flip(0,0,1)
+    controller.board = controller.board.flipLine((0, 0), (0, 0),1)
     controller.board should not be board
     controller.player should not be player
     controller.difficulty should not be difficulty

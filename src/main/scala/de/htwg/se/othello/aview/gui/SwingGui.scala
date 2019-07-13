@@ -2,16 +2,17 @@ package de.htwg.se.othello.aview.gui
 
 import java.awt.event.KeyEvent
 
-import scala.swing._
-import de.htwg.se.othello.controller.controllerComponent.{BoardChanged, ControllerInterface, PlayerOmitted}
+import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
+import de.htwg.se.othello.util.Observer
 import javax.swing.KeyStroke
 
 import scala.swing.event.Key.{Modifier, Modifiers}
 import scala.swing.event.{ButtonClicked, Key}
+import scala.swing.{Action, ButtonGroup, MainFrame, Menu, MenuBar, MenuItem, RadioMenuItem, Separator}
 
-class SwingGui(controller: ControllerInterface) extends Reactor {
+class SwingGui(controller: ControllerInterface) extends Observer {
 
-  listenTo(controller)
+  controller.add(this)
 
   lazy val tablePanel = new TablePanel(controller)
 
@@ -125,8 +126,6 @@ class SwingGui(controller: ControllerInterface) extends Reactor {
       }
     }
   }
-
-  reactions += { case _: BoardChanged | _: PlayerOmitted => update }
 
   def update: Boolean = {
     tablePanel.redraw()

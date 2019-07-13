@@ -13,8 +13,7 @@ trait CreateBoardTemplate {
     var board: BoardInterface = injector.instance[BoardFactory].create(size)
     board = prepare(board)
     board = fill(board)
-    board = postProcess(board)
-    board
+    postProcess(board)
   }
 
   def prepare(board: BoardInterface): BoardInterface = board

@@ -5,11 +5,6 @@ import org.scalatest.{Matchers, WordSpec}
 class BoardSpec extends WordSpec with Matchers {
   val board: Board = (new CreateBoardStrategy).createNewBoard(8).asInstanceOf[Board]
 
-  "A board without parameters" should {
-    "be a board with no squares set" in {
-      (new Board).isSet should be(false)
-    }
-  }
   "setByOpp" should {
     "be true if set by opponent" in {
       board.setByOpp(1, 4, 4) should be(true)
@@ -28,7 +23,7 @@ class BoardSpec extends WordSpec with Matchers {
       )
     }
     "be empty if there are no valid moves" in {
-      (new Board).moves(1) should be(Map.empty)
+      new Board(8).moves(1) should be(Map.empty)
     }
   }
   "getMoves" should {
@@ -49,7 +44,7 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "isSet" should {
     "be true if there is at least one disk on the board" in {
-      (new Board).isSet should be(false)
+      new Board(8).isSet should be(false)
       board.isSet should be(true)
     }
   }
@@ -70,8 +65,7 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "deHighlight" should {
     "remove all the highlights on the board" in {
-      var b = board.highlight(1)
-      b = b.deHighlight
+      val b = board.highlight(1).deHighlight
       b.count(-1) should be(0)
     }
   }

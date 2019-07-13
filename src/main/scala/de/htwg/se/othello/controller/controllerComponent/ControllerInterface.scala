@@ -2,17 +2,15 @@ package de.htwg.se.othello.controller.controllerComponent
 
 import de.htwg.se.othello.controller.controllerComponent.GameStatus.GameStatus
 import de.htwg.se.othello.model.Player
+import de.htwg.se.othello.util.Observable
 
 import scala.concurrent.Future
-import scala.swing.Publisher
-import scala.swing.event.Event
 
-trait ControllerInterface extends Publisher {
+trait ControllerInterface extends Observable {
 
   var gameStatus: GameStatus
   var difficulty: Int
-  var player:Player
-  def playerPresent: Int
+  var player: Player
   def size: Int
   def resizeBoard(op: String): Unit
   def setupPlayers: String => Unit
@@ -35,6 +33,3 @@ trait ControllerInterface extends Publisher {
   def load(): Unit
 
 }
-
-class BoardChanged extends Event
-class PlayerOmitted(player: Player) extends Event

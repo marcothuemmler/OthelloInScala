@@ -61,7 +61,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends FlowPa
   def presentPlayer: BoxPanel = new BoxPanel(Orientation.Horizontal) {
     background = Color.LIGHT_GRAY
     preferredSize = new Dimension(operationsides, Hoehe / 4)
-    if (controller.playerPresent == 1) contents += playerWhite
+    if (controller.player.value == 2) contents += playerWhite
     else contents += playerBlack
     contents += infoBox
   }
@@ -77,7 +77,7 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends FlowPa
 
   def NewGame: BoxPanel = new BoxPanel(Orientation.Horizontal) {
     background = Color.LIGHT_GRAY
-    contents += new Label() {
+    contents += new Label {
       icon = new ImageIcon(getClass.getResource(s"resources/new.png"))
     }
     listenTo(mouse.clicks)
@@ -88,9 +88,8 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends FlowPa
 
   def scoreLabel: Int => Label = {
     case n@(1 | 2) =>
-      new Label {
+      new Label(s"${controller.count(n)}") {
         icon = new ImageIcon(getClass.getResource(s"resources/$n.png"))
-        text = s"${controller.count(n)}"
         foreground = new Color(10, 10, 10)
       }
   }
@@ -109,14 +108,12 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends FlowPa
     }
   }
 
-  def playerWhite: Label = new Label() {
+  def playerWhite: Label = new Label {
     icon = new ImageIcon(getClass.getResource("resources/2.png"))
-    foreground = new Color(200, 200, 200)
   }
 
-  def playerBlack: Label = new Label() {
+  def playerBlack: Label = new Label {
     icon = new ImageIcon(getClass.getResource("resources/1.png"))
-    foreground = new Color(200, 200, 200)
   }
 
   def Undo: BoxPanel = new BoxPanel(Orientation.Horizontal) {

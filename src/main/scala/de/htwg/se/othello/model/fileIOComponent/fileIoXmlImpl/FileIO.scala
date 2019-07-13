@@ -23,7 +23,7 @@ class FileIO extends FileIOInterface {
       square <- squares
       (row, col) = ((square \ "@row").text.toInt ,(square \ "@col").text.toInt)
       value = square.text.trim.toInt
-    } board = board.flip(row, col, value)
+    } board = board.flipLine((row, col), (row, col), value)
     val name = (file \\ "player" \ "@name").text.toString
     val color = (file \\ "player").text.trim.toInt
     val difficulty = (file \\ "difficulty").text.trim.toInt

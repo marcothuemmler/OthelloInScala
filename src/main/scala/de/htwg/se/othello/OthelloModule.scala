@@ -4,10 +4,9 @@ import com.google.inject.AbstractModule
 import com.google.inject.assistedinject.FactoryModuleBuilder
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
-import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
-import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
-import de.htwg.se.othello.model.fileIOComponent.fileIoXmlImpl
+import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
+import de.htwg.se.othello.model.fileIOComponent.{FileIOInterface, fileIoXmlImpl}
 import net.codingwell.scalaguice.ScalaModule
 
 class OthelloModule extends AbstractModule with ScalaModule {

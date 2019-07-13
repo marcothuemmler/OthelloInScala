@@ -3,19 +3,15 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import de.htwg.se.othello.controller.controllerComponent.GameStatus
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
-import de.htwg.se.othello.model.{Bot, Player}
+import de.htwg.se.othello.model.Player
 import org.scalatest.{Matchers, WordSpec}
 
 class ControllerSpec extends WordSpec with Matchers {
   val players: Vector[Player] = Vector(new Player(1), new Player(2))
-  val controller = new Controller(players)
+  val controller = new Controller
+  controller.setupPlayers("2")
   val b: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
 
-  "A controller created without parameters" should {
-    "have an empty board of size 8x8" in {
-      (new Controller).board should equal(new Board)
-    }
-  }
   "newGame" should {
     "reset the board" in {
       controller.newGame
@@ -31,7 +27,7 @@ class ControllerSpec extends WordSpec with Matchers {
     controller.save()
     controller.difficulty = 3
     controller.player = controller.players(1)
-    controller.board = controller.board.flip(0,0,1)
+    controller.board = controller.board.flipLine((0, 0), (0, 0),1)
     controller.board should not be board
     controller.player should not be player
     controller.difficulty should not be difficulty
@@ -94,15 +90,16 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "selectAndSet" should {
     "set a square" in {
-      val ctrl = new Controller(Vector(new Bot(1), new Player(2)))
+      val ctrl = new Controller
       ctrl.createBoard(8)
+      ctrl.player = ctrl.nextPlayer
       val board = ctrl.board
       ctrl.selectAndSet()
       ctrl.board should not equal board
     }
     "not change any square on the board if the player has no valid move" in {
       controller.setupPlayers("1")
-      controller.board = (new Board).flipLine((0, 7), (5, 7), 1)
+      controller.board = new Board(8).flipLine((0, 7), (5, 7), 1)
         .flipLine((0, 6), (0, 5), 1)
         .flipLine((1, 6), (3, 6), 2)
       val cBoard = controller.board
@@ -119,7 +116,8 @@ class ControllerSpec extends WordSpec with Matchers {
       controller.gameStatus should equal(GameStatus.OMITTED)
     }
   }
-  val ctrl = new Controller(players)
+  val ctrl = new Controller
+  ctrl.setupPlayers("2")
   var changedBoard: BoardInterface = b
   "undo" should {
     "revert the board to a previous state" in {
@@ -140,9 +138,9 @@ class ControllerSpec extends WordSpec with Matchers {
   "setupPlayers" should {
     "setup the amount of human players" in {
       controller.setupPlayers("0")
-      controller.players.count(o => o.isBot) should be(2)
+      controller.playerCount should be(0)
       controller.setupPlayers("2")
-      controller.players.count(o => o.isBot) should be(0)
+      controller.playerCount should be(2)
     }
   }
   "nextPlayer" should {

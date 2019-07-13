@@ -11,7 +11,6 @@ trait BoardInterface {
   def valueOf(col: Int, row: Int): Int
   def count(value: Int): Int
   def flipLine(fromSquare: (Int, Int), toSquare: (Int, Int), value: Int): BoardInterface
-  def flip(col: Int, row: Int, value: Int): BoardInterface
 
 }
 

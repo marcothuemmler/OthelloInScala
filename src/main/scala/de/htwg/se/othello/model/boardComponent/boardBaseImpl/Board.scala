@@ -1,8 +1,8 @@
 package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 
 import com.google.inject.Inject
-import de.htwg.se.othello.model.boardComponent.BoardInterface
 import com.google.inject.assistedinject.Assisted
+import de.htwg.se.othello.model.boardComponent.BoardInterface
 
 import scala.annotation.tailrec
 
@@ -11,8 +11,6 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   lazy val gameOver: Boolean = moves(1).isEmpty && moves(2).isEmpty && isSet
   val isSet: Boolean = grid.flatten.exists(o => o.isSet)
   val size: Int = grid.size
-
-  def this() = this(Vector.fill(8, 8)(Square(0)))
 
   @Inject
   def this(@Assisted size: Int) = this(Vector.fill(size, size)(Square(0)))
@@ -42,11 +40,11 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   }
 
   @tailrec
-  final def flipLine(current: (Int, Int), end: (Int, Int), value: Int): Board = {
-    val (col, row) = current
+  final def flipLine(curr: (Int, Int), end: (Int, Int), value: Int): Board = {
+    val (col, row) = curr
     val board = copy(grid.updated(col, grid(col).updated(row, Square(value))))
     val next = (col - col.compare(end._1), row - row.compare(end._2))
-    if (current != end) board.flipLine(next, end, value)
+    if (curr != end) board.flipLine(next, end, value)
     else board
   }
 
@@ -55,16 +53,16 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   }
 
   def deHighlight: Board = {
-    copy(Vector.tabulate(size, size)((col, row) => {
+    copy(Vector.tabulate(size, size)((col, row) =>
       if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
-    }))
+    ))
   }
 
   def highlight(value: Int): Board = {
-    copy(Vector.tabulate(size, size)((col, row) => {
+    copy(Vector.tabulate(size, size)((col, row) =>
       if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
       else grid(col)(row)
-    }))
+    ))
   }
 
   def setByOpp(value: Int, x: Int, y: Int): Boolean = {
@@ -73,24 +71,18 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
 
   def valueOf(col: Int, row: Int): Int = grid(col)(row).value
 
-  def flip(col: Int, row: Int, value: Int): Board = {
-    copy(grid.updated(col, grid(col).updated(row, Square(value))))
-  }
-
   def count(value: Int): Int = grid.flatten.count(o => o.value == value)
 
   override def toString: String = {
-    val cols = (for { i <- grid.indices } yield (i + 65).toChar).mkString(" ")
-    val top = "\n    " + cols + "\n    " + "_" * (size * 2 - 1)
+    val cols = grid.indices.map(i => (i + 65).toChar).mkString(" ")
+    val top = s"\n    $cols\n    " + "_" * (size * 2 - 1)
     var board = ("\nrow" + ("X" * size)) * size + "\n"
     for {
       col <- grid.indices
       row <- grid.indices
     } board = board.replaceFirst(
-      "row",
-      f"${row + 1}" + (if (row + 1 > 9) " |" else "  |")
-    )
-      .replaceFirst("X", f"${grid(row)(col)}")
-    top + board + "    " + "⎺" * (size * 2 - 1)
+      "row", f"${row + 1}" + (if (row + 1 > 9) " |" else "  |")
+    ).replaceFirst("X", f"${grid(row)(col)}")
+    f"$top$board    " + "⎺" * (size * 2 - 1)
   }
 }
