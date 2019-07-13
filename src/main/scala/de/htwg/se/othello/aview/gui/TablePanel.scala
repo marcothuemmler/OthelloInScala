@@ -113,7 +113,7 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
     contents += new BoxPanel(Orientation.Horizontal) {
     // contents += new BoxPanel(Orientation.Vertical) {
       contents += new OperationPanel(controller, sides + edges)
-      contents += scorePanel
+      // contents += scorePanel
       contents += new BorderPanel {
         add(rows, BorderPanel.Position.West)
         add(new BoxPanel(Orientation.Vertical) {
