@@ -1,10 +1,10 @@
 name          := "Othello In Scala"
 organization  := "de.htwg.se"
 version       := "1.0"
-scalaVersion  := "2.13.0"
+scalaVersion  := "2.12.8"
 
-libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8"
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.5"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 
 libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.1.1"
 libraryDependencies += "com.google.inject" % "guice" % "4.2.2"
