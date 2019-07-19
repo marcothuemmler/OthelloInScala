@@ -9,7 +9,6 @@ import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
@@ -17,7 +16,7 @@ import scala.util.Success
 class Controller extends ControllerInterface {
 
   val injector: Injector = Guice.createInjector(new OthelloModule)
-  val fileIo: FileIOInterface = injector.instance[FileIOInterface]
+  val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
   var difficulty = 2
@@ -47,7 +46,7 @@ class Controller extends ControllerInterface {
     case "2" => players = Vector(new Player(1), new Player(2))
   }
 
-  def moveSelector: Int => MoveSelector = {
+  def moveSelector: MoveSelector = difficulty match {
     case 1 => new EasyBot(this)
     case 2 => new MediumBot(this)
     case 3 => new HardBot(this)
@@ -92,11 +91,9 @@ class Controller extends ControllerInterface {
     else selectAndSet()
   }
 
-  final def selectAndSet(): Unit = if (player.isBot && !gameOver) {
-    moveSelector(difficulty).select match {
-      case Success(square) => set(square)
-      case _ => omitPlayer()
-    }
+  def selectAndSet(): Unit = if (player.isBot && !gameOver) {
+    if (moves.nonEmpty) set(moveSelector.selection)
+    else omitPlayer()
     selectAndSet()
   }
 

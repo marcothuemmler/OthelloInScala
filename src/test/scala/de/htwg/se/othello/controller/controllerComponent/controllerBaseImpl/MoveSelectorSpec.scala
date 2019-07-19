@@ -10,7 +10,7 @@ class MoveSelectorSpec extends WordSpec with Matchers {
     "always randomly select a move if the board size is not 8x8 or if the game has just started" in {
       val moveSelector = new EasyBot(ctrl)
       ctrl.createBoard(4)
-      val selection = moveSelector.select.get
+      val selection = moveSelector.selection
       (0 to 3) should contain(selection._1)
       (0 to 3) should contain(selection._2)
     }
@@ -23,7 +23,7 @@ class MoveSelectorSpec extends WordSpec with Matchers {
       ctrl.board.flipLine((2, 4), (2, 4), 2)
       ctrl.board = ctrl.board.flipLine((4, 4), (4, 5), 1)
       ctrl.board = ctrl.board.flipLine((3, 4), (5, 4), 2)
-      val selection = moveSelector.select.get
+      val selection = moveSelector.selection
       (0 to 7) should contain(selection._1)
       (0 to 7) should contain(selection._2)
     }
@@ -36,7 +36,7 @@ class MoveSelectorSpec extends WordSpec with Matchers {
       ctrl.board.flipLine((2, 4), (2, 4), 2)
       ctrl.board = ctrl.board.flipLine((4, 4), (4, 5), 1)
       ctrl.board = ctrl.board.flipLine((3, 4), (5, 4), 2)
-      val selection = moveSelector.select.get
+      val selection = moveSelector.selection
       (0 to 7) should contain(selection._1)
       (0 to 7) should contain(selection._2)
     }
@@ -49,7 +49,7 @@ class MoveSelectorSpec extends WordSpec with Matchers {
       ctrl.board.flipLine((2, 4), (2, 4), 2)
       ctrl.board = ctrl.board.flipLine((4, 4), (4, 5), 1)
       ctrl.board = ctrl.board.flipLine((3, 4), (5, 4), 2)
-      val selection = moveSelector.select.get
+      val selection = moveSelector.selection
       (0 to 7) should contain(selection._1)
       (0 to 7) should contain(selection._2)
     }

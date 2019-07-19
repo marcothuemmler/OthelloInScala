@@ -1,6 +1,6 @@
 package de.htwg.se.othello.aview.gui
 
-import java.awt.{Color, GridLayout}
+import java.awt.Color
 
 import de.htwg.se.othello.controller.controllerComponent.{ControllerInterface, GameStatus}
 import javax.swing.ImageIcon
@@ -8,66 +8,65 @@ import javax.swing.ImageIcon
 import scala.swing.event.MouseClicked
 import scala.swing.{BorderPanel, BoxPanel, Dimension, FlowPanel, Font, Label, Orientation}
 
-class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends FlowPanel {
-  val operationsides = 200
-  background = Color.LIGHT_GRAY
+class OperationPanel(controller: ControllerInterface, height: Int) extends FlowPanel {
+  val operationSides = 200
+  background = Color.lightGray
 
-  preferredSize = new Dimension(operationsides, Hoehe)
+  preferredSize = new Dimension(operationSides, height)
 
-  def titel: BoxPanel = new BoxPanel(Orientation.Vertical) {
-    preferredSize = new Dimension(operationsides, Hoehe / 4)
-    background = Color.LIGHT_GRAY
-    contents += new Label() {
-      icon = new ImageIcon(getClass.getResource(s"resources/Othello.png"))
+  def title: BoxPanel = new BoxPanel(Orientation.Vertical) {
+    preferredSize = new Dimension(operationSides, height / 4)
+    background = Color.lightGray
+    contents += new Label {
+      icon = new ImageIcon(getClass.getResource("resources/Othello.png"))
     }
   }
 
   def mode: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-    background = Color.LIGHT_GRAY
-    preferredSize = new Dimension(operationsides, Hoehe / 4)
+    background = Color.lightGray
+    preferredSize = new Dimension(operationSides, height / 4)
     if (controller.playerCount == 0) {
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/botr.png"))
       }
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/vsr.png"))
       }
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/botr.png"))
       }
     } else if (controller.playerCount == 1) {
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/playerr.png"))
       }
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/vsr.png"))
       }
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/botr.png"))
       }
     } else {
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/playerr.png"))
       }
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/vsr.png"))
       }
-      contents += new Label() {
+      contents += new Label {
         icon = new ImageIcon(getClass.getResource("resources/playerr.png"))
       }
     }
   }
 
   def presentPlayer: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-    background = Color.LIGHT_GRAY
-    preferredSize = new Dimension(operationsides, Hoehe / 4)
-    if (controller.player.value == 2) contents += playerWhite
-    else contents += playerBlack
+    background = Color.lightGray
+    preferredSize = new Dimension(operationSides, height / 4)
+    contents += (if (controller.player.value == 2) playerWhite else playerBlack)
     contents += infoBox
   }
 
   def infoBox: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-    background = Color.LIGHT_GRAY
+    background = Color.lightGray
     if (controller.gameOver) contents += NewGame
     else contents += new Label(" to play")
     if (!controller.gameOver && controller.gameStatus == GameStatus.OMITTED) {
@@ -76,26 +75,23 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends FlowPa
   }
 
   def NewGame: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-    background = Color.LIGHT_GRAY
+    background = Color.lightGray
     contents += new Label {
-      icon = new ImageIcon(getClass.getResource(s"resources/new.png"))
+      icon = new ImageIcon(getClass.getResource("resources/new.png"))
     }
     listenTo(mouse.clicks)
-    reactions += {
-      case _: MouseClicked => controller.newGame
-    }
+    reactions += { case _: MouseClicked => controller.newGame }
   }
 
-  def scoreLabel: Int => Label = {
-    case n@(1 | 2) =>
-      new Label(s"${controller.count(n)}") {
-        icon = new ImageIcon(getClass.getResource(s"resources/$n.png"))
-        foreground = new Color(10, 10, 10)
-      }
+  def playerWhite: Label = new Label {
+    icon = new ImageIcon(getClass.getResource("resources/2.png"))
+  }
+
+  def playerBlack: Label = new Label {
+    icon = new ImageIcon(getClass.getResource("resources/1.png"))
   }
 
   def scorePanel: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-    peer.setLayout(new GridLayout)
     background = Color.lightGray
     if (!controller.gameOver) {
       contents ++= List(scoreLabel(1), scoreLabel(2))
@@ -108,12 +104,17 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends FlowPa
     }
   }
 
-  def playerWhite: Label = new Label {
-    icon = new ImageIcon(getClass.getResource("resources/2.png"))
+  def scoreLabel: Int => Label = {
+    case n@(1 | 2) =>
+      new Label(s"${controller.count(n)}") {
+        icon = new ImageIcon(getClass.getResource(s"resources/$n.png"))
+        foreground = new Color(10, 10, 10)
+      }
   }
 
-  def playerBlack: Label = new Label {
-    icon = new ImageIcon(getClass.getResource("resources/1.png"))
+  def Operation: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+    background = Color.LIGHT_GRAY
+    contents ++= List(tip, Undo, Redo, NewGame)
   }
 
   def Undo: BoxPanel = new BoxPanel(Orientation.Horizontal) {
@@ -149,25 +150,13 @@ class OperationPanel(controller: ControllerInterface, Hoehe: Int) extends FlowPa
     }
   }
 
-  def Operation: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-    background = Color.LIGHT_GRAY
-    contents += tip
-    contents += Undo
-    contents += Redo
-    contents += NewGame
-  }
-
   contents += new BoxPanel(Orientation.Vertical) {
     background = Color.LIGHT_GRAY
-    preferredSize = new Dimension(operationsides, Hoehe)
+    preferredSize = new Dimension(operationSides, height)
     contents += new BorderPanel {
       background = Color.LIGHT_GRAY
-      add(titel, BorderPanel.Position.Center)
-      // add(mode, BorderPanel.Position.Center)
+      add(title, BorderPanel.Position.Center)
     }
-    contents += mode
-    contents += scorePanel
-    contents += presentPlayer
-    contents += Operation
+    contents ++= List(mode, scorePanel, presentPlayer, Operation)
   }
 }

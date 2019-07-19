@@ -21,7 +21,6 @@ trait ControllerInterface extends Observable {
   def redo(): Unit
   def highlight(): Unit
   def suggestions: String
-  def options: Seq[(Int, Int)]
   def moves: Map[(Int, Int), Seq[(Int, Int)]]
   def gameOver: Boolean
   def playerCount: Int

@@ -3,11 +3,9 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import de.htwg.se.othello.controller.controllerComponent.GameStatus
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
-import de.htwg.se.othello.model.Player
 import org.scalatest.{Matchers, WordSpec}
 
 class ControllerSpec extends WordSpec with Matchers {
-  val players: Vector[Player] = Vector(new Player(1), new Player(2))
   val controller = new Controller
   controller.setupPlayers("2")
   val b: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
@@ -20,7 +18,6 @@ class ControllerSpec extends WordSpec with Matchers {
     }
   }
   "save and restore the whole game" in {
-    val controller = new Controller
     val board = controller.board
     val player = controller.player
     val difficulty = controller.difficulty
@@ -51,18 +48,13 @@ class ControllerSpec extends WordSpec with Matchers {
       val ctrl = new Controller
       ctrl.setDifficulty("e")
       ctrl.difficulty should be(1)
+      ctrl.moveSelector shouldBe an[EasyBot]
       ctrl.setDifficulty("m")
       ctrl.difficulty should be(2)
+      ctrl.moveSelector shouldBe a[MediumBot]
       ctrl.setDifficulty("d")
       ctrl.difficulty should be(3)
-    }
-  }
-  "moveSelector" should {
-    "return a new MoveSelector with the given difficulty" in {
-      val ctrl = new Controller
-      ctrl.moveSelector(1) shouldBe an[EasyBot]
-      ctrl.moveSelector(2) shouldBe a[MediumBot]
-      ctrl.moveSelector(3) shouldBe a[HardBot]
+      ctrl.moveSelector shouldBe a[HardBot]
     }
   }
   "set" should {
@@ -205,7 +197,6 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "suggestions" should {
     "show possible moves" in {
-      controller.player = controller.players(0)
       controller.suggestions should equal("C4 D3 E6 F5")
     }
   }

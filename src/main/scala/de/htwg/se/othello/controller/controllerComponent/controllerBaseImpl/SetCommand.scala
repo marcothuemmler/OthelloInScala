@@ -9,9 +9,8 @@ class SetCommand(toSquare: (Int, Int), value: Int, controller: Controller) exten
   var memento: (BoardInterface, Player) = (controller.board.deHighlight, controller.player)
 
   override def doStep(): Unit = {
-    for {
-      fromSquare <- controller.moves.filter(o => o._2.contains(toSquare)).keys
-    } controller.board = controller.board.flipLine(fromSquare, toSquare, value).deHighlight
+    controller.moves.filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
+      controller.board = controller.board.flipLine(fromSquare, toSquare, value).deHighlight)
     controller.player = controller.nextPlayer
   }
 

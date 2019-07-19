@@ -3,8 +3,6 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 
-import scala.util.{Random, Try}
-
 abstract class MoveSelector(controller: Controller) {
 
   private type Move = (Int, Option[(Int, Int)])
@@ -21,11 +19,11 @@ abstract class MoveSelector(controller: Controller) {
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99)
   )
 
-  def select = Try {
+  def selection: (Int, Int) = {
     val before = System.currentTimeMillis
     val res = {
       if (controller.count(1) + controller.count(2) <= 6 || controller.size != 8)
-        controller.options(Random.nextInt(controller.options.size))
+        controller.options(scala.util.Random.nextInt(controller.options.size))
       else
         search(player, 5, controller.board, None, -10000, 10000, m = true)._2.get
     }
@@ -61,14 +59,12 @@ abstract class MoveSelector(controller: Controller) {
 
   def simulate(b: BoardInterface, p: Player, toSquare: (Int, Int)): BoardInterface = {
     var newBoard = b
-    for {
-      fromSquare <- b.moves(p.value).filter(o => o._2.contains(toSquare)).keys
-    } newBoard = b.flipLine(fromSquare, toSquare, p.value)
+    b.moves(p.value).filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
+      newBoard = b.flipLine(fromSquare, toSquare, p.value))
     newBoard
   }
 }
 
-// Combination of positional strategy, absolute strategy and mobility
 class HardBot(controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
@@ -85,7 +81,6 @@ class HardBot(controller: Controller) extends MoveSelector(controller) {
   }
 }
 
-// Positional strategy and absolute strategy
 class MediumBot(controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
@@ -99,10 +94,10 @@ class MediumBot(controller: Controller) extends MoveSelector(controller) {
   }
 }
 
-// Positional strategy reversed
 class EasyBot(controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
-    (for {
+    if (b.gameOver) -b.count(player.value).compare(b.count(betaP.value)) * 5000
+    else (for {
       x <- 0 until b.size
       y <- 0 until b.size
       if b.valueOf(x, y) == player.value

@@ -52,11 +52,9 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
     if (grid.flatten.contains(Square(-1))) deHighlight else highlight(value)
   }
 
-  def deHighlight: Board = {
-    copy(Vector.tabulate(size, size)((col, row) =>
-      if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
-    ))
-  }
+  def deHighlight: Board = copy(Vector.tabulate(size, size)((col, row) =>
+    if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
+  ))
 
   def highlight(value: Int): Board = {
     copy(Vector.tabulate(size, size)((col, row) =>

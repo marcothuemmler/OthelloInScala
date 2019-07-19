@@ -16,9 +16,9 @@ class Tui(controller: ControllerInterface) extends Observer {
     case "s" => println(controller.suggestions)
     case "f" => controller.save()
     case "l" => controller.load()
-    case input @ ("e" | "m" | "d") => controller.setDifficulty(input)
-    case input @ ("+" | "-" | ".") => controller.resizeBoard(input)
-    case input @ ("0" | "1" | "2") => controller.setupPlayers(input)
+    case input@("e" | "m" | "d") => controller.setDifficulty(input)
+    case input@("+" | "-" | ".") => controller.resizeBoard(input)
+    case input@("0" | "1" | "2") => controller.setupPlayers(input)
     case input => input.toList match {
       case col :: row :: Nil =>
         val square = (col.toUpper.toInt - 65, row.asDigit - 1)
