@@ -51,13 +51,11 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
       g.fillOval(edges - 2 * squares - 3, 2 * squares - 3, 10, 10)
       g.fillOval(edges - 2 * squares - 3, edges - 2 * squares - 3, 10, 10)
     }
-    for {
-      col <- 0 until columns
-      row <- 0 until rows
-    } contents += square(col, row)
+    0 until columns map (col =>
+      0 until rows map (row => contents += square(col, row)))
   }
 
-  def  square: (Int, Int) => Button = (row, col) => new Button {
+  def square: (Int, Int) => Button = (row, col) => new Button {
     opaque = false
     contentAreaFilled = false
     border = LineBorder(new Color(30, 30, 30, 200))
@@ -82,7 +80,7 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
   }
 
   def scoreLabel: Int => Label = {
-    case n @ (1 | 2) => new Label(s"${controller.count(n)}") {
+    case n@(1 | 2) => new Label(s"${controller.count(n)}") {
       icon = Icon(getClass.getResource(s"resources/$n.png"))
       foreground = new Color(200, 200, 200)
     }
@@ -92,9 +90,8 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
     peer.setLayout(new GridLayout)
     preferredSize = new Dimension(edges, squares)
     background = Color.darkGray
-    if (!controller.gameOver) {
-      contents ++= List(scoreLabel(1), scoreLabel(2))
-    } else {
+    if (!controller.gameOver) contents ++= List(scoreLabel(1), scoreLabel(2))
+    else {
       contents += new Label(controller.score) {
         val fontSize: Int = if (controller.size > 4) 26 else 20
         font = Font(name, Font.Style.Plain, fontSize)

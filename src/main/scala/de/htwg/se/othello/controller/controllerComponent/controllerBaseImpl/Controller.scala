@@ -11,7 +11,6 @@ import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
 
 class Controller extends ControllerInterface {
 
@@ -21,7 +20,7 @@ class Controller extends ControllerInterface {
   var gameStatus: GameStatus = IDLE
   var difficulty = 2
   var board: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
-  var players: Vector[Player] = Vector(new Player(1), new Bot(2))
+  var players: Vector[Player] = Vector(Player(1), Bot(2))
   var player: Player = players(0)
 
   def resizeBoard(op: String): Unit = {
@@ -41,9 +40,9 @@ class Controller extends ControllerInterface {
   }
 
   def setupPlayers: String => Unit = {
-    case "0" => players = Vector(new Bot(1), new Bot(2))
-    case "1" => players = Vector(new Player(1), new Bot(2))
-    case "2" => players = Vector(new Player(1), new Player(2))
+    case "0" => players = Vector(Bot(1), Bot(2))
+    case "1" => players = Vector(Player(1), Bot(2))
+    case "2" => players = Vector(Player(1), Player(2))
   }
 
   def moveSelector: MoveSelector = difficulty match {
@@ -72,7 +71,7 @@ class Controller extends ControllerInterface {
 
   def load(): Unit = {
     fileIo.load match {
-      case Success(save) =>
+      case scala.util.Success(save) =>
         board = save._1
         player = save._2
         difficulty = save._3
@@ -84,16 +83,18 @@ class Controller extends ControllerInterface {
 
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) gameStatus = ILLEGAL
-    else undoManager.doStep(new SetCommand(square, player.value, this))
+    else if (player.isBot) {
+      moves.filter(o => o._2.contains(square)).keys.foreach(fromSquare =>
+        board = board.flipLine(fromSquare, square, player.value))
+      player = nextPlayer
+    } else undoManager.doStep(new SetCommand(square, player.value, this))
     if (gameOver) gameStatus = GAME_OVER
     notifyObservers()
-    if (!gameOver && moves.isEmpty) omitPlayer()
-    else selectAndSet()
+    if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()
   }
 
   def selectAndSet(): Unit = if (player.isBot && !gameOver) {
-    if (moves.nonEmpty) set(moveSelector.selection)
-    else omitPlayer()
+    if (moves.nonEmpty) set(moveSelector.selection) else omitPlayer()
     selectAndSet()
   }
 
@@ -105,12 +106,10 @@ class Controller extends ControllerInterface {
 
   def undo(): Unit = {
     undoManager.undoStep()
-    undoManager.undoStep()
     notifyObservers()
   }
 
   def redo(): Unit = {
-    undoManager.redoStep()
     undoManager.redoStep()
     notifyObservers()
   }

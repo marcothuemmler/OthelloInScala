@@ -12,7 +12,7 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "A Player without name parameter" should {
     "have a default name" in {
-      new Player(2).toString should be("White")
+      Player(2).toString should be("White")
     }
   }
   "isBot" should {
@@ -20,7 +20,7 @@ class PlayerSpec extends WordSpec with Matchers {
       player.isBot should be(false)
     }
     "return true if the player is a bot" in {
-      new Bot(2).isBot should be(true)
+      Bot(2).isBot should be(true)
     }
   }
 }

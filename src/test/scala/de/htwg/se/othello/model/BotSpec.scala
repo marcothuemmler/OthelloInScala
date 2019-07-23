@@ -4,7 +4,7 @@ import org.scalatest.{Matchers, WordSpec}
 class BotSpec extends WordSpec with Matchers {
   "A bot created with only value parameter" should {
     "have a default name" in {
-      new Bot(1).toString should be("Black")
+      Bot(1).toString should be("Black")
     }
   }
 }

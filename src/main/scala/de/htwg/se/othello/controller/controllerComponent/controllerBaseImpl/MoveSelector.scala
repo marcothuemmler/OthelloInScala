@@ -85,11 +85,9 @@ class MediumBot(controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
     else {
-      (for {
-        x <- 0 until b.size
-        y <- 0 until b.size
-        if b.valueOf(x, y) == player.value
-      } yield weightedBoard(x)(y)).sum
+      (0 until b.size).flatMap(x =>
+        (0 until b.size).filter(y => b.valueOf(x, y) == player.value)
+          .map(y => weightedBoard(x)(y))).sum
     }
   }
 }
@@ -97,10 +95,10 @@ class MediumBot(controller: Controller) extends MoveSelector(controller) {
 class EasyBot(controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) -b.count(player.value).compare(b.count(betaP.value)) * 5000
-    else (for {
-      x <- 0 until b.size
-      y <- 0 until b.size
-      if b.valueOf(x, y) == player.value
-    } yield -weightedBoard(x)(y)).sum
+    else {
+      (0 until b.size).flatMap(x =>
+        (0 until b.size).filter(y => b.valueOf(x, y) == player.value)
+          .map(y => -weightedBoard(x)(y))).sum
+    }
   }
 }

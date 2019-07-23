@@ -2,9 +2,8 @@ package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 
 case class Square(value: Int) {
 
-  def isSet: Boolean = value > 0
-
-  def isHighlighted: Boolean = value < 0
+  val isSet: Boolean = value > 0
+  val isHighlighted: Boolean = value < 0
 
   override def toString: String = {
     if (value == 2) "○|"

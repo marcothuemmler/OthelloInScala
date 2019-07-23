@@ -115,7 +115,6 @@ class ControllerSpec extends WordSpec with Matchers {
     "revert the board to a previous state" in {
       ctrl.createBoard(8)
       ctrl.set(3, 2)
-      ctrl.set(4, 2)
       changedBoard = ctrl.board
       ctrl.undo()
       ctrl.board should equal(b)

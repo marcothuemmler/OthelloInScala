@@ -16,10 +16,9 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   def this(@Assisted size: Int) = this(Vector.fill(size, size)(Square(0)))
 
   def moves(value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
-    (for {
-      col <- grid.indices
-      row <- grid.indices if valueOf(col, row) == value
-    } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
+    grid.indices.flatMap(col =>
+      grid.indices.filter(row => valueOf(col, row) == value)
+        .map(row => getMoves(value, col, row))).filter(o => o._2.nonEmpty).toMap
   }
 
   def getMoves(value: Int, col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {

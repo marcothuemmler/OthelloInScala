@@ -49,7 +49,6 @@ class TuiSpec extends WordSpec with Matchers {
     "undo a step on input z" in {
       ctrl.createBoard(8)
       t.processInputLine("c4")
-      t.processInputLine("c5")
       changedBoard = ctrl.board
       t.processInputLine("z")
       ctrl.board should equal((new CreateBoardStrategy).createNewBoard(8))
