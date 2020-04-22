@@ -17,9 +17,9 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
 
   val sides = 23
   val squares = 46
-  val back: BufferedImage = read(getClass.getResource("resources/back.jpg"))
-  val black: BufferedImage = read(getClass.getResource("resources/1.png"))
-  val white: BufferedImage = read(getClass.getResource("resources/2.png"))
+  val back: BufferedImage = read(getClass.getResource("/back.jpg"))
+  val black: BufferedImage = read(getClass.getResource("/1.png"))
+  val white: BufferedImage = read(getClass.getResource("/2.png"))
 
   def gameStatus: GameStatus = controller.gameStatus
 
@@ -94,7 +94,7 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
 
   def scoreLabel: Int => Label = {
     case n@(1 | 2) => new Label(s"${controller.count(n)}") {
-      icon = Icon(getClass.getResource(s"resources/$n.png"))
+      icon = Icon(getClass.getResource(s"/$n.png"))
       foreground = new Color(200, 200, 200)
     }
   }
