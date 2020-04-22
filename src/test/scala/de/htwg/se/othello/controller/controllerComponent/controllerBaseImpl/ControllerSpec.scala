@@ -22,7 +22,7 @@ class ControllerSpec extends WordSpec with Matchers {
     val player = controller.player
     val difficulty = controller.difficulty
     controller.save()
-    controller.difficulty = 3
+    controller.difficulty = "Hard"
     controller.player = controller.players(1)
     controller.board = controller.board.flipLine((0, 0), (0, 0),1)
     controller.board should not be board
@@ -47,13 +47,13 @@ class ControllerSpec extends WordSpec with Matchers {
     "set the difficulty of the game" in {
       val ctrl = new Controller
       ctrl.setDifficulty("e")
-      ctrl.difficulty should be(1)
+      ctrl.difficulty should be("Easy")
       ctrl.moveSelector shouldBe an[EasyBot]
       ctrl.setDifficulty("m")
-      ctrl.difficulty should be(2)
+      ctrl.difficulty should be("Normal")
       ctrl.moveSelector shouldBe a[MediumBot]
       ctrl.setDifficulty("d")
-      ctrl.difficulty should be(3)
+      ctrl.difficulty should be("Hard")
       ctrl.moveSelector shouldBe a[HardBot]
     }
   }
@@ -105,7 +105,7 @@ class ControllerSpec extends WordSpec with Matchers {
       val currentPlayer = controller.player
       controller.omitPlayer()
       controller.player should not equal currentPlayer
-      controller.gameStatus should equal(GameStatus.OMITTED)
+      controller.gameStatus should equal(GameStatus.IDLE)
     }
   }
   val ctrl = new Controller
@@ -124,6 +124,29 @@ class ControllerSpec extends WordSpec with Matchers {
     "redo undone changes" in {
       ctrl.redo()
       ctrl.board should equal(changedBoard)
+    }
+  }
+  "canUndo" should {
+    val ctrl = new Controller
+    ctrl.setupPlayers("2")
+    "be false on a new game" in {
+      ctrl.canUndo should be(false)
+    }
+    "be true if there are moves to be undone" in {
+      ctrl.set(2, 3)
+      ctrl.canUndo should be (true)
+    }
+  }
+  "canRedo" should {
+    val ctrl = new Controller
+    ctrl.setupPlayers("2")
+    "be false on a new game" in {
+      ctrl.canUndo should be(false)
+    }
+    "be true if there are moves to be redone" in {
+      ctrl.set(2, 3)
+      ctrl.undo()
+      ctrl.canRedo should be (true)
     }
   }
   "setupPlayers" should {

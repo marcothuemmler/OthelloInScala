@@ -14,6 +14,11 @@ class SwingGui(controller: ControllerInterface) extends Observer {
 
   controller.add(this)
 
+  val modifier: Modifiers = {
+    if (System.getProperty("os.name").startsWith("Mac")) Modifier.Meta
+    else Modifier.Control
+  }
+
   lazy val tablePanel = new TablePanel(controller)
 
   lazy val mainFrame: MainFrame = new MainFrame {
@@ -23,11 +28,6 @@ class SwingGui(controller: ControllerInterface) extends Observer {
     centerOnScreen
     resizable = false
     visible = true
-  }
-
-  val modifier: Modifiers = {
-    if (System.getProperty("os.name").startsWith("Mac")) Modifier.Meta
-    else Modifier.Control
   }
 
   def menus: MenuBar = new MenuBar {
@@ -47,7 +47,12 @@ class SwingGui(controller: ControllerInterface) extends Observer {
       })
       contents += new Separator
       contents += new MenuItem(new Action("Quit") {
-        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Q, modifier))
+        accelerator = {
+          if (System.getProperty("os.name").startsWith("Win"))
+            Some(KeyStroke.getKeyStroke(KeyEvent.VK_F4, Modifier.Alt))
+          else
+            Some(KeyStroke.getKeyStroke(KeyEvent.VK_Q, modifier))
+        }
         override def apply: Unit = sys.exit
       })
     }
@@ -55,22 +60,24 @@ class SwingGui(controller: ControllerInterface) extends Observer {
       mnemonic = Key.E
       contents += new MenuItem(new Action("Undo") {
         accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Z, modifier))
+        enabled = controller.canUndo
         override def apply: Unit = controller.undo()
       })
       contents += new MenuItem(new Action("Redo") {
-        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Y, modifier))
+        enabled = controller.canRedo
+        accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_Z, modifier | Modifier.Shift))
         override def apply: Unit = controller.redo()
       })
     }
     contents += new Menu("Options") {
       mnemonic = Key.O
       contents += new MenuItem(new Action("Highlight possible moves") {
-        enabled = if (controller.moves.isEmpty) false else true
+        enabled = controller.moves.nonEmpty
         accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_I, modifier))
         override def apply: Unit = controller.highlight()
       })
       contents += new MenuItem(new Action("Reduce board size") {
-        enabled = if (controller.size <= 4) false else true
+        enabled = controller.size > 4
         accelerator = Some(KeyStroke.getKeyStroke(45, modifier))
         override def apply: Unit = controller.resizeBoard("-")
       })
@@ -79,21 +86,21 @@ class SwingGui(controller: ControllerInterface) extends Observer {
         override def apply: Unit = controller.resizeBoard("+")
       })
       contents += new MenuItem(new Action("Reset board size") {
-        enabled = if (controller.size == 8) false else true
+        enabled = controller.size != 8
         accelerator = Some(KeyStroke.getKeyStroke(46, modifier))
         override def apply: Unit = controller.resizeBoard(".")
       })
       contents += new Menu("Game mode") {
         val pvc: RadioMenuItem = new RadioMenuItem("Player vs. Computer") {
-          selected = if (controller.playerCount == 1) true else false
+          selected = controller.playerCount == 1
         }
         val pvp: RadioMenuItem = new RadioMenuItem("Player vs. Player") {
-          selected = if (controller.playerCount == 2) true else false
+          selected = controller.playerCount == 2
         }
         val cvc: RadioMenuItem = new RadioMenuItem("Demo mode (Computer vs Computer)") {
-          selected = if (controller.playerCount == 0) true else false
+          selected = controller.playerCount == 0
         }
-        contents ++= new ButtonGroup(pvc, pvp, cvc).buttons
+        contents += (pvc, pvp, cvc)
         listenTo(pvc, pvp, cvc)
         reactions += {
           case e: ButtonClicked =>
@@ -103,19 +110,15 @@ class SwingGui(controller: ControllerInterface) extends Observer {
         }
       }
       contents += new Menu("Game Difficulty") {
-        val easy: RadioMenuItem = new RadioMenuItem("Easy") {
-          enabled = if (controller.size == 8) true else false
-          selected = if (controller.difficulty == 1) true else false
-        }
-        val medium: RadioMenuItem = new RadioMenuItem("Normal") {
-          enabled = if (controller.size == 8) true else false
-          selected = if (controller.difficulty == 2) true else false
-        }
-        val hard: RadioMenuItem = new RadioMenuItem("Hard") {
-          enabled = if (controller.size == 8) true else false
-          selected = if (controller.difficulty == 3) true else false
-        }
-        contents ++= new ButtonGroup(easy, medium, hard).buttons
+        val easy: RadioMenuItem = new RadioMenuItem("Easy")
+        val medium: RadioMenuItem = new RadioMenuItem("Normal")
+        val hard: RadioMenuItem = new RadioMenuItem("Hard")
+        val buttonGroup = new ButtonGroup(easy, medium, hard)
+        buttonGroup.buttons.foreach(b => {
+          b.enabled = controller.size == 8
+          b.selected = b.text.equals(controller.difficulty) && b.enabled
+        })
+        contents ++= buttonGroup.buttons
         listenTo(easy, medium, hard)
         reactions += {
           case e: ButtonClicked =>

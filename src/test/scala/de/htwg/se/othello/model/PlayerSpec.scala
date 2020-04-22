@@ -3,7 +3,7 @@ package de.htwg.se.othello.model
 import org.scalatest.{Matchers, WordSpec}
 
 class PlayerSpec extends WordSpec with Matchers {
-  val player = Player("Otto", 1)
+  val player: Player = Player("Otto", 1)
 
   "A player" should {
     "have a toString method" in {
@@ -12,7 +12,7 @@ class PlayerSpec extends WordSpec with Matchers {
   }
   "A Player without name parameter" should {
     "have a default name" in {
-      Player(2).toString should be("White")
+      new Player(2).toString should be("White")
     }
   }
   "isBot" should {
@@ -20,7 +20,7 @@ class PlayerSpec extends WordSpec with Matchers {
       player.isBot should be(false)
     }
     "return true if the player is a bot" in {
-      Bot(2).isBot should be(true)
+      new Bot(2).isBot should be(true)
     }
   }
 }

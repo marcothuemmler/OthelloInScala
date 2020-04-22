@@ -10,10 +10,7 @@ trait CreateBoardTemplate {
   val injector: Injector = Guice.createInjector(new OthelloModule)
 
   def createNewBoard(size: Int): BoardInterface = {
-    var board: BoardInterface = injector.instance[BoardFactory].create(size)
-    board = prepare(board)
-    board = fill(board)
-    postProcess(board)
+    postProcess(fill(prepare(injector.instance[BoardFactory].create(size))))
   }
 
   def prepare(board: BoardInterface): BoardInterface = board

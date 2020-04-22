@@ -15,7 +15,7 @@ class FileIO extends FileIOInterface {
 
   val injector: Injector = Guice.createInjector(new OthelloModule)
 
-  override def load = Try {
+  def load: Try[(BoardInterface, Player, String)] = Try {
     val source = Source.fromFile("savegame.json")
     val json: JsValue = Json.parse (source.getLines.mkString)
     source.close ()
@@ -27,20 +27,20 @@ class FileIO extends FileIOInterface {
       col = (json \\ "col") (index).as[Int]
       value = (json \\ "value") (index).as[Int]
     } board = board.flipLine((row, col), (row, col), value)
-    val name = (json \ "player" \ "name").toString
+    val name = (json \ "player" \ "name").as[String]
     val color = (json \ "player" \ "value").as[Int]
-    val difficulty = (json \ "difficulty").as[Int]
+    val difficulty = (json \ "difficulty").as[String]
     (board, Player(name, color), difficulty)
   }
 
-  override def save(board: BoardInterface, player: Player, difficulty: Int): Unit = {
+  override def save(board: BoardInterface, player: Player, difficulty: String): Unit = {
     import java.io._
     val pw = new PrintWriter(new File("savegame.json"))
     pw.write(Json.prettyPrint(stateToJson(board, player, difficulty)))
     pw.close()
   }
 
-  def stateToJson(board: BoardInterface, player: Player, difficulty: Int): JsObject = {
+  def stateToJson(board: BoardInterface, player: Player, difficulty: String): JsObject = {
     Json.obj(
       "board" -> Json.obj(
         "size" -> board.size,

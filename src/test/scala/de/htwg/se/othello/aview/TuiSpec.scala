@@ -1,7 +1,8 @@
 package de.htwg.se.othello.aview
 
+import de.htwg.se.othello.controller.controllerComponent.GameStatus
 import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import org.scalatest.{Matchers, WordSpec}
 
 class TuiSpec extends WordSpec with Matchers {
@@ -75,33 +76,55 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "set the difficulty of the bot to easy on input e" in {
       t.processInputLine("e")
-      ctrl.difficulty should be(1)
+      ctrl.difficulty should be("Easy")
     }
     "set the difficulty of the bot to normal on input m" in {
       t.processInputLine("m")
-      ctrl.difficulty should be(2)
+      ctrl.difficulty should be("Normal")
     }
     "set the difficulty of the bot to hard on input d" in {
       t.processInputLine("d")
-      ctrl.difficulty should be(3)
+      ctrl.difficulty should be("Hard")
     }
   }
   "update" should {
-    "print the current board and the score if the game is over" in {
+    "print the current board and the score if the gameStatus is GAME_OVER" in {
       val ctrl = new Controller
-      ctrl.board = Board(Vector.fill(8, 8)(Square(1)))
+      ctrl.gameStatus = GameStatus.GAME_OVER
       new Tui(ctrl).update
     }
-    "print the gameStatus and the current board if the game is not over " in {
+    "print only the current board if the gameStatus is IDLE" in {
       controller.newGame
     }
+    "print the gameStatus, the omitted player and the board if the gameStatus is OMITTED" in {
+      val ctrl = new Controller
+      ctrl.gameStatus = GameStatus.OMITTED
+      new Tui(ctrl).update
+    }
+    "print the gameStatus followed by suggestions if the gameStatus is ILLEGAL" in {
+      val ctrl = new Controller
+      ctrl.gameStatus = GameStatus.ILLEGAL
+      new Tui(ctrl).update
+    }
+    "print the gameStatus followed by the board if the gameStatus is LOAD_SUCCESS" in {
+      val ctrl = new Controller
+      ctrl.gameStatus = GameStatus.LOAD_SUCCESS
+      new Tui(ctrl).update
+    }
+    "print the gameStatus if the gameStatus is in any other state" in {
+      val ctrl = new Controller
+      val t = new Tui(ctrl)
+      ctrl.gameStatus = GameStatus.LOAD_FAIL
+      t.update
+    }
+
   }
   "save and restore the whole game" in {
     val board = controller.board
     val player = controller.player
     val difficulty = controller.difficulty
     tui.processInputLine("f")
-    controller.difficulty = 3
+    controller.difficulty = "Hard"
     controller.player = controller.players(1)
     controller.board = controller.board.flipLine((0, 0), (0, 0),1)
     controller.board should not be board

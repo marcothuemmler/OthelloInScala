@@ -44,8 +44,8 @@ class BoardSpec extends WordSpec with Matchers {
   }
   "isSet" should {
     "be true if there is at least one disk on the board" in {
-      new Board(8).isSet should be(false)
-      board.isSet should be(true)
+      new Board(8).nonEmpty should be(false)
+      board.nonEmpty should be(true)
     }
   }
   "valueOf" should {

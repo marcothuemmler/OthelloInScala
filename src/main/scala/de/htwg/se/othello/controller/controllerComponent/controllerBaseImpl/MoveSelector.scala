@@ -1,13 +1,12 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 
 abstract class MoveSelector(controller: Controller) {
 
   private type Move = (Int, Option[(Int, Int)])
-  val player: Player = controller.player
-  val betaP: Player = controller.nextPlayer
+  val player: Int = controller.player.value
+  val notPlayer: Int = controller.nextPlayer.value
   val weightedBoard: Vector[Vector[Int]] = Vector(
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99),
     Vector(-8, -24, -4, -3, -3, -4, -24, -8),
@@ -38,67 +37,63 @@ abstract class MoveSelector(controller: Controller) {
 
   def min(x: Move, y: Move): Move = if (x._1 <= y._1) x else (y._1, x._2)
 
-  def search(p: Player, d: Int, n: BoardInterface, move: Option[(Int, Int)], alpha: Int, beta: Int, m: Boolean): Move = {
-    if (d == 0 || n.gameOver || n.moves(p.value).isEmpty) (evaluate(n), move)
+  def sumUp(b: BoardInterface, value: Int): Int = {
+    (for {
+      x <- 0 until b.size
+      y <- 0 until b.size if b.valueOf(x, y) == value
+    } yield weightedBoard(x)(y)).sum
+  }
+
+  def search(p: Int, d: Int, n: BoardInterface, move: Option[(Int, Int)], alpha: Int, beta: Int, m: Boolean): Move = {
+    if (d == 0 || n.gameOver || n.moves(p).isEmpty) (evaluate(n), move)
     else if (m) {
-      n.moves(player.value).values.flatten.toSet.foldLeft(alpha, move) {
+      n.moves(player).values.flatten.foldLeft(alpha, move) {
         case ((a, prev), next) if beta > a =>
-          val newBoard = simulate(n, player, next)
-          max((a, prev), search(betaP, d - 1, newBoard, Option(next), a, beta, !m))
+          max((a, prev), search(notPlayer, d - 1, simulate(n, player, next), Option(next), a, beta, !m))
         case ((a, prev), _) if beta <= a => (a, prev)
       }
     } else {
-      n.moves(betaP.value).values.flatten.toSet.foldLeft((beta, move)) {
+      n.moves(notPlayer).values.flatten.foldLeft((beta, move)) {
         case ((b, prev), next) if b > alpha =>
-          val newBoard = simulate(n, betaP, next)
-          min((b, prev), search(player, d - 1, newBoard, Option(next), alpha, b, !m))
+          min((b, prev), search(player, d - 1, simulate(n, notPlayer, next), Option(next), alpha, b, !m))
         case ((b, prev), _) if b <= alpha => (alpha, prev)
       }
     }
   }
 
-  def simulate(b: BoardInterface, p: Player, toSquare: (Int, Int)): BoardInterface = {
+  def simulate(b: BoardInterface, p: Int, toSquare: (Int, Int)): BoardInterface = {
     var newBoard = b
-    b.moves(p.value).filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
-      newBoard = b.flipLine(fromSquare, toSquare, p.value))
+    b.moves(p).filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
+      newBoard = b.flipLine(fromSquare, toSquare, p))
     newBoard
   }
 }
 
 class HardBot(controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
-    if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
+    if (b.gameOver) b.count(player).compare(b.count(notPlayer)) * 5000
     else {
       (for {
         x <- 0 until b.size
-        y <- 0 until b.size
+        y <- 0 until b.size if b.valueOf(x, y) > 0
       } yield b.valueOf(x, y) match {
-        case player.value => weightedBoard(x)(y)
-        case betaP.value => -weightedBoard(x)(y)
-        case _ => 0
-      }).sum - b.moves(betaP.value).values.flatten.toSet.size * 10
+        case `player` => weightedBoard(x)(y)
+        case `notPlayer` => -weightedBoard(x)(y)
+      }).sum - b.moves(notPlayer).values.flatten.toSet.size * 10
     }
   }
 }
 
 class MediumBot(controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
-    if (b.gameOver) b.count(player.value).compare(b.count(betaP.value)) * 5000
-    else {
-      (0 until b.size).flatMap(x =>
-        (0 until b.size).filter(y => b.valueOf(x, y) == player.value)
-          .map(y => weightedBoard(x)(y))).sum
-    }
+    if (b.gameOver) b.count(player).compare(b.count(notPlayer)) * 5000
+    else sumUp(b, player)
   }
 }
 
 class EasyBot(controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
-    if (b.gameOver) -b.count(player.value).compare(b.count(betaP.value)) * 5000
-    else {
-      (0 until b.size).flatMap(x =>
-        (0 until b.size).filter(y => b.valueOf(x, y) == player.value)
-          .map(y => -weightedBoard(x)(y))).sum
-    }
+    if (b.gameOver) -b.count(player).compare(b.count(notPlayer)) * 5000
+    else sumUp(b, notPlayer)
   }
 }

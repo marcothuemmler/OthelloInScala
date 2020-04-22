@@ -14,14 +14,11 @@ class SetCommand(toSquare: (Int, Int), value: Int, controller: Controller) exten
     controller.player = controller.nextPlayer
   }
 
-  override def undoStep(): Unit = {
-    val new_memento = (controller.board.deHighlight, controller.player)
-    controller.board = memento._1
-    controller.player = memento._2
-    memento = new_memento
-  }
+  override def undoStep(): Unit = step()
 
-  override def redoStep(): Unit = {
+  override def redoStep(): Unit = step()
+
+  def step(): Unit = {
     val new_memento = (controller.board.deHighlight, controller.player)
     controller.board = memento._1
     controller.player = memento._2

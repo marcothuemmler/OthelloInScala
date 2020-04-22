@@ -18,9 +18,9 @@ class Controller extends ControllerInterface {
   val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
-  var difficulty = 2
+  var difficulty = "Normal"
   var board: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
-  var players: Vector[Player] = Vector(Player(1), Bot(2))
+  var players: Vector[Player] = Vector(new Player(1), new Bot(2))
   var player: Player = players(0)
 
   def resizeBoard(op: String): Unit = {
@@ -39,29 +39,41 @@ class Controller extends ControllerInterface {
     notifyObservers()
   }
 
+  def illegalAction(): Unit = {
+    gameStatus = ILLEGAL
+    publishChanges()
+  }
+
+  def publishChanges(): Unit = {
+    notifyObservers()
+    gameStatus = IDLE
+  }
+
   def setupPlayers: String => Unit = {
-    case "0" => players = Vector(Bot(1), Bot(2))
-    case "1" => players = Vector(Player(1), Bot(2))
-    case "2" => players = Vector(Player(1), Player(2))
+    case "0" => players = Vector(new Bot(1), new Bot(2))
+    case "1" => players = Vector(new Player(1), new Bot(2))
+    case "2" => players = Vector(new Player(1), new Player(2))
   }
 
   def moveSelector: MoveSelector = difficulty match {
-    case 1 => new EasyBot(this)
-    case 2 => new MediumBot(this)
-    case 3 => new HardBot(this)
+    case "Easy" => new EasyBot(this)
+    case "Normal" => new MediumBot(this)
+    case "Hard" => new HardBot(this)
   }
 
   def setDifficulty(value: String): Unit = {
     difficulty = value match {
-      case "e" => 1
-      case "m" => 2
-      case "d" => 3
+      case "e" => "Easy"
+      case "m" => "Normal"
+      case "d" => "Hard"
     }
     gameStatus = DIFFICULTY_CHANGED
-    notifyObservers()
+    publishChanges()
   }
 
   def newGame: Future[Unit] = {
+    undoManager.redoStack = Nil
+    undoManager.undoStack = Nil
     createBoard(size)
     player = players(0)
     Future(selectAndSet())(ExecutionContext.global)
@@ -78,18 +90,17 @@ class Controller extends ControllerInterface {
         gameStatus = LOAD_SUCCESS
       case _ => gameStatus = LOAD_FAIL
     }
-    notifyObservers()
+    publishChanges()
   }
 
   def set(square: (Int, Int)): Unit = {
-    if (!moves.exists(o => o._2.contains(square))) gameStatus = ILLEGAL
-    else if (player.isBot) {
-      moves.filter(o => o._2.contains(square)).keys.foreach(fromSquare =>
-        board = board.flipLine(fromSquare, square, player.value))
-      player = nextPlayer
-    } else undoManager.doStep(new SetCommand(square, player.value, this))
+    if (!moves.exists(o => o._2.contains(square))) {
+      gameStatus = ILLEGAL
+      board = board.changeHighlight(player.value)
+    } else if (player.isBot) new SetCommand(square, player.value, this).doStep()
+    else undoManager.doStep(new SetCommand(square, player.value, this))
     if (gameOver) gameStatus = GAME_OVER
-    notifyObservers()
+    publishChanges()
     if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()
   }
 
@@ -101,7 +112,7 @@ class Controller extends ControllerInterface {
   def omitPlayer(): Unit = {
     player = nextPlayer
     gameStatus = OMITTED
-    notifyObservers()
+    publishChanges()
   }
 
   def undo(): Unit = {
@@ -136,6 +147,10 @@ class Controller extends ControllerInterface {
   def boardToString: String = board.toString
 
   def valueOf(col: Int, row: Int): Int = board.valueOf(col, row)
+
+  def canUndo: Boolean = undoManager.undoStack.nonEmpty
+
+  def canRedo: Boolean = undoManager.redoStack.nonEmpty
 
   def score: String = {
     val (win, lose) = (count(1) max count(2), count(1) min count(2))

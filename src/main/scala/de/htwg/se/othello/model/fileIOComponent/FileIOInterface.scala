@@ -7,7 +7,7 @@ import scala.util.Try
 
 trait FileIOInterface {
 
-  def load: Try[(BoardInterface, Player, Int)]
-  def save(board: BoardInterface, player: Player, difficulty: Int): Unit
+  def load: Try[(BoardInterface, Player, String)]
+  def save(board: BoardInterface, player: Player, difficulty: String): Unit
 
 }
