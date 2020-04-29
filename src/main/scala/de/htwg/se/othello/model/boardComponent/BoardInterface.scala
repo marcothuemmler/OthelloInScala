@@ -4,7 +4,7 @@ trait BoardInterface {
 
   val gameOver: Boolean
   val size: Int
-  val moves: Int => Map[(Int, Int), Seq[(Int, Int)]]
+  def moves: Int => Map[(Int, Int), Seq[(Int, Int)]]
   def changeHighlight(value: Int): BoardInterface
   def deHighlight: BoardInterface
   def toString: String

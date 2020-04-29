@@ -15,7 +15,7 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   @Inject
   def this(@Assisted size: Int) = this(Vector.fill(size, size)(Square(0)))
 
-  val moves: Int => Map[(Int, Int), Seq[(Int, Int)]] = value => {
+  def moves: Int => Map[(Int, Int), Seq[(Int, Int)]] = value => {
     val getMovesForCurrentPlayer = getMoves(value)(_: Int, _: Int)
     (for {
       col <- grid.indices
@@ -28,15 +28,19 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
-      if nX >= 0 && nX < size && nY >= 0 && nY < size && setByOpp(value, nX, nY)
+      if isWithinBounds(nX, nY) && setByOpp(value, nX, nY)
       checkDirection = checkRec((x, y), value)(_: Int, _: Int)
     } yield checkDirection(nX, nY)).flatten)
+  }
+
+  def isWithinBounds(col: Int, row: Int): Boolean = {
+    col >= 0 && col < size && row >= 0 && row < size
   }
 
   @tailrec
   final def checkRec(direction: (Int, Int), value: Int)(x: Int, y: Int): Option[(Int, Int)] = {
     val (nX, nY) = (x + direction._1, y + direction._2)
-    if (nX < 0 || nX >= size || nY < 0 || nY >= size || valueOf(nX, nY) == value) None
+    if (!isWithinBounds(nX, nY) || valueOf(nX, nY) == value) None
     else if (setByOpp(value, nX, nY)) checkRec(direction, value)(nX, nY)
     else Some(nX, nY)
   }

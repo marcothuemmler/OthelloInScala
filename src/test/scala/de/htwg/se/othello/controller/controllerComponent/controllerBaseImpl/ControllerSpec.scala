@@ -63,10 +63,10 @@ class ControllerSpec extends WordSpec with Matchers {
       controller.count(1) should be(4)
       controller.count(2) should be(1)
     }
-    "not change any square on the board if the input is incorrect" in {
+    "highlight possible moves on the board if the input is incorrect" in {
       controller.newGame
       controller.set(0, 0)
-      controller.board should equal(b)
+      controller.board should equal(b.changeHighlight(1))
     }
     "omit a player who doesn't have valid moves" in {
       val ctrl = new Controller

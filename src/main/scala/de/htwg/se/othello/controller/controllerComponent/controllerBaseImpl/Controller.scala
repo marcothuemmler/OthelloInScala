@@ -97,8 +97,8 @@ class Controller extends ControllerInterface {
     if (!moves.exists(o => o._2.contains(square))) {
       gameStatus = ILLEGAL
       board = board.changeHighlight(player.value)
-    } else if (player.isBot) new SetCommand(square, player.value, this).doStep()
-    else undoManager.doStep(new SetCommand(square, player.value, this))
+    } else if (player.isBot) new SetCommand(square, this).doStep()
+    else undoManager.doStep(new SetCommand(square, this))
     if (gameOver) gameStatus = GAME_OVER
     publishChanges()
     if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()

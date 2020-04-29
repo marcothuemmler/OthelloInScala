@@ -4,13 +4,13 @@ import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.util.Command
 
-class SetCommand(toSquare: (Int, Int), value: Int, controller: Controller) extends Command {
+class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {
 
   var memento: (BoardInterface, Player) = (controller.board.deHighlight, controller.player)
 
   override def doStep(): Unit = {
     controller.moves.filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
-      controller.board = controller.board.flipLine(fromSquare, toSquare, value).deHighlight)
+      controller.board = controller.board.flipLine(fromSquare, toSquare, controller.player.value).deHighlight)
     controller.player = controller.nextPlayer
   }
 
