@@ -16,26 +16,28 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   def this(@Assisted size: Int) = this(Vector.fill(size, size)(Square(0)))
 
   val moves: Int => Map[(Int, Int), Seq[(Int, Int)]] = value => {
+    val getMovesForCurrentPlayer = getMoves(value)(_: Int, _: Int)
     (for {
       col <- grid.indices
       row <- grid.indices if valueOf(col, row) == value
-    } yield getMoves(value, col, row)).filter(o => o._2.nonEmpty).toMap
+    } yield getMovesForCurrentPlayer(col, row)).filter(o => o._2.nonEmpty).toMap
   }
 
-  def getMoves(value: Int, col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
+  def getMoves(value: Int)(col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
     ((col, row), (for {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
       if nX >= 0 && nX < size && nY >= 0 && nY < size && setByOpp(value, nX, nY)
-    } yield checkRec(value, nX, nY, (x, y))).filter(o => o.isDefined).flatten)
+      checkDirection = checkRec((x, y), value)(_: Int, _: Int)
+    } yield checkDirection(nX, nY)).flatten)
   }
 
   @tailrec
-  final def checkRec(value: Int, x: Int, y: Int, direction: (Int, Int)): Option[(Int, Int)] = {
+  final def checkRec(direction: (Int, Int), value: Int)(x: Int, y: Int): Option[(Int, Int)] = {
     val (nX, nY) = (x + direction._1, y + direction._2)
     if (nX < 0 || nX >= size || nY < 0 || nY >= size || valueOf(nX, nY) == value) None
-    else if (setByOpp(value, nX, nY)) checkRec(value, nX, nY, direction)
+    else if (setByOpp(value, nX, nY)) checkRec(direction, value)(nX, nY)
     else Some(nX, nY)
   }
 
