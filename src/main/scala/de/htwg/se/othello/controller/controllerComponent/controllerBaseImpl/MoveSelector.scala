@@ -1,6 +1,6 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.model.boardComponent.BoardInterface
+import boardComponent.BoardInterface
 
 abstract class MoveSelector(controller: Controller) {
 

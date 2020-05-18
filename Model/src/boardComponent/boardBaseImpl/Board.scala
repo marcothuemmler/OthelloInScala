@@ -1,8 +1,8 @@
-package de.htwg.se.othello.model.boardComponent.boardBaseImpl
+package boardComponent.boardBaseImpl
 
+import boardComponent.BoardInterface
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
-import de.htwg.se.othello.model.boardComponent.BoardInterface
 
 import scala.annotation.tailrec
 

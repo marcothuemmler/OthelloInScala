@@ -1,10 +1,10 @@
-package de.htwg.se.othello.model.boardComponent.boardBaseImpl
+package boardComponent.boardBaseImpl
 
-import de.htwg.se.othello.model.boardComponent.BoardInterface
+import boardComponent.BoardInterface
 
 class CreateBoardStrategy extends CreateBoardTemplate {
-  override def fill(board: BoardInterface): BoardInterface = {
-    val size = board.size
+  override def fill(size: Int): BoardInterface = {
+    //val size = size
     val half = size / 2
     Board(Vector.tabulate(size, size)((i, j) =>
       if ((i == half || j == half - 1) && i == j) Square(2)

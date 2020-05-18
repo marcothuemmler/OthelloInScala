@@ -1,5 +1,6 @@
 package de.htwg.se.othello.model
 
+import boardComponent.Bot
 import org.scalatest.{Matchers, WordSpec}
 class BotSpec extends WordSpec with Matchers {
   "A bot created with only value parameter" should {

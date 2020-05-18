@@ -1,7 +1,7 @@
 package de.htwg.se.othello.controller.controllerComponent
 
+import boardComponent.Player
 import de.htwg.se.othello.controller.controllerComponent.GameStatus.GameStatus
-import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.util.Observable
 
 import scala.concurrent.Future

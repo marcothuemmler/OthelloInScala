@@ -1,8 +1,8 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
+import boardComponent.BoardInterface
+import boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
 import de.htwg.se.othello.controller.controllerComponent.GameStatus
-import de.htwg.se.othello.model.boardComponent.BoardInterface
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
 import org.scalatest.{Matchers, WordSpec}
 
 class ControllerSpec extends WordSpec with Matchers {

@@ -1,7 +1,6 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.model.Player
-import de.htwg.se.othello.model.boardComponent.BoardInterface
+import boardComponent.{BoardInterface, Player}
 import de.htwg.se.othello.util.Command
 
 class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {

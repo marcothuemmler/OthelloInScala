@@ -1,5 +1,6 @@
 package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 
+import boardComponent.boardBaseImpl.{Board, CreateBoardStrategy}
 import org.scalatest.{Matchers, WordSpec}
 
 class BoardSpec extends WordSpec with Matchers {

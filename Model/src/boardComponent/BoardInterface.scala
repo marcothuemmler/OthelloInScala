@@ -1,4 +1,4 @@
-package de.htwg.se.othello.model.boardComponent
+package boardComponent
 
 trait BoardInterface {
 

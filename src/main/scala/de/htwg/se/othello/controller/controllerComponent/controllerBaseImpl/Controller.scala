@@ -1,13 +1,12 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
+import boardComponent.{BoardInterface, Bot, Player}
+import boardComponent.boardBaseImpl.CreateBoardStrategy
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
-import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
-import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
 
 import scala.concurrent.{ExecutionContext, Future}

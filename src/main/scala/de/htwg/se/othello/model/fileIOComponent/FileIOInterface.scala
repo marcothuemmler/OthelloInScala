@@ -1,7 +1,6 @@
 package de.htwg.se.othello.model.fileIOComponent
 
-import de.htwg.se.othello.model.Player
-import de.htwg.se.othello.model.boardComponent.BoardInterface
+import boardComponent.{BoardInterface, Player}
 
 import scala.util.Try
 

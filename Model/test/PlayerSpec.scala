@@ -1,5 +1,6 @@
 package de.htwg.se.othello.model
 
+import boardComponent.{Bot, Player}
 import org.scalatest.{Matchers, WordSpec}
 
 class PlayerSpec extends WordSpec with Matchers {

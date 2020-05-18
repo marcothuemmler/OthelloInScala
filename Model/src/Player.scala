@@ -1,4 +1,4 @@
-package de.htwg.se.othello.model
+package boardComponent;
 
 case class Player(name: String, value: Int) {
 
