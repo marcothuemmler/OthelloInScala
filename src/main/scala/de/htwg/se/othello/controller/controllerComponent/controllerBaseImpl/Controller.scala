@@ -146,6 +146,8 @@ class Controller extends ControllerInterface {
 
   def boardToString: String = board.toString
 
+  def boardToHtml: String = board.toHtml
+
   def valueOf(col: Int, row: Int): Int = board.valueOf(col, row)
 
   def canUndo: Boolean = undoManager.undoStack.nonEmpty

@@ -16,6 +16,7 @@ trait ControllerInterface extends Observable {
   def suggestions: String
   def score: String
   def boardToString: String
+  def boardToHtml: String
   def moves: Map[(Int, Int), Seq[(Int, Int)]]
   def gameOver: Boolean
   def canUndo: Boolean

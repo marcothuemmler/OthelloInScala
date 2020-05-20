@@ -89,4 +89,6 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
     ).replaceFirst("X", f"${grid(row)(col)}")
     f"$top$board    " + "⎺" * (size * 2 - 1)
   }
+
+  def toHtml:String = "<p  style=\"font-family:'Lucida Console', monospace\"> " + toString.replace("\n","<br>").replace("  "," _") +"</p>"
 }

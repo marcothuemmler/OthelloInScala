@@ -12,5 +12,7 @@ libraryDependencies += "net.codingwell" %% "scala-guice" % "4.2.5"
 libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.7.4"
 libraryDependencies += "com.google.inject.extensions" % "guice-assistedinject" % "4.2.2"
+libraryDependencies += "com.typesafe.akka" %% "akka-http"   % "10.1.12"
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.26"
 
 coverageExcludedPackages := ".*aview.gui.*"
