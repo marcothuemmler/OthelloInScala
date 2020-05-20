@@ -1,16 +1,15 @@
 package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 
 import com.google.inject.{Guice, Injector}
-import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 trait CreateBoardTemplate {
 
-  val injector: Injector = Guice.createInjector(new OthelloModule)
+  // val injector: Injector = Guice.createInjector(new OthelloModule)
 
   def createNewBoard(size: Int): BoardInterface = {
-    postProcess(fill(prepare(injector.instance[BoardFactory].create(size))))
+    postProcess(fill(prepare(new Board(size))))
+    // postProcess(fill(prepare(injector.instance[BoardFactory].create(size))))
   }
 
   def prepare(board: BoardInterface): BoardInterface = board
