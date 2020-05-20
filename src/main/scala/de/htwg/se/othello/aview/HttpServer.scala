@@ -5,7 +5,6 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{Route, StandardRoute}
-import akka.stream.ActorMaterializer
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -13,11 +12,9 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 class HttpServer(controller: ControllerInterface) {
 
   implicit val system: ActorSystem = ActorSystem("my-system")
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-  // needed for the future flatMap/onComplete in the end
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
-  val route: Route = get {
+  val route: Route = ignoreTrailingSlash {
     pathSingleSlash {
       complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "<h1>HTWG Othello</h1>"))
     }
@@ -51,8 +48,8 @@ class HttpServer(controller: ControllerInterface) {
 
   def unbind(): Unit = {
     bindingFuture
-      .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ => system.terminate()) // and shutdown when done
+      .flatMap(_.unbind)
+      .onComplete(_ => system.terminate)
   }
 
   def processInputLine: String => Unit = {

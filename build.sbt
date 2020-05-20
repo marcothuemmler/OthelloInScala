@@ -14,7 +14,7 @@ lazy val dependencies = Seq(
   "com.typesafe.play" %% "play-json" % "2.7.4",
   "com.google.inject.extensions" % "guice-assistedinject" % "4.2.2",
   "com.typesafe.akka" %% "akka-http" % "10.1.12",
-  "com.typesafe.akka" %% "akka-stream" % "2.5.26",
+  "com.typesafe.akka" %% "akka-stream" % "2.6.5",
 )
 
 libraryDependencies ++= dependencies
