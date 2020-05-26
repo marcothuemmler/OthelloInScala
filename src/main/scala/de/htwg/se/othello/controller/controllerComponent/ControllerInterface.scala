@@ -10,7 +10,7 @@ trait ControllerInterface extends Observable {
 
   var gameStatus: GameStatus
   var difficulty: String
-  var player: Player
+  def getCurrentPlayer: Player
   def nextPlayer: Player
   def size: Int
   def suggestions: String

@@ -2,12 +2,13 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
+import de.htwg.se.othello.controller.UserControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
+import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
-import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -16,15 +17,14 @@ class Controller extends ControllerInterface {
 
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
+  val userController: UserControllerInterface = injector.getInstance(classOf[UserControllerInterface])
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
   var difficulty = "Normal"
   var board: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
-  var players: Vector[Player] = Vector(new Player(1), new Bot(2))
-  var player: Player = players(0)
 
   def resizeBoard(op: String): Unit = {
-    player = players(0)
+    userController.resetPlayer
     op match {
       case "+" => createBoard(size + 2)
       case "-" => if (size > 4) createBoard(size - 2)
@@ -49,11 +49,9 @@ class Controller extends ControllerInterface {
     gameStatus = IDLE
   }
 
-  def setupPlayers: String => Unit = {
-    case "0" => players = Vector(new Bot(1), new Bot(2))
-    case "1" => players = Vector(new Player(1), new Bot(2))
-    case "2" => players = Vector(new Player(1), new Player(2))
-  }
+  def getCurrentPlayer: Player = userController.getCurrentPlayer
+
+  def setupPlayers: String => Unit = userController.setupPlayers
 
   def moveSelector: MoveSelector = difficulty match {
     case "Easy" => new EasyBot(this)
@@ -75,17 +73,17 @@ class Controller extends ControllerInterface {
     undoManager.redoStack = Nil
     undoManager.undoStack = Nil
     createBoard(size)
-    player = players(0)
+    userController.resetPlayer
     Future(selectAndSet())(ExecutionContext.global)
   }
 
-  def save(): Unit = fileIo.save(board, player, difficulty)
+  def save(): Unit = fileIo.save(board, userController.getCurrentPlayer, difficulty)
 
   def load(): Unit = {
     fileIo.load match {
       case scala.util.Success(save) =>
         board = save._1
-        player = save._2
+        userController.setCurrentPlayer(save._2)
         difficulty = save._3
         gameStatus = LOAD_SUCCESS
       case _ => gameStatus = LOAD_FAIL
@@ -96,21 +94,21 @@ class Controller extends ControllerInterface {
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) {
       gameStatus = ILLEGAL
-      board = board.changeHighlight(player.value)
-    } else if (player.isBot) new SetCommand(square, this).doStep()
+      board = board.changeHighlight(userController.getCurrentPlayer.value)
+    } else if (userController.getCurrentPlayer.isBot) new SetCommand(square, this).doStep()
     else undoManager.doStep(new SetCommand(square, this))
     if (gameOver) gameStatus = GAME_OVER
     publishChanges()
     if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()
   }
 
-  def selectAndSet(): Unit = if (player.isBot && !gameOver) {
+  def selectAndSet(): Unit = if (userController.getCurrentPlayer.isBot && !gameOver) {
     if (moves.nonEmpty) set(moveSelector.selection) else omitPlayer()
     selectAndSet()
   }
 
   def omitPlayer(): Unit = {
-    player = nextPlayer
+    nextPlayer
     gameStatus = OMITTED
     publishChanges()
   }
@@ -126,7 +124,7 @@ class Controller extends ControllerInterface {
   }
 
   def highlight(): Unit = {
-    board = board.changeHighlight(player.value)
+    board = board.changeHighlight(userController.getCurrentPlayer.value)
     notifyObservers()
   }
 
@@ -136,13 +134,13 @@ class Controller extends ControllerInterface {
 
   def options: Seq[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(player.value)
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(userController.getCurrentPlayer.value)
 
   def gameOver: Boolean = board.gameOver
 
-  def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
+  def nextPlayer: Player = userController.nextPlayer
 
-  def playerCount: Int = players.count(o => !o.isBot)
+  def playerCount: Int = userController.playerCount
 
   def boardToString: String = board.toString
 
@@ -155,8 +153,10 @@ class Controller extends ControllerInterface {
   def canRedo: Boolean = undoManager.redoStack.nonEmpty
 
   def score: String = {
-    val (win, lose) = (count(1) max count(2), count(1) min count(2))
-    val winner = if (win == count(1)) players(0) else players(1)
+    val score1 = count(1)
+    val score2 = count(2)
+    val (win, lose) = (score1 max score2, score1 min score2)
+    val winner = userController.getPlayer(win == score1)
     if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
   }
 

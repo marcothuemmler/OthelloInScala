@@ -11,14 +11,15 @@ import scala.io.StdIn.readLine
 object Othello {
 
   val injector: Injector = Guice.createInjector(new OthelloModule)
-  val controller: ControllerInterface = injector.instance[ControllerInterface]
-  val webserver = new HttpServer(controller)
-  val tui = new Tui(controller)
-  val gui = new SwingGui(controller)
-  controller.newGame
+
+  val globalController: ControllerInterface = injector.instance[ControllerInterface]
+  val webServer = new HttpServer(globalController)
+  val tui = new Tui(globalController)
+  val gui = new SwingGui(globalController)
+  globalController.newGame
 
   def main(args: Array[String]): Unit = {
     while (true) tui.processInputLine(readLine)
-    webserver.unbind()
+    webServer.unbind()
   }
 }

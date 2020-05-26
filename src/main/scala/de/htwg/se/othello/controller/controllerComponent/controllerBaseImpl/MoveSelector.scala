@@ -5,7 +5,7 @@ import de.htwg.se.othello.model.boardComponent.BoardInterface
 abstract class MoveSelector(controller: Controller) {
 
   private type Move = (Int, Option[(Int, Int)])
-  val player: Int = controller.player.value
+  val player: Int = controller.getCurrentPlayer.value
   val notPlayer: Int = controller.nextPlayer.value
   val weightedBoard: Vector[Vector[Int]] = Vector(
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99),

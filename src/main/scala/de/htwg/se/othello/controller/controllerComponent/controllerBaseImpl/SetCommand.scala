@@ -6,12 +6,12 @@ import de.htwg.se.othello.util.Command
 
 class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {
 
-  var memento: (BoardInterface, Player) = (controller.board.deHighlight, controller.player)
+  var memento: (BoardInterface, Player) = (controller.board.deHighlight, controller.userController.getCurrentPlayer)
 
   override def doStep(): Unit = {
     controller.moves.filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
-      controller.board = controller.board.flipLine(fromSquare, toSquare, controller.player.value).deHighlight)
-    controller.player = controller.nextPlayer
+      controller.board = controller.board.flipLine(fromSquare, toSquare, controller.userController.getCurrentPlayer.value).deHighlight)
+    controller.userController.setCurrentPlayer(controller.nextPlayer)
   }
 
   override def undoStep(): Unit = step()
@@ -19,9 +19,9 @@ class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {
   override def redoStep(): Unit = step()
 
   def step(): Unit = {
-    val new_memento = (controller.board.deHighlight, controller.player)
+    val new_memento = (controller.board.deHighlight, controller.userController.getCurrentPlayer)
     controller.board = memento._1
-    controller.player = memento._2
+    controller.userController.setCurrentPlayer(memento._2)
     memento = new_memento
   }
 }
