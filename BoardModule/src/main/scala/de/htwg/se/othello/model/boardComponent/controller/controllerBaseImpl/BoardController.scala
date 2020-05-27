@@ -22,7 +22,7 @@ class BoardController extends BoardControllerInterface {
     board = (new CreateBoardStrategy).createNewBoard(size)
   }
 
- /* def boardToString: String = board.toString
+  def boardToString: String = board.toString
 
-  def boardToHtml: String = board.toHtml*/
+  def boardToHtml: String = board.toHtml
 }

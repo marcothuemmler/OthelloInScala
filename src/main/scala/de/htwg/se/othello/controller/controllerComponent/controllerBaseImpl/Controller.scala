@@ -139,9 +139,9 @@ class Controller extends ControllerInterface {
 
   def playerCount: Int = userController.playerCount
 
-  def boardToString: String = boardController.board.toString
+  def boardToString: String = boardController.boardToString
 
-  def boardToHtml: String = boardController.board.toHtml
+  def boardToHtml: String = boardController.boardToHtml
 
   def valueOf(col: Int, row: Int): Int = boardController.board.valueOf(col, row)
 

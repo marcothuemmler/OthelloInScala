@@ -7,7 +7,7 @@ trait BoardControllerInterface {
   def size: Int
   def resizeBoard(op: String): Unit
   def createBoard(size: Int): Unit
-/*  def boardToString: String
-  def boardToHtml: String*/
+  def boardToString: String
+  def boardToHtml: String
 
 }
