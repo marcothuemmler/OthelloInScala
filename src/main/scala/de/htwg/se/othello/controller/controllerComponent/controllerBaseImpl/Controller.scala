@@ -8,6 +8,7 @@ import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
+import de.htwg.se.othello.model.boardComponent.controller.BoardControllerInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.util.UndoManager
 
@@ -18,24 +19,20 @@ class Controller extends ControllerInterface {
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
   val userController: UserControllerInterface = injector.getInstance(classOf[UserControllerInterface])
+  val boardController: BoardControllerInterface = injector.getInstance(classOf[BoardControllerInterface])
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
   var difficulty = "Normal"
-  var board: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
 
   def resizeBoard(op: String): Unit = {
     userController.resetPlayer
-    op match {
-      case "+" => createBoard(size + 2)
-      case "-" => if (size > 4) createBoard(size - 2)
-      case "." => if (size != 8) createBoard(8)
-    }
+    boardController.resizeBoard(op)
   }
 
-  def size: Int = board.size
+  def size: Int = boardController.board.size
 
   def createBoard(size: Int): Unit = {
-    board = (new CreateBoardStrategy).createNewBoard(size)
+    boardController.createBoard(size)
     notifyObservers()
   }
 
@@ -72,17 +69,17 @@ class Controller extends ControllerInterface {
   def newGame: Future[Unit] = {
     undoManager.redoStack = Nil
     undoManager.undoStack = Nil
-    createBoard(size)
+    boardController.createBoard(size)
     userController.resetPlayer
     Future(selectAndSet())(ExecutionContext.global)
   }
 
-  def save(): Unit = fileIo.save(board, userController.getCurrentPlayer, difficulty)
+  def save(): Unit = fileIo.save(boardController.board, userController.getCurrentPlayer, difficulty)
 
   def load(): Unit = {
     fileIo.load match {
       case scala.util.Success(save) =>
-        board = save._1
+        boardController.board = save._1
         userController.setCurrentPlayer(save._2)
         difficulty = save._3
         gameStatus = LOAD_SUCCESS
@@ -94,7 +91,7 @@ class Controller extends ControllerInterface {
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) {
       gameStatus = ILLEGAL
-      board = board.changeHighlight(userController.getCurrentPlayer.value)
+      boardController.board = boardController.board.changeHighlight(userController.getCurrentPlayer.value)
     } else if (userController.getCurrentPlayer.isBot) new SetCommand(square, this).doStep()
     else undoManager.doStep(new SetCommand(square, this))
     if (gameOver) gameStatus = GAME_OVER
@@ -124,7 +121,7 @@ class Controller extends ControllerInterface {
   }
 
   def highlight(): Unit = {
-    board = board.changeHighlight(userController.getCurrentPlayer.value)
+    boardController.board = boardController.board.changeHighlight(userController.getCurrentPlayer.value)
     notifyObservers()
   }
 
@@ -134,19 +131,19 @@ class Controller extends ControllerInterface {
 
   def options: Seq[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = board.moves(userController.getCurrentPlayer.value)
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = boardController.board.moves(userController.getCurrentPlayer.value)
 
-  def gameOver: Boolean = board.gameOver
+  def gameOver: Boolean = boardController.board.gameOver
 
   def nextPlayer: Player = userController.nextPlayer
 
   def playerCount: Int = userController.playerCount
 
-  def boardToString: String = board.toString
+  def boardToString: String = boardController.board.toString
 
-  def boardToHtml: String = board.toHtml
+  def boardToHtml: String = boardController.board.toHtml
 
-  def valueOf(col: Int, row: Int): Int = board.valueOf(col, row)
+  def valueOf(col: Int, row: Int): Int = boardController.board.valueOf(col, row)
 
   def canUndo: Boolean = undoManager.undoStack.nonEmpty
 
@@ -160,5 +157,5 @@ class Controller extends ControllerInterface {
     if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
   }
 
-  def count(value: Int): Int = board.count(value)
+  def count(value: Int): Int = boardController.board.count(value)
 }
