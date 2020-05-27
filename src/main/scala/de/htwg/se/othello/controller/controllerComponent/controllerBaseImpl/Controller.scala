@@ -69,7 +69,7 @@ class Controller extends ControllerInterface {
   def newGame: Future[Unit] = {
     undoManager.redoStack = Nil
     undoManager.undoStack = Nil
-    boardController.createBoard(size)
+    createBoard(size)
     userController.resetPlayer
     Future(selectAndSet())(ExecutionContext.global)
   }
