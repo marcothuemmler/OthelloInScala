@@ -24,7 +24,7 @@ abstract class MoveSelector(controller: Controller) {
       if (controller.count(1) + controller.count(2) <= 6 || controller.size != 8)
         controller.options(scala.util.Random.nextInt(controller.options.size))
       else
-        search(player, 5, controller.board, None, -10000, 10000, m = true)._2.get
+        search(player, 5, controller.boardController.board, None, -10000, 10000, m = true)._2.get
     }
     val after = System.currentTimeMillis
     if (after - before < 500) Thread.sleep(500 - after + before)

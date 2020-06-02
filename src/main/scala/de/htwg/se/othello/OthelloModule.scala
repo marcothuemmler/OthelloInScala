@@ -2,6 +2,8 @@ package de.htwg.se.othello
 
 import com.google.inject.AbstractModule
 import com.google.inject.assistedinject.FactoryModuleBuilder
+import de.htwg.se.othello.model.boardComponent.controller.BoardControllerInterface
+import de.htwg.se.othello.model.boardComponent.controller.controllerBaseImpl.BoardController
 import de.htwg.se.othello.controller.UserControllerInterface
 import de.htwg.se.othello.controller.controllerBaseImpl.UserController
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
@@ -18,6 +20,7 @@ class OthelloModule extends AbstractModule with ScalaModule {
       .build(classOf[BoardFactory]))
     bind[ControllerInterface].to[Controller]
     bind[UserControllerInterface].to[UserController]
+    bind[BoardControllerInterface].to[BoardController]
     bind[FileIOInterface].to[fileIoXmlImpl.FileIO]
   }
 }
