@@ -6,8 +6,6 @@ import de.htwg.se.othello.controller.UserControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.model.Player
-import de.htwg.se.othello.model.boardComponent.BoardInterface
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import de.htwg.se.othello.model.boardComponent.controller.BoardControllerInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.util.UndoManager

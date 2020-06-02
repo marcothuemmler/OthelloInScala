@@ -15,32 +15,33 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val route: Route = ignoreTrailingSlash {
-    path("boardMod") {
-      toHtml("<h1>BoardModule Webserver</h1>")
+    pathSingleSlash {
+      complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
     } ~
-      path("boardMod" / "resizeBoard") {
-        entity(as[ResizeBoardArgumentContainer]) { params =>
-          complete(controller.resizeBoard(params.op))
+    path("boardmod") {
+      complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
+    } ~
+      path("boardmod" / "resize" / Segment) { input =>
+        input match {
+          case "increase" =>
+            controller.resizeBoard("+")
+          case "decrease" =>
+            controller.resizeBoard("-")
+          case "reset" =>
+            controller.resizeBoard(".")
         }
+        boardSize
       } ~
-      path("boardMod" / "createBoard") {
-        entity(as[CreateBoardArgumentContainer]) { params =>
-          complete(controller.createBoard(params.size))
-        }
-      } ~
-      path("boardMod" / "boardToString") {
-        complete(controller.boardToString)
-      } ~
-      path("boardMod" / "boardToHtml") {
-        complete(controller.boardToHtml)
-      }
+    path("boardmod" / "getsize") {
+      boardSize
+    }
   }
 
-  def toHtml(html: String): StandardRoute = {
-    complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello - BoardModule</h1>" + html))
+  def boardSize: StandardRoute = {
+    complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "" + controller.size))
   }
 
-  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8080)
+  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8081)
 
   def unbind(): Unit = {
     bindingFuture
