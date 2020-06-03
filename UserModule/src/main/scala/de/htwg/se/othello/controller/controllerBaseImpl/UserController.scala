@@ -11,7 +11,7 @@ class UserController extends UserControllerInterface {
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 
   def playerCount: Int = players.count(o => !o.isBot)
-
+  def botCount: Int = players.count(o => o.isBot)
   def setupPlayers: String => Unit = {
     case "0" => players = Vector(new Bot(1), new Bot(2))
     case "1" => players = Vector(new Player(1), new Bot(2))
