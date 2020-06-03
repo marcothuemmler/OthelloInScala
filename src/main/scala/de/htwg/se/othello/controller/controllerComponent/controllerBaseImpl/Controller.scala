@@ -35,7 +35,7 @@ class Controller extends ControllerInterface {
     notifyObservers()
   }
 
-  def size: Int = boardController.board.size
+  def size: Int = boardController.size
 
   def createBoard(size: Int): Unit = {
     boardController.createBoard(size)
@@ -87,7 +87,7 @@ class Controller extends ControllerInterface {
     playerFromHttpResponse(response)
   }
 
-  private def playerFromHttpResponse(response: Future[HttpResponse]): Player = {
+  def playerFromHttpResponse(response: Future[HttpResponse]): Player = {
     val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
     val result = Await.result(responseBody, Duration.Inf)
     val playerJson: JsValue = Json.parse(result)
@@ -123,7 +123,7 @@ class Controller extends ControllerInterface {
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) {
       gameStatus = ILLEGAL
-      boardController.board = boardController.board.changeHighlight(getCurrentPlayer.value)
+      boardController.board = boardController.board.changeHighlight
     } else if (getCurrentPlayer.isBot) new SetCommand(square, this).doStep()
     else undoManager.doStep(new SetCommand(square, this))
     if (gameOver) gameStatus = GAME_OVER
@@ -153,7 +153,7 @@ class Controller extends ControllerInterface {
   }
 
   def highlight(): Unit = {
-    boardController.board = boardController.board.changeHighlight(getCurrentPlayer.value)
+    boardController.board = boardController.board.changeHighlight
     notifyObservers()
   }
 
@@ -163,7 +163,7 @@ class Controller extends ControllerInterface {
 
   def options: Seq[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = boardController.board.moves(getCurrentPlayer.value)
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = boardController.board.moves
 
   def gameOver: Boolean = boardController.board.gameOver
 
@@ -188,10 +188,7 @@ class Controller extends ControllerInterface {
 
   def canRedo: Boolean = undoManager.redoStack.nonEmpty
 
-  def getPlayer(isFirstPlayer: Boolean): Player = {
-    val response: Future[HttpResponse] = Http().singleRequest(Get(s"http://localhost:8082/usermodule/getplayer/?isfirstplayer=$isFirstPlayer"))
-    playerFromHttpResponse(response)
-  }
+  implicit def currentPlayerValue: Int = getCurrentPlayer.value
 
   def score: String = {
     val score1 = count(1)
@@ -199,6 +196,11 @@ class Controller extends ControllerInterface {
     val (win, lose) = (score1 max score2, score1 min score2)
     val winner = getPlayer(win == score1)
     if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
+  }
+
+  def getPlayer(isFirstPlayer: Boolean): Player = {
+    val response: Future[HttpResponse] = Http().singleRequest(Get(s"http://localhost:8082/usermodule/getplayer/?isfirstplayer=$isFirstPlayer"))
+    playerFromHttpResponse(response)
   }
 
   def count(value: Int): Int = boardController.board.count(value)

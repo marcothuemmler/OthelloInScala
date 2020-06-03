@@ -16,7 +16,7 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   @Inject
   def this(@Assisted size: Int) = this(Vector.fill(size, size)(Square(0)))
 
-  def moves: Int => Map[(Int, Int), Seq[(Int, Int)]] = value => {
+  def moves(implicit value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
     val getMovesForCurrentPlayer = getMoves(value)(_: Int, _: Int)
     (for {
       col <- grid.indices
@@ -55,7 +55,7 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
     else board
   }
 
-  def changeHighlight(value: Int): Board = {
+  def changeHighlight(implicit value: Int): Board = {
     if (grid.flatten.contains(Square(-1))) deHighlight else highlight(value)
   }
 
@@ -63,7 +63,7 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
     if (grid(col)(row).isHighlighted) Square(0) else grid(col)(row)
   ))
 
-  def highlight(value: Int): Board = {
+  def highlight(implicit value: Int): Board = {
     copy(Vector.tabulate(size, size)((col, row) =>
       if (moves(value).values.flatten.toSet.contains((col, row))) Square(-1)
       else grid(col)(row)
