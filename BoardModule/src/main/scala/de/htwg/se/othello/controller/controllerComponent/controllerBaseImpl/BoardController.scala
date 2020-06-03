@@ -23,6 +23,16 @@ class BoardController extends BoardControllerInterface {
     board = (new CreateBoardStrategy).createNewBoard(size)
   }
 
+  def changeHighlight(implicit value: Int): Unit = board = board.changeHighlight
+
+  def moves(implicit value: Int): Map[(Int, Int), Seq[(Int, Int)]] = board.moves
+
+  def gameOver: Boolean = board.gameOver
+
+  def valueOf(col: Int, row: Int): Int = board.valueOf(col, row)
+
+  def count(value: Int): Int = board.count(value)
+
   def boardToString: String = board.toString
 
   def boardToHtml: String = board.toHtml

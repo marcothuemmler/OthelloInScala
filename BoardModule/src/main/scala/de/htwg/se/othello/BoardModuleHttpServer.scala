@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{Route, StandardRoute}
 import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
+import play.api.libs.json.Json
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -18,10 +19,10 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
     pathSingleSlash {
       complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
     } ~
-    path("boardmod") {
+    path("boardmodule") {
       complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
     } ~
-      path("boardmod" / "resize" / Segment) { input =>
+      path("boardmodule" / "resize" / Segment) { input =>
         input match {
           case "increase" =>
             controller.resizeBoard("+")
@@ -32,7 +33,7 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
         }
         boardJson
       } ~
-    path("boardmod" / "getsize") {
+    path("boardmodule" / "getsize") {
       boardSize
     }
   }
@@ -42,15 +43,12 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
   }
 
   def boardJson: StandardRoute = {
-    complete(HttpEntity(ContentTypes.`application/json`, controller.toJson.toString))
+    complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.toJson)))
   }
 
   val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8081)
 
   def unbind(): Unit = {
-    bindingFuture
-      .flatMap(_.unbind)
-      .onComplete(_ => system.terminate)
+    bindingFuture.flatMap(_.unbind).onComplete(_ => system.terminate)
   }
-
 }

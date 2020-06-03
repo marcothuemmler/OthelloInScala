@@ -8,6 +8,11 @@ trait BoardControllerInterface {
   def size: Int
   def resizeBoard(op: String): Unit
   def createBoard(size: Int): Unit
+  def changeHighlight(implicit value: Int): Unit
+  def moves(implicit value: Int): Map[(Int, Int), Seq[(Int, Int)]]
+  def gameOver: Boolean
+  def valueOf(col: Int, row: Int): Int
+  def count(value: Int): Int
   def boardToString: String
   def boardToHtml: String
   def toJson: JsObject

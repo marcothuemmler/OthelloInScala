@@ -25,12 +25,14 @@ class Controller extends ControllerInterface {
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
   val boardController: BoardControllerInterface = injector.getInstance(classOf[BoardControllerInterface])
+  val boardModuleURL: String = "http://localhost:8081/boardmodule"
+  val userModuleURL: String = "http://localhost:8082/usermodule"
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
   var difficulty = "Normal"
 
   def resizeBoard(op: String): Unit = {
-    Http().singleRequest(Post("http://localhost:8082/usermodule/resetplayer"))
+    Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
     boardController.resizeBoard(op)
     notifyObservers()
   }
@@ -53,7 +55,7 @@ class Controller extends ControllerInterface {
   }
 
   def setupPlayers: String => Unit = input => {
-    Http().singleRequest(Post(s"http://localhost:8082/usermodule/setupplayers/$input"))
+    Http().singleRequest(Post(s"$userModuleURL/setupplayers/$input"))
   }
 
   def moveSelector: MoveSelector = difficulty match {
@@ -76,14 +78,14 @@ class Controller extends ControllerInterface {
     undoManager.redoStack = Nil
     undoManager.undoStack = Nil
     createBoard(size)
-    Http().singleRequest(Post("http://localhost:8082/usermodule/resetplayer"))
+    Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
     Future(selectAndSet())(ExecutionContext.global)
   }
 
   def save(): Unit = fileIo.save(boardController.board, getCurrentPlayer, difficulty)
 
   def getCurrentPlayer: Player = {
-    val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/getcurrentplayer"))
+    val response = Http().singleRequest(Get(s"$userModuleURL/getcurrentplayer"))
     playerFromHttpResponse(response)
   }
 
@@ -117,13 +119,13 @@ class Controller extends ControllerInterface {
     val name = (playerJson \ "name").as[String]
     val color = (playerJson \ "value").as[Int]
     val isBot = (playerJson \ "isBot").as[Boolean]
-    Http().singleRequest(Post(s"http://localhost:8082/usermodule/setcurrentplayer/?name=$name&value=$color&isBot=$isBot"))
+    Http().singleRequest(Post(s"$userModuleURL/setcurrentplayer/?name=$name&value=$color&isBot=$isBot"))
   }
 
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) {
       gameStatus = ILLEGAL
-      boardController.board = boardController.board.changeHighlight
+      boardController.changeHighlight
     } else if (getCurrentPlayer.isBot) new SetCommand(square, this).doStep()
     else undoManager.doStep(new SetCommand(square, this))
     if (gameOver) gameStatus = GAME_OVER
@@ -153,7 +155,7 @@ class Controller extends ControllerInterface {
   }
 
   def highlight(): Unit = {
-    boardController.board = boardController.board.changeHighlight
+    boardController.changeHighlight
     notifyObservers()
   }
 
@@ -163,17 +165,17 @@ class Controller extends ControllerInterface {
 
   def options: Seq[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = boardController.board.moves
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = boardController.moves
 
-  def gameOver: Boolean = boardController.board.gameOver
+  def gameOver: Boolean = boardController.gameOver
 
   def nextPlayer: Player = {
-    val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/nextplayer"))
+    val response = Http().singleRequest(Get(s"$userModuleURL/nextplayer"))
     playerFromHttpResponse(response)
   }
 
   def playerCount: Int = {
-    val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/playercount"))
+    val response = Http().singleRequest(Get(s"$userModuleURL/playercount"))
     val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
     Await.result(responseBody, Duration.Inf).toInt
   }
@@ -182,7 +184,7 @@ class Controller extends ControllerInterface {
 
   def boardToHtml: String = boardController.boardToHtml
 
-  def valueOf(col: Int, row: Int): Int = boardController.board.valueOf(col, row)
+  def valueOf(col: Int, row: Int): Int = boardController.valueOf(col, row)
 
   def canUndo: Boolean = undoManager.undoStack.nonEmpty
 
@@ -199,9 +201,9 @@ class Controller extends ControllerInterface {
   }
 
   def getPlayer(isFirstPlayer: Boolean): Player = {
-    val response: Future[HttpResponse] = Http().singleRequest(Get(s"http://localhost:8082/usermodule/getplayer/?isfirstplayer=$isFirstPlayer"))
+    val response = Http().singleRequest(Get(s"$userModuleURL/getplayer/?isfirstplayer=$isFirstPlayer"))
     playerFromHttpResponse(response)
   }
 
-  def count(value: Int): Int = boardController.board.count(value)
+  def count(value: Int): Int = boardController.count(value)
 }
