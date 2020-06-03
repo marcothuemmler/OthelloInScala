@@ -25,6 +25,7 @@ class Controller extends ControllerInterface {
   def resizeBoard(op: String): Unit = {
     userController.resetPlayer
     boardController.resizeBoard(op)
+    notifyObservers()
   }
 
   def size: Int = boardController.board.size
@@ -103,7 +104,7 @@ class Controller extends ControllerInterface {
   }
 
   def omitPlayer(): Unit = {
-    nextPlayer
+    userController.setCurrentPlayer(nextPlayer)
     gameStatus = OMITTED
     publishChanges()
   }
