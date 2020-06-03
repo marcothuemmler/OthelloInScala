@@ -1,11 +1,11 @@
-package de.htwg.se.othello.model.boardComponent
+package de.htwg.se.othello
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{Route, StandardRoute}
-import de.htwg.se.othello.model.boardComponent.controller.BoardControllerInterface
+import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -30,7 +30,7 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
           case "reset" =>
             controller.resizeBoard(".")
         }
-        boardSize
+        boardJson
       } ~
     path("boardmod" / "getsize") {
       boardSize
@@ -39,6 +39,10 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
 
   def boardSize: StandardRoute = {
     complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "" + controller.size))
+  }
+
+  def boardJson: StandardRoute = {
+    complete(HttpEntity(ContentTypes.`application/json`, controller.toJson.toString))
   }
 
   val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8081)

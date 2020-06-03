@@ -2,12 +2,8 @@ package de.htwg.se.othello
 
 import com.google.inject.AbstractModule
 import com.google.inject.assistedinject.FactoryModuleBuilder
-import de.htwg.se.othello.model.boardComponent.controller.BoardControllerInterface
-import de.htwg.se.othello.model.boardComponent.controller.controllerBaseImpl.BoardController
-import de.htwg.se.othello.controller.UserControllerInterface
-import de.htwg.se.othello.controller.controllerBaseImpl.UserController
-import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
-import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Controller
+import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.{BoardController, Controller, UserController}
+import de.htwg.se.othello.controller.controllerComponent.{BoardControllerInterface, ControllerInterface, UserControllerInterface}
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.fileIOComponent.{FileIOInterface, fileIoXmlImpl}

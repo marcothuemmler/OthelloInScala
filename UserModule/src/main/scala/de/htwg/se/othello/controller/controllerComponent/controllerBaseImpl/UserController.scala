@@ -1,7 +1,8 @@
-package de.htwg.se.othello.controller.controllerBaseImpl
+package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.othello.controller.UserControllerInterface
+import de.htwg.se.othello.controller.controllerComponent.UserControllerInterface
 import de.htwg.se.othello.model.{Bot, Player}
+import play.api.libs.json.{JsObject, Json}
 
 class UserController extends UserControllerInterface {
 
@@ -18,11 +19,15 @@ class UserController extends UserControllerInterface {
     case "2" => players = Vector(new Player(1), new Player(2))
   }
 
-  def resetPlayer: Unit = player = players(0)
+  def resetPlayer(): Unit = player = players(0)
 
   def getPlayer(isFirstPlayer: Boolean): Player = if (isFirstPlayer) players(0) else players(1)
 
   def getCurrentPlayer: Player = player
 
   def setCurrentPlayer(player: Player): Unit = this.player = player
+
+  def playerToJson: JsObject = player.toJson
+
+  def playersToJson: JsObject = Json.obj("players" -> players.map(p => p.toJson))
 }

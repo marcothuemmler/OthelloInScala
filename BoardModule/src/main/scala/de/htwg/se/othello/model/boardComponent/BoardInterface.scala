@@ -1,5 +1,7 @@
 package de.htwg.se.othello.model.boardComponent
 
+import play.api.libs.json.JsObject
+
 trait BoardInterface {
 
   val gameOver: Boolean
@@ -12,6 +14,7 @@ trait BoardInterface {
   def count(value: Int): Int
   def flipLine(fromSquare: (Int, Int), toSquare: (Int, Int), value: Int): BoardInterface
   def toHtml: String
+  def toJson: JsObject
 
 }
 

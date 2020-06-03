@@ -3,6 +3,7 @@ package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
 import de.htwg.se.othello.model.boardComponent.BoardInterface
+import play.api.libs.json.{JsObject, Json}
 
 import scala.annotation.tailrec
 
@@ -91,4 +92,19 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   }
 
   def toHtml:String = "<p  style=\"font-family:'Lucida Console', monospace\"> " + toString.replace("\n","<br>").replace("  ","&nbsp&nbsp") +"</p>"
+
+  def toJson: JsObject =
+    Json.obj(
+      "size" -> size,
+      "squares" -> Json.toJson(
+        for {
+          row <- 0 until size
+          col <- 0 until size
+        } yield Json.obj(
+          "value" -> valueOf(row, col),
+          "row" -> row,
+          "col" -> col
+        )
+      )
+    )
 }

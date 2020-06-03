@@ -1,8 +1,9 @@
-package de.htwg.se.othello.model.boardComponent.controller.controllerBaseImpl
+package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
+import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
 import de.htwg.se.othello.model.boardComponent.BoardInterface
-import de.htwg.se.othello.model.boardComponent.controller.BoardControllerInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
+import play.api.libs.json.JsObject
 
 class BoardController extends BoardControllerInterface {
 
@@ -25,4 +26,6 @@ class BoardController extends BoardControllerInterface {
   def boardToString: String = board.toString
 
   def boardToHtml: String = board.toHtml
+
+  def toJson: JsObject = board.toJson
 }

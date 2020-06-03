@@ -1,31 +1,41 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.client.RequestBuilding._
+import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
-import de.htwg.se.othello.controller.UserControllerInterface
-import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
+import de.htwg.se.othello.controller.controllerComponent.{BoardControllerInterface, ControllerInterface}
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.model.Player
-import de.htwg.se.othello.model.boardComponent.controller.BoardControllerInterface
+import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.util.UndoManager
+import play.api.libs.json.{JsValue, Json}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 
 class Controller extends ControllerInterface {
 
+  implicit val system: ActorSystem = ActorSystem()
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
-  val userController: UserControllerInterface = injector.getInstance(classOf[UserControllerInterface])
   val boardController: BoardControllerInterface = injector.getInstance(classOf[BoardControllerInterface])
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
   var difficulty = "Normal"
 
   def resizeBoard(op: String): Unit = {
-    userController.resetPlayer
-    boardController.resizeBoard(op)
-    notifyObservers()
+    val playerResponse = Http().singleRequest(Post("http://localhost:8082/usermodule/resetplayer"))
+    val playerResponseCode = playerResponse.flatMap(r => Unmarshal(r.status.intValue()).to[Int]).toString
+    if (playerResponseCode.startsWith("2")) {
+      boardController.resizeBoard(op)
+      notifyObservers()
+    }
   }
 
   def size: Int = boardController.board.size
@@ -45,9 +55,28 @@ class Controller extends ControllerInterface {
     gameStatus = IDLE
   }
 
-  def getCurrentPlayer: Player = userController.getCurrentPlayer
+  def getCurrentPlayer: Player = {
+    val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/getcurrentplayer"))
+    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
+    val result = Await.result(responseBody, Duration.Inf)
+    val playerJson: JsValue = Json.parse(result)
+    val name = (playerJson \ "name").as[String]
+    val color = (playerJson \ "value").as[Int]
+    if ((playerJson \ "isBot").as[Boolean]) {
+      new Bot(name, color)
+    } else {
+      Player(name, color)
+    }
+  }
 
-  def setupPlayers: String => Unit = userController.setupPlayers
+  def setupPlayers: String => Unit = input => {
+    val v = input match {
+      case "0" => "zero"
+      case "1" => "one"
+      case "2" => "two"
+    }
+    Http().singleRequest(Post(s"http://localhost:8082/usermodule/setupPlayers/$v"))
+  }
 
   def moveSelector: MoveSelector = difficulty match {
     case "Easy" => new EasyBot(this)
@@ -69,11 +98,11 @@ class Controller extends ControllerInterface {
     undoManager.redoStack = Nil
     undoManager.undoStack = Nil
     createBoard(size)
-    userController.resetPlayer
+    Http().singleRequest(Post("http://localhost:8082/usermodule/resetplayer"))
     Future(selectAndSet())(ExecutionContext.global)
   }
 
-  def save(): Unit = fileIo.save(boardController.board, userController.getCurrentPlayer, difficulty)
+  def save(): Unit = fileIo.save(boardController.board, getCurrentPlayer, difficulty)
 
   def load(): Unit = {
     fileIo.load match {
@@ -90,15 +119,15 @@ class Controller extends ControllerInterface {
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) {
       gameStatus = ILLEGAL
-      boardController.board = boardController.board.changeHighlight(userController.getCurrentPlayer.value)
-    } else if (userController.getCurrentPlayer.isBot) new SetCommand(square, this).doStep()
+      boardController.board = boardController.board.changeHighlight(getCurrentPlayer.value)
+    } else if (getCurrentPlayer.isBot) new SetCommand(square, this).doStep()
     else undoManager.doStep(new SetCommand(square, this))
     if (gameOver) gameStatus = GAME_OVER
     publishChanges()
     if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()
   }
 
-  def selectAndSet(): Unit = if (userController.getCurrentPlayer.isBot && !gameOver) {
+  def selectAndSet(): Unit = if (getCurrentPlayer.isBot && !gameOver) {
     if (moves.nonEmpty) set(moveSelector.selection) else omitPlayer()
     selectAndSet()
   }
@@ -120,7 +149,7 @@ class Controller extends ControllerInterface {
   }
 
   def highlight(): Unit = {
-    boardController.board = boardController.board.changeHighlight(userController.getCurrentPlayer.value)
+    boardController.board = boardController.board.changeHighlight(getCurrentPlayer.value)
     notifyObservers()
   }
 
@@ -130,13 +159,17 @@ class Controller extends ControllerInterface {
 
   def options: Seq[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = boardController.board.moves(userController.getCurrentPlayer.value)
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = boardController.board.moves(getCurrentPlayer.value)
 
   def gameOver: Boolean = boardController.board.gameOver
 
   def nextPlayer: Player = userController.nextPlayer
 
-  def playerCount: Int = userController.playerCount
+  def playerCount: Int = {
+    val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/playercount"))
+    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
+    Await.result(responseBody, Duration.Inf).toInt
+  }
 
   def boardToString: String = boardController.boardToString
 
