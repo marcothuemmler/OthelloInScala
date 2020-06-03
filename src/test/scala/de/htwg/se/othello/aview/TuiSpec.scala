@@ -12,15 +12,15 @@ class TuiSpec extends WordSpec with Matchers {
   "A Tui " should {
     "set the amount of human players to 0 on input 0" in {
       tui.processInputLine("0")
-      controller.userController.botCount should be(2)
+      controller.playerCount should be(2)
     }
     "set the amount of human players to 1 on input 1" in {
       tui.processInputLine("1")
-      controller.userController.botCount should be(1)
+      controller.playerCount should be(1)
     }
     "set the amount of human players to 2 on input 2" in {
       tui.processInputLine("2")
-      controller.userController.botCount should be(0)
+      controller.playerCount should be(2)
     }
     "print suggestions on input s" in {
       tui.processInputLine("s")
@@ -48,7 +48,7 @@ class TuiSpec extends WordSpec with Matchers {
     val t = new Tui(ctrl)
     var changedBoard = ctrl.boardController.board
     "undo a step on input z" in {
-      ctrl.createBoard(8)
+      ctrl.newGame
       t.processInputLine("c4")
       changedBoard = ctrl.boardController.board
       t.processInputLine("z")
@@ -125,7 +125,7 @@ class TuiSpec extends WordSpec with Matchers {
     val difficulty = controller.difficulty
     tui.processInputLine("f")
     controller.difficulty = "Hard"
-    controller.userController.setCurrentPlayer(controller.userController.getPlayer(false))
+    controller.setCurrentPlayer(controller.getPlayer(false))
     controller.boardController.board = controller.boardController.board.flipLine((0, 0), (0, 0),1)
     controller.boardController.board should not be board
     controller.getCurrentPlayer should not be player

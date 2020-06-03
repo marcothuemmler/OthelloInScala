@@ -11,7 +11,7 @@ class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {
   override def doStep(): Unit = {
     controller.moves.filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
       controller.boardController.board = controller.boardController.board.flipLine(fromSquare, toSquare, controller.getCurrentPlayer.value).deHighlight)
-    // controller.setCurrentPlayer(controller.nextPlayer)
+      controller.setCurrentPlayer(controller.nextPlayer)
   }
 
   override def undoStep(): Unit = step()
@@ -21,7 +21,7 @@ class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {
   def step(): Unit = {
     val new_memento = (controller.boardController.board.deHighlight, controller.getCurrentPlayer)
     controller.boardController.board = memento._1
-    // controller.setCurrentPlayer(memento._2)
+    controller.setCurrentPlayer(memento._2)
     memento = new_memento
   }
 }

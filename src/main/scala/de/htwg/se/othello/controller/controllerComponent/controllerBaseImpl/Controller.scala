@@ -7,10 +7,10 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
-import de.htwg.se.othello.controller.controllerComponent.{BoardControllerInterface, ControllerInterface}
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.model.{Bot, Player}
+import de.htwg.se.othello.controller.controllerComponent.{BoardControllerInterface, ControllerInterface}
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
+import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
 import play.api.libs.json.{JsValue, Json}
 
@@ -30,12 +30,9 @@ class Controller extends ControllerInterface {
   var difficulty = "Normal"
 
   def resizeBoard(op: String): Unit = {
-    val playerResponse = Http().singleRequest(Post("http://localhost:8082/usermodule/resetplayer"))
-    val playerResponseCode = playerResponse.flatMap(r => Unmarshal(r.status.intValue()).to[Int]).toString
-    if (playerResponseCode.startsWith("2")) {
-      boardController.resizeBoard(op)
-      notifyObservers()
-    }
+    Http().singleRequest(Post("http://localhost:8082/usermodule/resetplayer"))
+    boardController.resizeBoard(op)
+    notifyObservers()
   }
 
   def size: Int = boardController.board.size
@@ -55,27 +52,8 @@ class Controller extends ControllerInterface {
     gameStatus = IDLE
   }
 
-  def getCurrentPlayer: Player = {
-    val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/getcurrentplayer"))
-    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
-    val result = Await.result(responseBody, Duration.Inf)
-    val playerJson: JsValue = Json.parse(result)
-    val name = (playerJson \ "name").as[String]
-    val color = (playerJson \ "value").as[Int]
-    if ((playerJson \ "isBot").as[Boolean]) {
-      new Bot(name, color)
-    } else {
-      Player(name, color)
-    }
-  }
-
   def setupPlayers: String => Unit = input => {
-    val v = input match {
-      case "0" => "zero"
-      case "1" => "one"
-      case "2" => "two"
-    }
-    Http().singleRequest(Post(s"http://localhost:8082/usermodule/setupPlayers/$v"))
+    Http().singleRequest(Post(s"http://localhost:8082/usermodule/setupplayers/$input"))
   }
 
   def moveSelector: MoveSelector = difficulty match {
@@ -104,16 +82,42 @@ class Controller extends ControllerInterface {
 
   def save(): Unit = fileIo.save(boardController.board, getCurrentPlayer, difficulty)
 
+  def getCurrentPlayer: Player = {
+    val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/getcurrentplayer"))
+    playerFromHttpResponse(response)
+  }
+
+  private def playerFromHttpResponse(response: Future[HttpResponse]): Player = {
+    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
+    val result = Await.result(responseBody, Duration.Inf)
+    val playerJson: JsValue = Json.parse(result)
+    val name = (playerJson \ "name").as[String]
+    val color = (playerJson \ "value").as[Int]
+    if ((playerJson \ "isBot").as[Boolean]) {
+      new Bot(name, color)
+    } else {
+      Player(name, color)
+    }
+  }
+
   def load(): Unit = {
     fileIo.load match {
       case scala.util.Success(save) =>
         boardController.board = save._1
-        userController.setCurrentPlayer(save._2)
+        setCurrentPlayer(save._2)
         difficulty = save._3
         gameStatus = LOAD_SUCCESS
       case _ => gameStatus = LOAD_FAIL
     }
     publishChanges()
+  }
+
+  def setCurrentPlayer(player: Player): Unit = {
+    val playerJson = player.toJson
+    val name = (playerJson \ "name").as[String]
+    val color = (playerJson \ "value").as[Int]
+    val isBot = (playerJson \ "isBot").as[Boolean]
+    Http().singleRequest(Post(s"http://localhost:8082/usermodule/setcurrentplayer/?name=$name&value=$color&isBot=$isBot"))
   }
 
   def set(square: (Int, Int)): Unit = {
@@ -133,7 +137,7 @@ class Controller extends ControllerInterface {
   }
 
   def omitPlayer(): Unit = {
-    userController.setCurrentPlayer(nextPlayer)
+    setCurrentPlayer(nextPlayer)
     gameStatus = OMITTED
     publishChanges()
   }
@@ -163,7 +167,10 @@ class Controller extends ControllerInterface {
 
   def gameOver: Boolean = boardController.board.gameOver
 
-  def nextPlayer: Player = userController.nextPlayer
+  def nextPlayer: Player = {
+    val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/nextplayer"))
+    playerFromHttpResponse(response)
+  }
 
   def playerCount: Int = {
     val response: Future[HttpResponse] = Http().singleRequest(Get("http://localhost:8082/usermodule/playercount"))
@@ -181,11 +188,16 @@ class Controller extends ControllerInterface {
 
   def canRedo: Boolean = undoManager.redoStack.nonEmpty
 
+  def getPlayer(isFirstPlayer: Boolean): Player = {
+    val response: Future[HttpResponse] = Http().singleRequest(Get(s"http://localhost:8082/usermodule/getplayer/?isfirstplayer=$isFirstPlayer"))
+    playerFromHttpResponse(response)
+  }
+
   def score: String = {
     val score1 = count(1)
     val score2 = count(2)
     val (win, lose) = (score1 max score2, score1 min score2)
-    val winner = userController.getPlayer(win == score1)
+    val winner = getPlayer(win == score1)
     if (win != lose) f"$winner wins by $win:$lose!" else f"Draw. $win:$lose"
   }
 

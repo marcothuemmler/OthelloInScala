@@ -14,7 +14,7 @@ class ControllerSpec extends WordSpec with Matchers {
     "reset the board" in {
       controller.newGame
       controller.boardController.board should equal(b)
-      controller.getCurrentPlayer should be(controller.userController.getPlayer(true))
+      controller.getCurrentPlayer should be(controller.getPlayer(true))
     }
   }
   "save and restore the whole game" in {
@@ -23,7 +23,7 @@ class ControllerSpec extends WordSpec with Matchers {
     val difficulty = controller.difficulty
     controller.save()
     controller.difficulty = "Hard"
-    controller.userController.setCurrentPlayer(controller.userController.getPlayer(false))
+    controller.setCurrentPlayer(controller.getPlayer(false))
     controller.boardController.board = controller.boardController.board.flipLine((0, 0), (0, 0),1)
     controller.boardController.board should not be board
     controller.getCurrentPlayer should not be player
@@ -36,6 +36,7 @@ class ControllerSpec extends WordSpec with Matchers {
   "playerCount" should {
     "count the amount of human players" in {
       val ctrl = new Controller
+      ctrl.setupPlayers("1")
       ctrl.playerCount should be(1)
       ctrl.setupPlayers("0")
       ctrl.playerCount should be(0)
@@ -83,8 +84,9 @@ class ControllerSpec extends WordSpec with Matchers {
   "selectAndSet" should {
     "set a square" in {
       val ctrl = new Controller
-      ctrl.createBoard(8)
-      ctrl.userController.setCurrentPlayer(ctrl.nextPlayer)
+      ctrl.setupPlayers("1")
+      ctrl.newGame
+      ctrl.setCurrentPlayer(ctrl.nextPlayer)
       val board = ctrl.boardController.board
       ctrl.selectAndSet()
       ctrl.boardController.board should not equal board
@@ -95,13 +97,14 @@ class ControllerSpec extends WordSpec with Matchers {
         .flipLine((0, 6), (0, 5), 1)
         .flipLine((1, 6), (3, 6), 2)
       val cBoard = controller.boardController.board
-      controller.userController.setCurrentPlayer(controller.userController.getPlayer(false))
+      controller.setCurrentPlayer(controller.getPlayer(true))
       controller.selectAndSet()
       controller.boardController.board should equal(cBoard)
     }
   }
   "omitPlayer" should {
     "change the current player and set the gameStatus to omitted" in {
+      controller.newGame
       val currentPlayer = controller.getCurrentPlayer
       controller.omitPlayer()
       controller.getCurrentPlayer should not equal currentPlayer
@@ -113,7 +116,7 @@ class ControllerSpec extends WordSpec with Matchers {
   var changedBoard: BoardInterface = b
   "undo" should {
     "revert the board to a previous state" in {
-      ctrl.createBoard(8)
+      ctrl.newGame
       ctrl.set(3, 2)
       changedBoard = ctrl.boardController.board
       ctrl.undo()
@@ -159,8 +162,8 @@ class ControllerSpec extends WordSpec with Matchers {
   }
   "nextPlayer" should {
     "return the player who's next" in {
-      controller.userController.setCurrentPlayer(controller.userController.getPlayer(true))
-      controller.nextPlayer should be(controller.userController.getPlayer(false))
+      controller.setCurrentPlayer(controller.getPlayer(true))
+      controller.nextPlayer should be(controller.getPlayer(false))
     }
   }
   "highlight " should {
@@ -240,7 +243,7 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "declare the White player as  winner if there are more white disks" in {
       controller.newGame
-      controller.userController.setCurrentPlayer(controller.userController.getPlayer(false))
+      controller.setCurrentPlayer(controller.getPlayer(false))
       controller.set(4, 2)
       controller.score should be(s"White wins by 4:1!")
     }

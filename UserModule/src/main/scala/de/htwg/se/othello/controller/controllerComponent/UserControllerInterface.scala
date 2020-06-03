@@ -10,8 +10,8 @@ trait UserControllerInterface {
   def getCurrentPlayer: Player
   def setCurrentPlayer(player: Player): Unit
   def playerCount: Int
-  def botCount: Int
   def setupPlayers: String => Unit
   def playerToJson: JsObject
+  def nextPlayerToJson: JsObject
   def playersToJson: JsObject
 }
