@@ -3,7 +3,7 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, Json}
 
 class BoardController extends BoardControllerInterface {
 
@@ -38,4 +38,6 @@ class BoardController extends BoardControllerInterface {
   def boardToHtml: String = board.toHtml
 
   def toJson: JsObject = board.toJson
+
+  def movesToJson(value: Int): JsObject = Json.obj( "values" -> Json.toJson(moves(value)))
 }

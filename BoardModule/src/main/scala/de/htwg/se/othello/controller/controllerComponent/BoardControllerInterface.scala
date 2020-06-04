@@ -16,5 +16,6 @@ trait BoardControllerInterface {
   def boardToString: String
   def boardToHtml: String
   def toJson: JsObject
+  def movesToJson(value: Int): JsObject
 
 }

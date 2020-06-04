@@ -8,11 +8,13 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.controller.controllerComponent.{BoardControllerInterface, ControllerInterface}
+import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
+import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -24,7 +26,6 @@ class Controller extends ControllerInterface {
 
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
-  val boardController: BoardControllerInterface = injector.getInstance(classOf[BoardControllerInterface])
   val boardModuleURL: String = "http://localhost:8081/boardmodule"
   val userModuleURL: String = "http://localhost:8082/usermodule"
   private val undoManager = new UndoManager
@@ -33,14 +34,17 @@ class Controller extends ControllerInterface {
 
   def resizeBoard(op: String): Unit = {
     Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
-    boardController.resizeBoard(op)
+    Http().singleRequest(Post(s"$boardModuleURL/resize/$op"))
     notifyObservers()
   }
 
-  def size: Int = boardController.size
+  def size: Int = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/size"))
+    responseToInt(response)
+  }
 
   def createBoard(size: Int): Unit = {
-    boardController.createBoard(size)
+    Http().singleRequest(Post(s"$userModuleURL/create/$size"))
     notifyObservers()
   }
 
@@ -82,7 +86,22 @@ class Controller extends ControllerInterface {
     Future(selectAndSet())(ExecutionContext.global)
   }
 
-  def save(): Unit = fileIo.save(boardController.board, getCurrentPlayer, difficulty)
+  def getBoard: BoardInterface = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/board"))
+    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
+    val result = Await.result(responseBody, Duration.Inf)
+    val boardJson = Json.parse(result)
+    var board = injector.instance[BoardFactory].create(size)
+    for {
+      index <- 0 until size * size
+      row = (boardJson \\ "row") (index).as[Int]
+      col = (boardJson \\ "col") (index).as[Int]
+      value = (boardJson \\ "value") (index).as[Int]
+    } board = board.flipLine((row, col), (row, col), value)
+    board
+  }
+
+  def save(): Unit = fileIo.save(getBoard, getCurrentPlayer, difficulty)
 
   def getCurrentPlayer: Player = {
     val response = Http().singleRequest(Get(s"$userModuleURL/getcurrentplayer"))
@@ -90,9 +109,8 @@ class Controller extends ControllerInterface {
   }
 
   def playerFromHttpResponse(response: Future[HttpResponse]): Player = {
-    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
-    val result = Await.result(responseBody, Duration.Inf)
-    val playerJson: JsValue = Json.parse(result)
+    val result = responseToString(response)
+    val playerJson = Json.parse(result)
     val name = (playerJson \ "name").as[String]
     val color = (playerJson \ "value").as[Int]
     if ((playerJson \ "isBot").as[Boolean]) {
@@ -105,7 +123,7 @@ class Controller extends ControllerInterface {
   def load(): Unit = {
     fileIo.load match {
       case scala.util.Success(save) =>
-        boardController.board = save._1
+        setBoard(save._1)
         setCurrentPlayer(save._2)
         difficulty = save._3
         gameStatus = LOAD_SUCCESS
@@ -122,10 +140,13 @@ class Controller extends ControllerInterface {
     Http().singleRequest(Post(s"$userModuleURL/setcurrentplayer/?name=$name&value=$color&isBot=$isBot"))
   }
 
+  // TODO: implement setBoard method
+  def setBoard(board: BoardInterface): Unit = ???
+
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) {
       gameStatus = ILLEGAL
-      boardController.changeHighlight
+      highlight()
     } else if (getCurrentPlayer.isBot) new SetCommand(square, this).doStep()
     else undoManager.doStep(new SetCommand(square, this))
     if (gameOver) gameStatus = GAME_OVER
@@ -155,7 +176,7 @@ class Controller extends ControllerInterface {
   }
 
   def highlight(): Unit = {
-    boardController.changeHighlight
+    Http().singleRequest(Post(s"$boardModuleURL/changehighlight/?value=${getCurrentPlayer.value}"))
     notifyObservers()
   }
 
@@ -165,9 +186,21 @@ class Controller extends ControllerInterface {
 
   def options: Seq[(Int, Int)] = moves.values.flatten.toSet.toList.sorted
 
-  def moves: Map[(Int, Int), Seq[(Int, Int)]] = boardController.moves
+  def moves: Map[(Int, Int), Seq[(Int, Int)]] = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/moves/?value=${getCurrentPlayer.value}"))
+    val result = responseToString(response)
+    val movesJson = Json.parse(result)
+    println(movesJson)
+    // TODO: create Map from Json Object
+    // {"values":[[[3,4],[[3,2],[5,4]]],[[4,3],[[2,3],[4,5]]]]} =>
+    Map((3, 4) -> Seq((3, 2), (5, 4)), (4, 3) -> Seq((2, 3), (4, 5)))
+  }
 
-  def gameOver: Boolean = boardController.gameOver
+  def gameOver: Boolean = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/gameover"))
+    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
+    Await.result(responseBody, Duration.Inf).toBoolean
+  }
 
   def nextPlayer: Player = {
     val response = Http().singleRequest(Get(s"$userModuleURL/nextplayer"))
@@ -176,21 +209,37 @@ class Controller extends ControllerInterface {
 
   def playerCount: Int = {
     val response = Http().singleRequest(Get(s"$userModuleURL/playercount"))
+    responseToInt(response)
+  }
+
+  def boardToString: String = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/boardstring"))
+    responseToString(response)
+  }
+
+  def boardToHtml: String = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/boardhtml"))
+    responseToString(response)
+  }
+
+  def valueOf(col: Int, row: Int): Int = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/valueof/?col=$col&row=$row"))
+    responseToInt(response)
+  }
+
+  def responseToInt(response: Future[HttpResponse]): Int = {
     val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
     Await.result(responseBody, Duration.Inf).toInt
   }
 
-  def boardToString: String = boardController.boardToString
-
-  def boardToHtml: String = boardController.boardToHtml
-
-  def valueOf(col: Int, row: Int): Int = boardController.valueOf(col, row)
+  def responseToString(response: Future[HttpResponse]): String = {
+    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
+    Await.result(responseBody, Duration.Inf)
+  }
 
   def canUndo: Boolean = undoManager.undoStack.nonEmpty
 
   def canRedo: Boolean = undoManager.redoStack.nonEmpty
-
-  implicit def currentPlayerValue: Int = getCurrentPlayer.value
 
   def score: String = {
     val score1 = count(1)
@@ -205,5 +254,8 @@ class Controller extends ControllerInterface {
     playerFromHttpResponse(response)
   }
 
-  def count(value: Int): Int = boardController.count(value)
+  def count(value: Int): Int = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/count/?value=$value"))
+    responseToInt(response)
+  }
 }
