@@ -16,7 +16,7 @@ import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -25,7 +25,6 @@ class Controller extends ControllerInterface {
 
   implicit val system: ActorSystem = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
-
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
   val boardModuleURL: String = "http://localhost:8081/boardmodule"
@@ -34,11 +33,13 @@ class Controller extends ControllerInterface {
   var gameStatus: GameStatus = IDLE
   var difficulty = "Normal"
 
+  implicit def controller: Controller = this
+
   def resizeBoard(op: String): Unit = {
-    Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
     val param = URLEncoder.encode(op, "UTF8")
-    Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param"))
-    notifyObservers()
+    val boardRequest = Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param"))
+    val playerRequest = Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
+    playerRequest.flatMap(_ => boardRequest).onComplete(_ => notifyObservers())
   }
 
   def size: Int = {
@@ -48,7 +49,7 @@ class Controller extends ControllerInterface {
 
   def createBoard(size: Int): Unit = {
     Http().singleRequest(Post(s"$boardModuleURL/create/?size=$size"))
-    notifyObservers()
+      .onComplete(_ => notifyObservers())
   }
 
   def illegalAction(): Unit = {
@@ -66,9 +67,9 @@ class Controller extends ControllerInterface {
   }
 
   def moveSelector: MoveSelector = difficulty match {
-    case "Easy" => new EasyBot(this)
-    case "Normal" => new MediumBot(this)
-    case "Hard" => new HardBot(this)
+    case "Easy" => EasyBot()
+    case "Normal" => MediumBot()
+    case "Hard" => HardBot()
   }
 
   def setDifficulty(value: String): Unit = {
@@ -91,8 +92,7 @@ class Controller extends ControllerInterface {
 
   def getBoard: BoardInterface = {
     val response = Http().singleRequest(Get(s"$boardModuleURL/boardjson"))
-    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
-    val result = Await.result(responseBody, Duration.Inf)
+    val result = responseToString(response)
     val boardJson = Json.parse(result)
     var board = injector.instance[BoardFactory].create(size)
     for {
@@ -140,19 +140,21 @@ class Controller extends ControllerInterface {
     val name = (playerJson \ "name").as[String]
     val color = (playerJson \ "value").as[Int]
     val isBot = (playerJson \ "isBot").as[Boolean]
-    Http().singleRequest(Post(s"$userModuleURL/setcurrentplayer/?name=$name&value=$color&isBot=$isBot"))
+    val result = Http().singleRequest(Post(s"$userModuleURL/setcurrentplayer/?name=$name&value=$color&isBot=$isBot"))
+    Await.result(result, Duration.Inf)
   }
 
   def setBoard(board: BoardInterface): Unit = {
-    Http().singleRequest(Post(s"$boardModuleURL/set", board.toJson.toString))
+    val result = Http().singleRequest(Post(s"$boardModuleURL/set", board.toJson.toString))
+    Await.result(result, Duration.Inf)
   }
 
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) {
       gameStatus = ILLEGAL
       highlight()
-    } else if (getCurrentPlayer.isBot) new SetCommand(square, this).doStep()
-    else undoManager.doStep(new SetCommand(square, this))
+    } else if (getCurrentPlayer.isBot) SetCommand(square).doStep()
+    else undoManager.doStep(SetCommand(square))
     if (gameOver) gameStatus = GAME_OVER
     publishChanges()
     if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()
@@ -194,10 +196,10 @@ class Controller extends ControllerInterface {
     val response = Http().singleRequest(Get(s"$boardModuleURL/moves/?value=${getCurrentPlayer.value}"))
     val result = responseToString(response)
     val movesJson = Json.parse(result)
-    println(movesJson)
-    // TODO: create Map from Json Object
-    // {"values":[[[3,4],[[3,2],[5,4]]],[[4,3],[[2,3],[4,5]]]]} =>
-    Map((3, 4) -> Seq((3, 2), (5, 4)), (4, 3) -> Seq((2, 3), (4, 5)))
+    val movesList = (movesJson \ "values").as[List[JsValue]]
+    movesList.map(elem => {
+      (elem \ "key").as[(Int, Int)] -> (elem \ "value").as[Seq[(Int, Int)]]
+    }).toMap
   }
 
   def gameOver: Boolean = {

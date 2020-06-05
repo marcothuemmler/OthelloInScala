@@ -69,7 +69,7 @@ abstract class MoveSelector(controller: Controller) {
   }
 }
 
-class HardBot(controller: Controller) extends MoveSelector(controller) {
+case class HardBot(implicit val controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player).compare(b.count(notPlayer)) * 5000
     else {
@@ -84,14 +84,14 @@ class HardBot(controller: Controller) extends MoveSelector(controller) {
   }
 }
 
-class MediumBot(controller: Controller) extends MoveSelector(controller) {
+case class MediumBot(implicit val controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player).compare(b.count(notPlayer)) * 5000
     else sumUp(b, player)
   }
 }
 
-class EasyBot(controller: Controller) extends MoveSelector(controller) {
+case class EasyBot(implicit val controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) -b.count(player).compare(b.count(notPlayer)) * 5000
     else sumUp(b, notPlayer)

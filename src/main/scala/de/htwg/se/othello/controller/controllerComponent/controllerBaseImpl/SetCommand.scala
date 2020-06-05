@@ -4,7 +4,7 @@ import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.util.Command
 
-class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {
+case class SetCommand(toSquare: (Int, Int))(implicit val controller: Controller) extends Command {
 
   var memento: (BoardInterface, Player) = (controller.getBoard.deHighlight, controller.getCurrentPlayer)
 

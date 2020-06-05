@@ -39,5 +39,9 @@ class BoardController extends BoardControllerInterface {
 
   def toJson: JsObject = board.toJson
 
-  def movesToJson(value: Int): JsObject = Json.obj( "values" -> Json.toJson(moves(value)))
+  def movesToJson(value: Int): JsObject = {
+    Json.obj("values" -> moves(value).map(r => {
+      Json.obj("key" -> r._1, "value" -> r._2)
+    }))
+  }
 }

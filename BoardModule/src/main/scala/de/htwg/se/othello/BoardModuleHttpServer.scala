@@ -66,19 +66,19 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
       }
     } ~
     path("boardmodule" / "set") {
-        entity(as[String]) { content: String =>
-          val boardJson = Json.parse(content)
-          val size = controller.size
-          var board = controller.board
-          for {
-            index <- 0 until size * size
-            row = (boardJson \\ "row") (index).as[Int]
-            col = (boardJson \\ "col") (index).as[Int]
-            value = (boardJson \\ "value") (index).as[Int]
-          } board = board.flipLine((row, col), (row, col), value)
-          controller.board = board
-          complete(StatusCodes.OK)
-        }
+      entity(as[String]) { content =>
+        val boardJson = Json.parse(content)
+        var board = controller.board
+        val size = controller.size
+        for {
+          index <- 0 until size * size
+          row = (boardJson \\ "row") (index).as[Int]
+          col = (boardJson \\ "col") (index).as[Int]
+          value = (boardJson \\ "value") (index).as[Int]
+        } board = board.flipLine((row, col), (row, col), value)
+        controller.board = board
+        complete(StatusCodes.OK)
+      }
     } ~
     path("boardmodule" / "count") {
       parameter('value) { value =>
