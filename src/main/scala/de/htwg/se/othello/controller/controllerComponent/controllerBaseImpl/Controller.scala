@@ -143,8 +143,9 @@ class Controller extends ControllerInterface {
     Http().singleRequest(Post(s"$userModuleURL/setcurrentplayer/?name=$name&value=$color&isBot=$isBot"))
   }
 
-  // TODO: implement setBoard method
-  def setBoard(board: BoardInterface): Unit = ???
+  def setBoard(board: BoardInterface): Unit = {
+    Http().singleRequest(Post(s"$boardModuleURL/set", board.toJson.toString))
+  }
 
   def set(square: (Int, Int)): Unit = {
     if (!moves.exists(o => o._2.contains(square))) {

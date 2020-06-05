@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{Route, StandardRoute}
+import akka.http.scaladsl.server.Route
 import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
 import play.api.libs.json.Json
 
@@ -66,8 +66,19 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
       }
     } ~
     path("boardmodule" / "set") {
-      // TODO: implement. URLEncoder and URLDecoder not suitable (URI too long)
-      complete(StatusCodes.OK)
+        entity(as[String]) { content: String =>
+          val boardJson = Json.parse(content)
+          val size = controller.size
+          var board = controller.board
+          for {
+            index <- 0 until size * size
+            row = (boardJson \\ "row") (index).as[Int]
+            col = (boardJson \\ "col") (index).as[Int]
+            value = (boardJson \\ "value") (index).as[Int]
+          } board = board.flipLine((row, col), (row, col), value)
+          controller.board = board
+          complete(StatusCodes.OK)
+        }
     } ~
     path("boardmodule" / "count") {
       parameter('value) { value =>
