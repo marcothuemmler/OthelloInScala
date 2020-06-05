@@ -22,15 +22,17 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
     path("boardmodule") {
       complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
     } ~
-    path("boardmodule" / "resize" / Segment) { input =>
-      controller.resizeBoard(input)
-      boardJson
+    path("boardmodule" / "resize") {
+      parameter('op) { op =>
+        controller.resizeBoard(op)
+        complete(StatusCodes.OK)
+      }
     } ~
     path("boardmodule" / "size") {
       complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "" + controller.size))
     } ~
     path("boardmodule" / "boardjson") {
-      boardJson
+      complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.toJson)))
     } ~
     path("boardmodule" / "boardstring") {
       complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, controller.boardToString))
@@ -57,15 +59,21 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
         complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.movesToJson(value.toInt))))
       }
     } ~
+    path("boardmodule" / "create") {
+      parameter('size) { size =>
+        controller.createBoard(size.toInt)
+        complete(StatusCodes.OK)
+      }
+    } ~
+    path("boardmodule" / "set") {
+      // TODO: implement. URLEncoder and URLDecoder not suitable (URI too long)
+      complete(StatusCodes.OK)
+    } ~
     path("boardmodule" / "count") {
       parameter('value) { value =>
         complete(HttpEntity(ContentTypes.`application/json`, controller.count(value.toInt).toString))
       }
     }
-  }
-
-  def boardJson: StandardRoute = {
-    complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.toJson)))
   }
 
   val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8081)

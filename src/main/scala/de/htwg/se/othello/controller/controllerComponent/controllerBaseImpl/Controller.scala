@@ -1,5 +1,7 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
+import java.net.URLEncoder
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.client.RequestBuilding._
@@ -7,14 +9,14 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
-import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
+import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
-import play.api.libs.json.Json
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
+import play.api.libs.json.Json
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -34,7 +36,8 @@ class Controller extends ControllerInterface {
 
   def resizeBoard(op: String): Unit = {
     Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
-    Http().singleRequest(Post(s"$boardModuleURL/resize/$op"))
+    val param = URLEncoder.encode(op, "UTF8")
+    Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param"))
     notifyObservers()
   }
 
@@ -44,7 +47,7 @@ class Controller extends ControllerInterface {
   }
 
   def createBoard(size: Int): Unit = {
-    Http().singleRequest(Post(s"$userModuleURL/create/$size"))
+    Http().singleRequest(Post(s"$boardModuleURL/create/?size=$size"))
     notifyObservers()
   }
 
@@ -87,7 +90,7 @@ class Controller extends ControllerInterface {
   }
 
   def getBoard: BoardInterface = {
-    val response = Http().singleRequest(Get(s"$boardModuleURL/board"))
+    val response = Http().singleRequest(Get(s"$boardModuleURL/boardjson"))
     val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
     val result = Await.result(responseBody, Duration.Inf)
     val boardJson = Json.parse(result)
