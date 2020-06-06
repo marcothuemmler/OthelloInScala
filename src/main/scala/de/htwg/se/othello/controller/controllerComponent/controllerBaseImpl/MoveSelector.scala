@@ -5,7 +5,7 @@ import de.htwg.se.othello.model.boardComponent.BoardInterface
 abstract class MoveSelector(controller: Controller) {
 
   private type Move = (Int, Option[(Int, Int)])
-  val player: Int = controller.getCurrentPlayer.value
+  val player: Int = controller.currentPlayer.value
   val notPlayer: Int = controller.nextPlayer.value
   val weightedBoard: Vector[Vector[Int]] = Vector(
     Vector(99,  -8,  8,  6,  6,  8,  -8, 99),
@@ -24,7 +24,7 @@ abstract class MoveSelector(controller: Controller) {
       if (controller.count(1) + controller.count(2) <= 6 || controller.size != 8)
         controller.options(scala.util.Random.nextInt(controller.options.size))
       else
-        search(player, 5, controller.boardController.board, None, -10000, 10000, m = true)._2.get
+        search(player, 5, controller.getBoard, None, -10000, 10000, m = true)._2.get
     }
     val after = System.currentTimeMillis
     if (after - before < 500) Thread.sleep(500 - after + before)
@@ -64,12 +64,12 @@ abstract class MoveSelector(controller: Controller) {
   def simulate(b: BoardInterface, p: Int, toSquare: (Int, Int)): BoardInterface = {
     var newBoard = b
     b.moves(p).filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
-      newBoard = b.flipLine(fromSquare, toSquare, p))
+      newBoard = b.flipLine(fromSquare, toSquare)(p))
     newBoard
   }
 }
 
-class HardBot(controller: Controller) extends MoveSelector(controller) {
+class HardBot(implicit val controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player).compare(b.count(notPlayer)) * 5000
     else {
@@ -84,14 +84,14 @@ class HardBot(controller: Controller) extends MoveSelector(controller) {
   }
 }
 
-class MediumBot(controller: Controller) extends MoveSelector(controller) {
+class MediumBot(implicit val controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) b.count(player).compare(b.count(notPlayer)) * 5000
     else sumUp(b, player)
   }
 }
 
-class EasyBot(controller: Controller) extends MoveSelector(controller) {
+class EasyBot(implicit val controller: Controller) extends MoveSelector(controller) {
   def evaluate(b: BoardInterface): Int = {
     if (b.gameOver) -b.count(player).compare(b.count(notPlayer)) * 5000
     else sumUp(b, notPlayer)

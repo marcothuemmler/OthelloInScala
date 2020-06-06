@@ -1,58 +1,68 @@
-//package de.htwg.se.othello
-//
-//import akka.actor.ActorSystem
-//import akka.http.scaladsl.Http
-//import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
-//import akka.http.scaladsl.server.Directives._
-//import akka.http.scaladsl.server.{Route, StandardRoute}
-//import de.htwg.se.othello.controller.UserControllerInterface
-//
-//import scala.concurrent.{ExecutionContextExecutor, Future}
-//
-//class UserModuleHttpServerHttpServer(controller: UserControllerInterface) {
-//
-//  implicit val system: ActorSystem = ActorSystem("my-system")
-//  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
-//
-//  val route: Route = ignoreTrailingSlash {
-//    path("userMod") {
-//      toHtml("<h1>UserModule Webserver</h1>")
-//    } ~
-//      path("userMod" / "nextPlayer") {
-//        complete(controller.nextPlayer)
-//      } ~
-//      path("userMod" / "playerCount") {
-//        complete(controller.playerCount)
-//      } ~
-//      path("userMod" / "setupPlayers") {
-//        complete(controller.setupPlayers)
-//      } ~
-//      path("userMod" / "resetPlayer") {
-//        complete(controller.resetPlayer)
-//      } ~
-//      path("userMod" / "getCurrentPlayer") {
-//        complete(controller.getCurrentPlayer)
-//      } /*~
-//      path("othello" / "getPlayers") {
-//        controller.getPlayer
-//        gridtoHtml
-//      } ~
-//      path("othello" / "setCurrentPlayer") {
-//        controller.setCurrentPlayer()
-//        gridtoHtml
-//      }*/
-//  }
-//
-//  def toHtml(html: String): StandardRoute = {
-//    complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello - UserModule</h1>" + html))
-//  }
-//
-//  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8080)
-//
-//  def unbind(): Unit = {
-//    bindingFuture
-//      .flatMap(_.unbind)
-//      .onComplete(_ => system.terminate)
-//  }
-//
-//}
+package de.htwg.se.othello
+
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.model._
+import de.htwg.se.othello.controller.controllerComponent.UserControllerInterface
+import de.htwg.se.othello.model.{Bot, Player}
+import play.api.libs.json.Json
+
+import scala.concurrent.{ExecutionContextExecutor, Future}
+
+class UserModuleHttpServer(controller: UserControllerInterface) {
+
+  implicit val system: ActorSystem = ActorSystem("my-system")
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+
+  val route: Route = ignoreTrailingSlash {
+    path("userMod") {
+      complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
+    } ~
+      path("usermodule" / "nextplayer") {
+        complete(HttpEntity(ContentTypes.`application/json`, controller.nextPlayerToJson.toString))
+      } ~
+      path("usermodule" / "playercount") {
+        complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "" + controller.playerCount))
+      } ~
+      path("usermodule" / "setupplayers" / Segment) { input =>
+        controller.setupPlayers(input)
+        complete(StatusCodes.OK)
+      } ~
+      path("usermodule" / "resetplayer") {
+        controller.resetPlayer()
+        complete(StatusCodes.OK)
+      } ~
+      path("usermodule" / "getcurrentplayer") {
+        controller.getCurrentPlayer
+        complete(HttpEntity(ContentTypes.`application/json`, controller.playerToJson.toString))
+      } ~
+      path("usermodule" / "getplayer") {
+        parameter(Symbol("isfirstplayer").as[Boolean]) { isFirstPlayer =>
+          complete(HttpEntity(ContentTypes.`application/json`, controller.getPlayer(isFirstPlayer).toJson.toString))
+        }
+      } ~
+      path("usermodule" / "getplayers") {
+        complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.playersToJson)))
+      } ~
+    path("usermodule" / "setcurrentplayer") {
+      parameters(Symbol("name"), Symbol("value").as[Int], Symbol("isBot").as[Boolean]) { (name, value, isBot) =>
+        val player = if (isBot) {
+          new Bot(name, value)
+        } else {
+          Player(name, value)
+        }
+        controller.setCurrentPlayer(player)
+        complete(StatusCodes.OK)
+      }
+    }
+  }
+
+  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8082)
+
+  def unbind(): Unit = {
+    bindingFuture.flatMap(_.unbind).onComplete(_ => system.terminate)
+  }
+}

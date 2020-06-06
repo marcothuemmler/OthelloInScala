@@ -1,8 +1,9 @@
 package de.htwg.se.othello.model
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class PlayerSpec extends WordSpec with Matchers {
+class PlayerSpec extends AnyWordSpec with Matchers {
   val player: Player = Player("Otto", 1)
 
   "A player" should {

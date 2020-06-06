@@ -1,5 +1,7 @@
 package de.htwg.se.othello.model
 
+import play.api.libs.json.{JsObject, Json}
+
 case class Player(name: String, value: Int) {
 
   def this(value: Int) = this(if (value == 1) "Black" else "White", value)
@@ -7,4 +9,12 @@ case class Player(name: String, value: Int) {
   def isBot: Boolean = isInstanceOf[Bot]
 
   override def toString: String = this.name
+
+  def toJson: JsObject = {
+    Json.obj(
+      "name" -> name,
+      "value" -> value,
+      "isBot" -> isBot
+    )
+  }
 }

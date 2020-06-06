@@ -34,10 +34,9 @@ class HttpServer(controller: ControllerInterface) {
         gridtoHtml
       } ~
       path("othello" / Segment) { command => {
-          processInputLine(command)
-          gridtoHtml
-        }
-      }
+        processInputLine(command)
+        gridtoHtml
+      }}
   }
 
   def gridtoHtml: StandardRoute = {

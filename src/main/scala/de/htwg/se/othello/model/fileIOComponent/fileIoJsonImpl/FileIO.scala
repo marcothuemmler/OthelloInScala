@@ -26,7 +26,7 @@ class FileIO extends FileIOInterface {
       row = (json \\ "row") (index).as[Int]
       col = (json \\ "col") (index).as[Int]
       value = (json \\ "value") (index).as[Int]
-    } board = board.flipLine((row, col), (row, col), value)
+    } board = board.flipLine((row, col), (row, col))(value)
     val name = (json \ "player" \ "name").as[String]
     val color = (json \ "player" \ "value").as[Int]
     val difficulty = (json \ "difficulty").as[String]

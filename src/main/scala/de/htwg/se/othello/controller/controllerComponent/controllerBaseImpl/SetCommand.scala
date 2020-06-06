@@ -4,14 +4,18 @@ import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.util.Command
 
-class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {
+case class SetCommand(toSquare: (Int, Int))(implicit val controller: Controller) extends Command {
 
-  var memento: (BoardInterface, Player) = (controller.boardController.board.deHighlight, controller.userController.getCurrentPlayer)
+  val player: Player = controller.currentPlayer
+  implicit val playerValue: Int = player.value
+  var board: BoardInterface = controller.getBoard
+  val moves: Map[(Int, Int), Seq[(Int, Int)]] = controller.moves.filter(_._2.contains(toSquare))
+  var memento: (BoardInterface, Player) = (board.deHighlight, player)
 
   override def doStep(): Unit = {
-    controller.moves.filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
-      controller.boardController.board = controller.boardController.board.flipLine(fromSquare, toSquare, controller.userController.getCurrentPlayer.value).deHighlight)
-    controller.userController.setCurrentPlayer(controller.nextPlayer)
+    moves.keys.foreach(fromSquare => board = board.flipLine(fromSquare, toSquare))
+    controller.setBoard(board.deHighlight)
+    controller.setCurrentPlayer(controller.nextPlayer)
   }
 
   override def undoStep(): Unit = step()
@@ -19,9 +23,9 @@ class SetCommand(toSquare: (Int, Int), controller: Controller) extends Command {
   override def redoStep(): Unit = step()
 
   def step(): Unit = {
-    val new_memento = (controller.boardController.board.deHighlight, controller.userController.getCurrentPlayer)
-    controller.boardController.board = memento._1
-    controller.userController.setCurrentPlayer(memento._2)
+    val new_memento = (board.deHighlight, player)
+    controller.setBoard(memento._1)
+    controller.setCurrentPlayer(memento._2)
     memento = new_memento
   }
 }
