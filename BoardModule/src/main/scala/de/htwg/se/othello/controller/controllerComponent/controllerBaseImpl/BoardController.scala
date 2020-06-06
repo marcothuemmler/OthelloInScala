@@ -3,7 +3,7 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 
 class BoardController extends BoardControllerInterface {
 
@@ -11,12 +11,10 @@ class BoardController extends BoardControllerInterface {
 
   def size: Int = board.size
 
-  def resizeBoard(op: String): Unit = {
-    op match {
-      case "+" => createBoard(size + 2)
-      case "-" => if (size > 4) createBoard(size - 2)
-      case "." => if (size != 8) createBoard(8)
-    }
+  def resizeBoard: String =>  Unit = {
+    case "+" => createBoard(size + 2)
+    case "-" => if (size > 4) createBoard(size - 2)
+    case "." => if (size != 8) createBoard(8)
   }
 
   def createBoard(size: Int): Unit = {
@@ -39,9 +37,7 @@ class BoardController extends BoardControllerInterface {
 
   def toJson: JsObject = board.toJson
 
-  def movesToJson(value: Int): JsObject = {
-    Json.obj("values" -> moves(value).map(r => {
-      Json.obj("key" -> r._1, "value" -> r._2)
-    }))
+  def movesToJson(implicit value: Int): JsValue = {
+    Json.toJson(moves.map(e => Json.obj("key" -> e._1, "value" -> e._2)))
   }
 }

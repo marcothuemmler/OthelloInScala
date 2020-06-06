@@ -12,7 +12,7 @@ trait BoardInterface {
   def toString: String
   def valueOf(col: Int, row: Int): Int
   def count(value: Int): Int
-  def flipLine(fromSquare: (Int, Int), toSquare: (Int, Int), value: Int): BoardInterface
+  def flipLine(fromSquare: (Int, Int), toSquare: (Int, Int))(implicit value: Int): BoardInterface
   def toHtml: String
   def toJson: JsObject
 

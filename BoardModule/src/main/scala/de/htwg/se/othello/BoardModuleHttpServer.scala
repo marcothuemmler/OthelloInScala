@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import play.api.libs.json.Json
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -23,7 +24,7 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
       complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
     } ~
     path("boardmodule" / "resize") {
-      parameter('op) { op =>
+      parameter(Symbol("op")) { op =>
         controller.resizeBoard(op)
         complete(StatusCodes.OK)
       }
@@ -32,7 +33,7 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
       complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "" + controller.size))
     } ~
     path("boardmodule" / "boardjson") {
-      complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.toJson)))
+      complete(HttpEntity(ContentTypes.`application/json`, controller.toJson.toString))
     } ~
     path("boardmodule" / "boardstring") {
       complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, controller.boardToString))
@@ -44,45 +45,45 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
       complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, controller.gameOver.toString))
     } ~
     path("boardmodule" / "changehighlight") {
-      parameter('value) { value =>
-        controller.changeHighlight(value.toInt)
+      parameter(Symbol("value").as[Int]) { value =>
+        controller.changeHighlight(value)
         complete(StatusCodes.OK)
       }
     } ~
     path("boardmodule" / "valueof") {
-      parameter('col, 'row) { (col, row) =>
-        complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, controller.valueOf(col.toInt, row.toInt).toString))
+      parameter(Symbol("col").as[Int], Symbol("row").as[Int]) { (col, row) =>
+        complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, controller.valueOf(col, row).toString))
       }
     } ~
     path("boardmodule" / "moves") {
-      parameter('value) { value =>
-        complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.movesToJson(value.toInt))))
+      parameter(Symbol("value").as[Int]) { value =>
+        complete(HttpEntity(ContentTypes.`application/json`, controller.movesToJson(value).toString))
       }
     } ~
     path("boardmodule" / "create") {
-      parameter('size) { size =>
-        controller.createBoard(size.toInt)
+      parameter(Symbol("size").as[Int]) { size =>
+        controller.createBoard(size)
         complete(StatusCodes.OK)
       }
     } ~
     path("boardmodule" / "set") {
       entity(as[String]) { content =>
         val boardJson = Json.parse(content)
-        var board = controller.board
-        val size = controller.size
+        val size = (boardJson \ "size").as[Int]
+        var board = (new CreateBoardStrategy).createNewBoard(size)
         for {
           index <- 0 until size * size
           row = (boardJson \\ "row") (index).as[Int]
           col = (boardJson \\ "col") (index).as[Int]
           value = (boardJson \\ "value") (index).as[Int]
-        } board = board.flipLine((row, col), (row, col), value)
+        } board = board.flipLine((row, col), (row, col))(value)
         controller.board = board
         complete(StatusCodes.OK)
       }
     } ~
     path("boardmodule" / "count") {
-      parameter('value) { value =>
-        complete(HttpEntity(ContentTypes.`application/json`, controller.count(value.toInt).toString))
+      parameter(Symbol("value").as[Int]) { value =>
+        complete(HttpEntity(ContentTypes.`application/json`, controller.count(value).toString))
       }
     }
   }

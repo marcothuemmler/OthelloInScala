@@ -17,20 +17,19 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   def this(@Assisted size: Int) = this(Vector.fill(size, size)(Square(0)))
 
   def moves(implicit value: Int): Map[(Int, Int), Seq[(Int, Int)]] = {
-    val getMovesForCurrentPlayer = getMoves(value)(_: Int, _: Int)
     (for {
       col <- grid.indices
       row <- grid.indices if valueOf(col, row) == value
-    } yield getMovesForCurrentPlayer(col, row)).filter(o => o._2.nonEmpty).toMap
+    } yield getMoves(col, row)).filter(_._2.nonEmpty).toMap
   }
 
-  def getMoves(value: Int)(col: Int, row: Int): ((Int, Int), Seq[(Int, Int)]) = {
+  def getMoves(col: Int, row: Int)(implicit value: Int): ((Int, Int), Seq[(Int, Int)]) = {
     ((col, row), (for {
       x <- -1 to 1
       y <- -1 to 1
       (nX, nY) = (col + x, row + y)
-      if isWithinBounds(nX, nY) && setByOpp(value, nX, nY)
-      checkDirection = checkRec((x, y), value)(_: Int, _: Int)
+      if isWithinBounds(nX, nY) && setByOpponent(nX, nY)
+      checkDirection = checkRec((x, y))(_: Int, _: Int)
     } yield checkDirection(nX, nY)).flatten)
   }
 
@@ -39,19 +38,19 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
   }
 
   @tailrec
-  final def checkRec(direction: (Int, Int), value: Int)(x: Int, y: Int): Option[(Int, Int)] = {
+  final def checkRec(direction: (Int, Int))(x: Int, y: Int)(implicit value: Int): Option[(Int, Int)] = {
     val (nX, nY) = (x + direction._1, y + direction._2)
     if (!isWithinBounds(nX, nY) || valueOf(nX, nY) == value) None
-    else if (setByOpp(value, nX, nY)) checkRec(direction, value)(nX, nY)
+    else if (setByOpponent(nX, nY)) checkRec(direction)(nX, nY)
     else Some(nX, nY)
   }
 
   @tailrec
-  final def flipLine(curr: (Int, Int), end: (Int, Int), value: Int): Board = {
+  final def flipLine(curr: (Int, Int), end: (Int, Int))(implicit value: Int): Board = {
     val (col, row) = curr
     val board = copy(grid.updated(col, grid(col).updated(row, Square(value))))
     val next = (col - col.compare(end._1), row - row.compare(end._2))
-    if (curr != end) board.flipLine(next, end, value)
+    if (curr != end) board.flipLine(next, end)
     else board
   }
 
@@ -70,7 +69,7 @@ case class Board(grid: Vector[Vector[Square]]) extends BoardInterface {
     ))
   }
 
-  def setByOpp(value: Int, x: Int, y: Int): Boolean = {
+  def setByOpponent(x: Int, y: Int)(implicit value: Int): Boolean = {
     grid(x)(y).isSet && valueOf(x, y) != value
   }
 

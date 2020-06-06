@@ -22,7 +22,7 @@ class UserModuleHttpServer(controller: UserControllerInterface) {
       complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
     } ~
       path("usermodule" / "nextplayer") {
-        complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.nextPlayerToJson)))
+        complete(HttpEntity(ContentTypes.`application/json`, controller.nextPlayerToJson.toString))
       } ~
       path("usermodule" / "playercount") {
         complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "" + controller.playerCount))
@@ -37,22 +37,22 @@ class UserModuleHttpServer(controller: UserControllerInterface) {
       } ~
       path("usermodule" / "getcurrentplayer") {
         controller.getCurrentPlayer
-        complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.playerToJson)))
+        complete(HttpEntity(ContentTypes.`application/json`, controller.playerToJson.toString))
       } ~
       path("usermodule" / "getplayer") {
-        parameter('isfirstplayer) { isFirstPlayer =>
-          complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.getPlayer(isFirstPlayer.toBoolean).toJson)))
+        parameter(Symbol("isfirstplayer").as[Boolean]) { isFirstPlayer =>
+          complete(HttpEntity(ContentTypes.`application/json`, controller.getPlayer(isFirstPlayer).toJson.toString))
         }
       } ~
       path("usermodule" / "getplayers") {
         complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.playersToJson)))
       } ~
     path("usermodule" / "setcurrentplayer") {
-      parameters('name, 'value, 'isBot) { (name, value, isBot) =>
-        val player = if (isBot == "true") {
-          new Bot(name, value.toInt)
+      parameters(Symbol("name"), Symbol("value").as[Int], Symbol("isBot").as[Boolean]) { (name, value, isBot) =>
+        val player = if (isBot) {
+          new Bot(name, value)
         } else {
-          Player(name, value.toInt)
+          Player(name, value)
         }
         controller.setCurrentPlayer(player)
         complete(StatusCodes.OK)

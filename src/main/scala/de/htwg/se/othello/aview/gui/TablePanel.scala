@@ -28,7 +28,7 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
   def rows: BoxPanel = new BoxPanel(Orientation.Vertical) {
     background = Color.lightGray
     preferredSize = new Dimension(sides, edges)
-    contents += (
+    contents ++= Seq(
       new Label {
         preferredSize = new Dimension(sides, sides)
       },
@@ -86,7 +86,7 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
       }
     }
     reactions += {
-      case _: ButtonClicked if !controller.getCurrentPlayer.isBot && !controller.gameOver =>
+      case _: ButtonClicked if !controller.currentPlayer.isBot && !controller.gameOver =>
         Future(controller.set(col, row))(ExecutionContext.global)
       case _: ButtonClicked if controller.gameOver => controller.newGame
     }
@@ -103,7 +103,7 @@ class TablePanel(controller: ControllerInterface) extends FlowPanel {
     peer.setLayout(new GridLayout)
     preferredSize = new Dimension(edges, squares)
     background = if (gameStatus == ILLEGAL) Color.red.darker else Color.darkGray
-    if (gameStatus == IDLE) contents += (scoreLabel(1), scoreLabel(2))
+    if (gameStatus == IDLE) contents ++= Seq(scoreLabel(1), scoreLabel(2))
     else {
       contents += new Label {
         val fontSize: Int = if (controller.size > 4) 26 else 20

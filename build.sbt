@@ -1,38 +1,30 @@
-name := "Othello In Scala"
-organization := "de.htwg.se"
-version := "1.0"
-scalaVersion := "2.12.8"
+ThisBuild / name := "Othello In Scala"
+ThisBuild / organization := "de.htwg.se"
+ThisBuild / version := "1.0"
+ThisBuild / scalaVersion := "2.13.2"
+ThisBuild / libraryDependencies ++= dependencies
+ThisBuild / scalacOptions := compilerOptions
+
+lazy val compilerOptions = Seq("-unchecked", "-deprecation")
 
 lazy val dependencies = Seq(
-  "org.scalactic" %% "scalactic" % "3.0.5",
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-
+  "org.scalactic" %% "scalactic" % "3.1.1",
+  "org.scalatest" %% "scalatest" % "3.1.1" % "test",
   "org.scala-lang.modules" %% "scala-swing" % "2.1.1",
-  "com.google.inject" % "guice" % "4.2.2",
-  "net.codingwell" %% "scala-guice" % "4.2.5",
-  "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
-  "com.typesafe.play" %% "play-json" % "2.7.4",
-  "com.google.inject.extensions" % "guice-assistedinject" % "4.2.2",
+  "com.google.inject" % "guice" % "4.2.3",
+  "net.codingwell" %% "scala-guice" % "4.2.7",
+  "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
+  "com.typesafe.play" %% "play-json" % "2.9.0",
+  "com.google.inject.extensions" % "guice-assistedinject" % "4.2.3",
   "com.typesafe.akka" %% "akka-http" % "10.1.12",
   "com.typesafe.akka" %% "akka-stream" % "2.6.5",
 )
 
-libraryDependencies ++= dependencies
-
-lazy val global = project
-  .in(file("."))
+lazy val OthelloMainModule = project.in(file("."))
   .aggregate(UserModule, BoardModule).dependsOn(UserModule, BoardModule)
 
-lazy val UserModule = project
-  .settings(
-    name := "UserModule",
-    libraryDependencies ++= dependencies
-  )
+lazy val UserModule = project.settings(name := "UserModule")
 
-lazy val BoardModule = project
-  .settings(
-    name := "BoardModule",
-    libraryDependencies ++= dependencies
-  )
+lazy val BoardModule = project.settings(name := "BoardModule")
 
 coverageExcludedPackages := ".*aview.gui.*"

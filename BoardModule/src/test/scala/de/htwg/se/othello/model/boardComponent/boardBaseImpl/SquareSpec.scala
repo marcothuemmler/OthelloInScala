@@ -1,12 +1,13 @@
 package de.htwg.se.othello.model.boardComponent.boardBaseImpl
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class SquareSpec extends WordSpec with Matchers {
-  val square0 = Square(0)
-  val square1 = Square(1)
-  val square2 = Square(2)
-  val square_1 = Square(-1)
+class SquareSpec extends AnyWordSpec with Matchers {
+  val square0: Square = Square(0)
+  val square1: Square = Square(1)
+  val square2: Square = Square(2)
+  val square_1: Square = Square(-1)
   "A Square" should {
     "have a value" in {
       square0.value should be(0)

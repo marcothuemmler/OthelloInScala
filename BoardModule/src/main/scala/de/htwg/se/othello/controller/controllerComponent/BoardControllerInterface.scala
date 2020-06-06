@@ -1,12 +1,12 @@
 package de.htwg.se.othello.controller.controllerComponent
 
 import de.htwg.se.othello.model.boardComponent.BoardInterface
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, JsValue}
 
 trait BoardControllerInterface {
   var board: BoardInterface
   def size: Int
-  def resizeBoard(op: String): Unit
+  def resizeBoard: String =>  Unit
   def createBoard(size: Int): Unit
   def changeHighlight(implicit value: Int): Unit
   def moves(implicit value: Int): Map[(Int, Int), Seq[(Int, Int)]]
@@ -16,6 +16,6 @@ trait BoardControllerInterface {
   def boardToString: String
   def boardToHtml: String
   def toJson: JsObject
-  def movesToJson(value: Int): JsObject
+  def movesToJson(implicit value: Int): JsValue
 
 }

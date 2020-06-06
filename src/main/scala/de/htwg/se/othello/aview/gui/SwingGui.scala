@@ -100,7 +100,7 @@ class SwingGui(controller: ControllerInterface) extends Observer {
         val cvc: RadioMenuItem = new RadioMenuItem("Demo mode (Computer vs Computer)") {
           selected = controller.playerCount == 0
         }
-        contents += (pvc, pvp, cvc)
+        contents ++= Seq(pvc, pvp, cvc)
         listenTo(pvc, pvp, cvc)
         reactions += {
           case e: ButtonClicked =>
