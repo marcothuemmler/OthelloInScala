@@ -23,8 +23,6 @@ class UserController extends UserControllerInterface {
 
   def getPlayer(isFirstPlayer: Boolean): Player = if (isFirstPlayer) players(0) else players(1)
 
-  def getCurrentPlayer: Player = player
-
   def setCurrentPlayer(player: Player): Unit = this.player = player
 
   def playerToJson: JsObject = player.toJson

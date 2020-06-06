@@ -1,7 +1,6 @@
 package de.htwg.se.othello
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -9,12 +8,10 @@ import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterfac
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import play.api.libs.json.Json
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
+trait BoardModuleHttpService {
 
-class BoardModuleHttpServer(controller: BoardControllerInterface) {
-
-  implicit val system: ActorSystem = ActorSystem("my-system")
-  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+  val controller: BoardControllerInterface
+  implicit val system: ActorSystem
 
   val route: Route = ignoreTrailingSlash {
     pathSingleSlash {
@@ -77,7 +74,7 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
           col = (boardJson \\ "col") (index).as[Int]
           value = (boardJson \\ "value") (index).as[Int]
         } board = board.flipLine((row, col), (row, col))(value)
-        controller.board = board
+        controller.setBoard(board)
         complete(StatusCodes.OK)
       }
     } ~
@@ -86,11 +83,5 @@ class BoardModuleHttpServer(controller: BoardControllerInterface) {
         complete(HttpEntity(ContentTypes.`application/json`, controller.count(value).toString))
       }
     }
-  }
-
-  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8081)
-
-  def unbind(): Unit = {
-    bindingFuture.flatMap(_.unbind).onComplete(_ => system.terminate)
   }
 }

@@ -6,7 +6,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class BoardSpec extends AnyWordSpec with Matchers {
   val board: Board = (new CreateBoardStrategy).createNewBoard(8).asInstanceOf[Board]
 
-  "setByOpp" should {
+  "setByOpponent" should {
     "be true if set by opponent" in {
       board.setByOpponent(4, 4)(1) should be(true)
     }

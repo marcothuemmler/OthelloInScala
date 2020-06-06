@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="UserModuleServer" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="de.htwg.se.othello.UserModuleServer" />
+    <module name="UserModule" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="de.htwg.se.othello.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,7 +1,6 @@
 package de.htwg.se.othello
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -10,15 +9,13 @@ import de.htwg.se.othello.controller.controllerComponent.UserControllerInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import play.api.libs.json.Json
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
+trait UserModuleHttpService {
 
-class UserModuleHttpServer(controller: UserControllerInterface) {
-
-  implicit val system: ActorSystem = ActorSystem("my-system")
-  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+  implicit val controller: UserControllerInterface
+  implicit val system: ActorSystem
 
   val route: Route = ignoreTrailingSlash {
-    path("userMod") {
+    path("usermodule") {
       complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>"))
     } ~
       path("usermodule" / "nextplayer") {
@@ -36,7 +33,6 @@ class UserModuleHttpServer(controller: UserControllerInterface) {
         complete(StatusCodes.OK)
       } ~
       path("usermodule" / "getcurrentplayer") {
-        controller.getCurrentPlayer
         complete(HttpEntity(ContentTypes.`application/json`, controller.playerToJson.toString))
       } ~
       path("usermodule" / "getplayer") {
@@ -58,11 +54,5 @@ class UserModuleHttpServer(controller: UserControllerInterface) {
         complete(StatusCodes.OK)
       }
     }
-  }
-
-  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8082)
-
-  def unbind(): Unit = {
-    bindingFuture.flatMap(_.unbind).onComplete(_ => system.terminate)
   }
 }

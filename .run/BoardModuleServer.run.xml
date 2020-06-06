@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="BoardModuleServer" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="de.htwg.se.othello.BoardModuleServer" />
+    <module name="BoardModule" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="de.htwg.se.othello.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

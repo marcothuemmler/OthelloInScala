@@ -37,9 +37,9 @@ class Controller extends ControllerInterface {
 
   def resizeBoard(op: String): Unit = {
     val param = URLEncoder.encode(op, "UTF8")
-    val boardRequest = Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param"))
-    val playerRequest = Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
-    playerRequest.flatMap(_ => boardRequest).onComplete(_ => notifyObservers())
+    Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param"))
+    Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
+    notifyObservers()
   }
 
   def size: Int = {
@@ -49,7 +49,7 @@ class Controller extends ControllerInterface {
 
   def createBoard(size: Int): Unit = {
     Http().singleRequest(Post(s"$boardModuleURL/create/?size=$size"))
-      .onComplete(_ => notifyObservers())
+    notifyObservers()
   }
 
   def illegalAction(): Unit = {
@@ -148,7 +148,7 @@ class Controller extends ControllerInterface {
   }
 
   def set(square: (Int, Int)): Unit = {
-    if (!moves.exists(o => o._2.contains(square))) {
+    if (!moves.exists(_._2.contains(square))) {
       gameStatus = ILLEGAL
       highlight()
     } else if (currentPlayer.isBot) SetCommand(square).doStep()

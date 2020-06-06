@@ -24,4 +24,12 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       new Bot(2).isBot should be(true)
     }
   }
+  "toJson" should {
+    "return a Json representation of the player" in {
+      val playerJson = Player("John", 1).toJson
+      (playerJson \ "name").as[String] should be("John")
+      (playerJson \ "value").as[Int] should be(1)
+      (playerJson \ "isBot").as[Boolean] should be(false)
+    }
+  }
 }

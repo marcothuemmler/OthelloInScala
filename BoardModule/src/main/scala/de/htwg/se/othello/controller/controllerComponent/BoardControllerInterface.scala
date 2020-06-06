@@ -4,7 +4,7 @@ import de.htwg.se.othello.model.boardComponent.BoardInterface
 import play.api.libs.json.{JsObject, JsValue}
 
 trait BoardControllerInterface {
-  var board: BoardInterface
+  def setBoard(board: BoardInterface): Unit
   def size: Int
   def resizeBoard: String =>  Unit
   def createBoard(size: Int): Unit

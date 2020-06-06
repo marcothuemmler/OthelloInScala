@@ -3,9 +3,12 @@
 //import de.htwg.se.othello.controller.controllerComponent.GameStatus
 //import de.htwg.se.othello.model.boardComponent.BoardInterface
 //import de.htwg.se.othello.model.boardComponent.boardBaseImpl.{Board, CreateBoardStrategy, Square}
-//import org.scalatest.{Matchers, WordSpec}
+//import org.scalatest.BeforeAndAfter
+//import org.scalatest.matchers.should.Matchers
+//import org.scalatest.wordspec.AnyWordSpec
 //
-//class ControllerSpec extends WordSpec with Matchers {
+//class ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfter {
+//
 //  val controller = new Controller
 //  controller.setupPlayers("2")
 //  val b: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
@@ -13,24 +16,24 @@
 //  "newGame" should {
 //    "reset the board" in {
 //      controller.newGame
-//      controller.boardController.board should equal(b)
-//      controller.getCurrentPlayer should be(controller.getPlayer(true))
+//      controller.getBoard should equal(b)
+//      controller.currentPlayer should be(controller.getPlayer(true))
 //    }
 //  }
 //  "save and restore the whole game" in {
-//    val board = controller.boardController.board
-//    val player = controller.getCurrentPlayer
+//    val board = controller.getBoard
+//    val player = controller.currentPlayer
 //    val difficulty = controller.difficulty
 //    controller.save()
 //    controller.difficulty = "Hard"
 //    controller.setCurrentPlayer(controller.getPlayer(false))
-//    controller.boardController.board = controller.boardController.board.flipLine((0, 0), (0, 0),1)
-//    controller.boardController.board should not be board
-//    controller.getCurrentPlayer should not be player
+//    controller.setBoard(controller.getBoard.flipLine((0, 0), (0, 0))(1))
+//    controller.getBoard should not be board
+//    controller.currentPlayer should not be player
 //    controller.difficulty should not be difficulty
 //    controller.load()
-//    controller.boardController.board should be(board)
-//    controller.getCurrentPlayer should be(player)
+//    controller.getBoard should be(board)
+//    controller.currentPlayer should be(player)
 //    controller.difficulty should be(difficulty)
 //  }
 //  "playerCount" should {
@@ -67,18 +70,18 @@
 //    "highlight possible moves on the board if the input is incorrect" in {
 //      controller.newGame
 //      controller.set(0, 0)
-//      controller.boardController.board should equal(b.changeHighlight(1))
+//      controller.getBoard should equal(b.changeHighlight(1))
 //    }
 //    "omit a player who doesn't have valid moves" in {
 //      val ctrl = new Controller
-//      ctrl.boardController.board = Board(Vector.fill(8, 8)(Square(1)))
-//        .flipLine((0, 3), (0, 6), 2)
-//        .flipLine((6, 0), (6, 1), 2)
-//        .flipLine((0, 7), (0, 7), 0)
-//        .flipLine((7, 0), (7, 0), 0)
-//      val currentPlayer = ctrl.getCurrentPlayer
+//      ctrl.setBoard(Board(Vector.fill(8, 8)(Square(1)))
+//        .flipLine((0, 3), (0, 6))(2)
+//        .flipLine((6, 0), (6, 1))( 2)
+//        .flipLine((0, 7), (0, 7))( 0)
+//        .flipLine((7, 0), (7, 0))( 0))
+//      val currentPlayer = ctrl.currentPlayer
 //      ctrl.set(7, 0)
-//      ctrl.getCurrentPlayer should equal(currentPlayer)
+//      ctrl.currentPlayer should equal(currentPlayer)
 //    }
 //  }
 //  "selectAndSet" should {
@@ -87,27 +90,27 @@
 //      ctrl.setupPlayers("1")
 //      ctrl.newGame
 //      ctrl.setCurrentPlayer(ctrl.nextPlayer)
-//      val board = ctrl.boardController.board
+//      val board = ctrl.getBoard
 //      ctrl.selectAndSet()
-//      ctrl.boardController.board should not equal board
+//      ctrl.getBoard should not equal board
 //    }
 //    "not change any square on the board if the player has no valid move" in {
 //      controller.setupPlayers("1")
-//      controller.boardController.board = new Board(8).flipLine((0, 7), (5, 7), 1)
-//        .flipLine((0, 6), (0, 5), 1)
-//        .flipLine((1, 6), (3, 6), 2)
-//      val cBoard = controller.boardController.board
+//      controller.setBoard(new Board(8).flipLine((0, 7), (5, 7))(1)
+//        .flipLine((0, 6), (0, 5))(1)
+//        .flipLine((1, 6), (3, 6))(2))
+//      val cBoard = controller.getBoard
 //      controller.setCurrentPlayer(controller.getPlayer(true))
 //      controller.selectAndSet()
-//      controller.boardController.board should equal(cBoard)
+//      controller.getBoard should equal(cBoard)
 //    }
 //  }
 //  "omitPlayer" should {
 //    "change the current player and set the gameStatus to omitted" in {
 //      controller.newGame
-//      val currentPlayer = controller.getCurrentPlayer
+//      val currentPlayer = controller.currentPlayer
 //      controller.omitPlayer()
-//      controller.getCurrentPlayer should not equal currentPlayer
+//      controller.currentPlayer should not equal currentPlayer
 //      controller.gameStatus should equal(GameStatus.IDLE)
 //    }
 //  }
@@ -118,15 +121,15 @@
 //    "revert the board to a previous state" in {
 //      ctrl.newGame
 //      ctrl.set(3, 2)
-//      changedBoard = ctrl.boardController.board
+//      changedBoard = ctrl.getBoard
 //      ctrl.undo()
-//      ctrl.boardController.board should equal(b)
+//      ctrl.getBoard should equal(b)
 //    }
 //  }
 //  "redo" should {
 //    "redo undone changes" in {
 //      ctrl.redo()
-//      ctrl.boardController.board should equal(changedBoard)
+//      ctrl.getBoard should equal(changedBoard)
 //    }
 //  }
 //  "canUndo" should {
@@ -170,7 +173,7 @@
 //    "highlight settable squares" in {
 //      controller.newGame
 //      controller.highlight()
-//      controller.boardController.board.valueOf(3, 2) should be(-1)
+//      controller.valueOf(3, 2) should be(-1)
 //    }
 //    "de-highlight settable squares if already highlighted" in {
 //      controller.highlight()
@@ -179,15 +182,15 @@
 //  }
 //  "boardToString" should {
 //    "represent the board" in {
-//      controller.boardToString should equal(controller.boardController.board.toString)
+//      controller.boardToString should equal(controller.getBoard.toString)
 //    }
 //  }
 //  "createBoard" should {
 //    "create a new instance of a game with the given dimensions" in {
 //      controller.createBoard(8)
-//      controller.boardController.board should be(b)
+//      controller.getBoard should be(b)
 //      controller.size should be(8)
-//      controller.count(1) + controller.boardController.board.count(2) should be(4)
+//      controller.count(1) + controller.count(2) should be(4)
 //    }
 //  }
 //  "resizeBoard" should {

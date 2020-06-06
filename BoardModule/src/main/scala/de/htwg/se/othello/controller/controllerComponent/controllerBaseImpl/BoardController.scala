@@ -21,6 +21,8 @@ class BoardController extends BoardControllerInterface {
     board = (new CreateBoardStrategy).createNewBoard(size)
   }
 
+  def setBoard(board: BoardInterface): Unit = this.board = board
+
   def changeHighlight(implicit value: Int): Unit = board = board.changeHighlight
 
   def moves(implicit value: Int): Map[(Int, Int), Seq[(Int, Int)]] = board.moves
