@@ -21,6 +21,6 @@ object UserModuleServer {
     implicit val controller: UserControllerInterface = new UserController
 
     val server = new UserRestServer()
-    server.startServer("localhost", 8082)
+    server.startServer("0.0.0.0", 8082)
   }
 }

@@ -2,7 +2,9 @@ ThisBuild / organization := "de.htwg.se"
 ThisBuild / version := "1.0"
 ThisBuild / scalaVersion := "2.13.2"
 ThisBuild / scalacOptions :=  Seq("-unchecked", "-deprecation")
-ThisBuild / libraryDependencies ++= Seq(
+ThisBuild / trapExit := false
+
+ThisBuild / libraryDependencies := Seq(
   "org.scalactic" %% "scalactic" % "3.1.1",
   "org.scalatest" %% "scalatest" % "3.1.1" % "test",
   "org.scala-lang.modules" %% "scala-swing" % "2.1.1",
@@ -14,16 +16,56 @@ ThisBuild / libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % "10.1.12",
   "com.typesafe.akka" %% "akka-stream" % "2.6.5",
   "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.5",
-  "com.typesafe.akka" %% "akka-http-testkit" % "10.1.12",
-  "com.typesafe.akka" %% "akka-testkit" % "2.6.5" % Test
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.1.12"
 )
 
 lazy val OthelloMainModule = project.in(file("."))
-  .settings(name := "Othello In Scala")
+  .settings(
+    name := "Othello In Scala",
+    assemblyJarName in assembly := "Othello.jar",
+    assemblyMergeStrategy in assembly := {
+      case PathList("javax", "servlet", _*)              => MergeStrategy.first
+      case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
+      case "application.conf"                            => MergeStrategy.concat
+      case "module-info.class"                           => MergeStrategy.concat
+      case "CHANGELOG.adoc"                              => MergeStrategy.concat
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    }
+  )
   .aggregate(UserModule, BoardModule).dependsOn(UserModule, BoardModule)
 
-lazy val UserModule = project.settings(name := "UserModule")
+lazy val UserModule = project
+  .settings(
+    name := "UserModule",
+    assemblyJarName in assembly := "UserModule.jar",
+    assemblyMergeStrategy in assembly := {
+      case PathList("javax", "servlet", _*)              => MergeStrategy.first
+      case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
+      case "application.conf"                            => MergeStrategy.concat
+      case "module-info.class"                           => MergeStrategy.concat
+      case "CHANGELOG.adoc"                              => MergeStrategy.concat
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    }
+  )
 
-lazy val BoardModule = project.settings(name := "BoardModule")
+lazy val BoardModule = project
+  .settings(
+    name := "BoardModule",
+    assemblyJarName in assembly := "BoardModule.jar",
+    assemblyMergeStrategy in assembly := {
+      case PathList("javax", "servlet", _*)              => MergeStrategy.first
+      case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
+      case "application.conf"                            => MergeStrategy.concat
+      case "module-info.class"                           => MergeStrategy.concat
+      case "CHANGELOG.adoc"                              => MergeStrategy.concat
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    }
+  )
 
-coverageExcludedPackages := ".*aview.gui.*"
+ThisBuild / coverageExcludedPackages := ".*aview.gui.*"

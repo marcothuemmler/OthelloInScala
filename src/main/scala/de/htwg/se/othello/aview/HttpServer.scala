@@ -43,7 +43,7 @@ class HttpServer(controller: ControllerInterface) {
     complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Othello</h1>" + controller.boardToHtml))
   }
 
-  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8080)
+  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "0.0.0.0", 8080)
 
   def unbind(): Unit = {
     bindingFuture

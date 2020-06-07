@@ -21,6 +21,6 @@ object BoardModuleServer {
     implicit val controller: BoardController = new BoardController
 
     val server = new BoardRestServer()
-    server.startServer("localhost", 8081)
+    server.startServer("0.0.0.0", 8081)
   }
 }

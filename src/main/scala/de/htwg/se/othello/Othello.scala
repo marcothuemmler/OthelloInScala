@@ -2,7 +2,7 @@ package de.htwg.se.othello
 
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.aview.{HttpServer, Tui}
-import de.htwg.se.othello.aview.gui.SwingGui
+// import de.htwg.se.othello.aview.gui.SwingGui
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
@@ -15,7 +15,7 @@ object Othello {
   val globalController: ControllerInterface = injector.instance[ControllerInterface]
   val webServer = new HttpServer(globalController)
   val tui = new Tui(globalController)
-  val gui = new SwingGui(globalController)
+  // val gui = new SwingGui(globalController)
   globalController.newGame
 
   def main(args: Array[String]): Unit = {

@@ -1,4 +1,5 @@
-FROM hseeberger/scala-sbt
+FROM adoptopenjdk/openjdk14:alpine-slim
 WORKDIR /othello
-ADD . /othello
-CMD sbt run
+EXPOSE 8080
+ADD target/scala-2.13/Othello.jar /othello
+CMD java -jar Othello.jar
