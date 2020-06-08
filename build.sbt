@@ -23,6 +23,7 @@ lazy val OthelloMainModule = project.in(file("."))
   .settings(
     name := "Othello In Scala",
     assemblyJarName in assembly := "Othello.jar",
+    test in assembly := {},
     assemblyMergeStrategy in assembly := {
       case PathList("javax", "servlet", _*)              => MergeStrategy.first
       case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
@@ -40,6 +41,7 @@ lazy val UserModule = project
   .settings(
     name := "UserModule",
     assemblyJarName in assembly := "UserModule.jar",
+    test in assembly := {},
     assemblyMergeStrategy in assembly := {
       case PathList("javax", "servlet", _*)              => MergeStrategy.first
       case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
@@ -56,6 +58,7 @@ lazy val BoardModule = project
   .settings(
     name := "BoardModule",
     assemblyJarName in assembly := "BoardModule.jar",
+    test in assembly := {},
     assemblyMergeStrategy in assembly := {
       case PathList("javax", "servlet", _*)              => MergeStrategy.first
       case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
