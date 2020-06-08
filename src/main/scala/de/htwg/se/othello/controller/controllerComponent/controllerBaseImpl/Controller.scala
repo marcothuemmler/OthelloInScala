@@ -27,11 +27,16 @@ class Controller extends ControllerInterface {
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
-  val boardModuleURL: String = "http://boardmodule:8081/boardmodule"
-  val userModuleURL: String = "http://usermodule:8082/usermodule"
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
   var difficulty = "Normal"
+
+  val isDockerEnv: Boolean = sys.env.contains("DOCKER_ENV")
+  val boardHost: String = if (isDockerEnv) "boardmodule" else "localhost"
+  val userHost: String = if (isDockerEnv) "usermodule" else "localhost"
+
+  val boardModuleURL: String = s"http://$boardHost:8081/boardmodule"
+  val userModuleURL: String = s"http://$userHost:8082/usermodule"
 
   implicit def controller: Controller = this
 
