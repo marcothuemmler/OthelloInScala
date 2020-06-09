@@ -1,6 +1,5 @@
 package de.htwg.se.othello
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -11,7 +10,6 @@ import play.api.libs.json.Json
 trait BoardModuleHttpService {
 
   val controller: BoardControllerInterface
-  implicit val system: ActorSystem
 
   val route: Route = ignoreTrailingSlash {
     pathSingleSlash {

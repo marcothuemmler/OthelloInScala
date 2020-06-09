@@ -2,12 +2,13 @@ package de.htwg.se.othello
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
+import com.google.inject.Guice
 import de.htwg.se.othello.controller.controllerComponent.UserControllerInterface
-import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.UserController
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 import scala.concurrent.Future
 
-class UserRestServer(implicit val system: ActorSystem, implicit val controller: UserControllerInterface) extends UserModuleHttpService {
+class UserModuleServer(implicit val system: ActorSystem, implicit val controller: UserControllerInterface) extends UserModuleHttpService {
   def startServer(address: String, port: Int): Future[Http.ServerBinding] = {
     Http().bindAndHandle(route, address, port)
   }
@@ -17,10 +18,12 @@ object UserModuleServer {
 
   def main(args: Array[String]): Unit = {
 
-    implicit val actorSystem: ActorSystem = ActorSystem("user-server")
-    implicit val controller: UserControllerInterface = new UserController
+    val injector = Guice.createInjector(new UserModule)
+    implicit val controller: UserControllerInterface = injector.instance[UserControllerInterface]
 
-    val server = new UserRestServer()
+    implicit val actorSystem: ActorSystem = ActorSystem("user-server")
+
+    val server = new UserModuleServer()
     server.startServer("0.0.0.0", 8082)
   }
 }
