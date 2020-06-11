@@ -14,8 +14,8 @@ class FileIO extends FileIOInterface {
 
   val injector: Injector = Guice.createInjector(new OthelloModule)
 
-  def load: Try[(BoardInterface, Player, String)] = Try {
-    val file = scala.xml.XML.loadFile("savegame.xml")
+  def load(dir: String): Try[(BoardInterface, Player, String)] = Try {
+    val file = scala.xml.XML.loadFile(dir)
     val size = (file \\ "board" \ "@size").text.toInt
     var board = injector.instance[BoardFactory].create(size)
     val squares = file \\ "square"
@@ -30,13 +30,9 @@ class FileIO extends FileIOInterface {
     (board, Player(name, color), difficulty)
   }
 
-  def save(board: BoardInterface, player: Player, difficulty: String): Unit = {
-    saveString(board, player, difficulty)
-  }
-
-  def saveString(board: BoardInterface, player: Player, difficulty: String): Unit = {
+  def save(dir: String)(implicit board: BoardInterface, player: Player, difficulty: String): Unit = {
     import java.io._
-    val pw = new PrintWriter(new File("savegame.xml"))
+    val pw = new PrintWriter(new File(dir))
     val prettyPrinter = new PrettyPrinter(120, 4)
     val stateXml = prettyPrinter.format(stateToXml(board, player, difficulty))
     pw.write(stateXml)

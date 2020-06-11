@@ -11,7 +11,8 @@ import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
+import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
@@ -26,10 +27,10 @@ class Controller extends ControllerInterface {
   implicit val system: ActorSystem = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   val injector: Injector = Guice.createInjector(new OthelloModule)
-  val fileIo: FileIOInterface = injector.getInstance(classOf[FileIOInterface])
+  val fileIo: FileIOInterface = injector.instance[FileIOInterface]
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
-  var difficulty = "Normal"
+  implicit var difficulty: String = "Normal"
 
   val isDockerEnv: Boolean = sys.env.contains("DOCKER_ENV")
   val boardHost: String = if (isDockerEnv) "boardmodule" else "localhost"
@@ -38,23 +39,18 @@ class Controller extends ControllerInterface {
   val boardModuleURL: String = s"http://$boardHost:8081/boardmodule"
   val userModuleURL: String = s"http://$userHost:8082/usermodule"
 
-  implicit def controller: Controller = this
+  implicit val controller: Controller = this
 
   def resizeBoard(op: String): Unit = {
     val param = URLEncoder.encode(op, "UTF8")
-    Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param"))
-    Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
+    responseString(Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param")))
+    responseString(Http().singleRequest(Post(s"$userModuleURL/resetplayer")))
     notifyObservers()
   }
 
   def size: Int = {
     val response = Http().singleRequest(Get(s"$boardModuleURL/size"))
     responseString(response).toInt
-  }
-
-  def createBoard(size: Int): Unit = {
-    Http().singleRequest(Post(s"$boardModuleURL/create/?size=$size"))
-    notifyObservers()
   }
 
   def illegalAction(): Unit = {
@@ -68,7 +64,7 @@ class Controller extends ControllerInterface {
   }
 
   def setupPlayers: String => Unit = input => {
-    Http().singleRequest(Post(s"$userModuleURL/setupplayers/$input"))
+    responseString(Http().singleRequest(Post(s"$userModuleURL/setupplayers/$input")))
   }
 
   def moveSelector: MoveSelector = difficulty match {
@@ -90,27 +86,20 @@ class Controller extends ControllerInterface {
   def newGame: Future[Unit] = {
     undoManager.redoStack = Nil
     undoManager.undoStack = Nil
-    createBoard(size)
-    Http().singleRequest(Post(s"$userModuleURL/resetplayer"))
+    responseString(Http().singleRequest(Post(s"$boardModuleURL/create/?size=$size")))
+    responseString(Http().singleRequest(Post(s"$userModuleURL/resetplayer")))
+    gameStatus = IDLE
+    notifyObservers()
     Future(selectAndSet())(ExecutionContext.global)
   }
 
-  def getBoard: BoardInterface = {
+  implicit def getBoard: BoardInterface = {
     val response = Http().singleRequest(Get(s"$boardModuleURL/boardjson"))
     val boardJson = Json.parse(responseString(response))
-    var board = injector.instance[BoardFactory].create(size)
-    for {
-      index <- 0 until size * size
-      row = (boardJson \\ "row") (index).as[Int]
-      col = (boardJson \\ "col") (index).as[Int]
-      value = (boardJson \\ "value") (index).as[Int]
-    } board = board.flipLine((row, col), (row, col))(value)
-    board
+    (new CreateBoardStrategy).fill(boardJson)
   }
 
-  def save(): Unit = fileIo.save(getBoard, currentPlayer, difficulty)
-
-  def currentPlayer: Player = {
+  implicit def currentPlayer: Player = {
     val response = Http().singleRequest(Get(s"$userModuleURL/getcurrentplayer"))
     playerFromHttpResponse(response)
   }
@@ -126,8 +115,10 @@ class Controller extends ControllerInterface {
     }
   }
 
-  def load(): Unit = {
-    fileIo.load match {
+  def save(dir: String): Unit = fileIo.save(dir)
+
+  def load(dir: String): Unit = {
+    fileIo.load(dir) match {
       case scala.util.Success(save) =>
         setBoard(save._1)
         setCurrentPlayer(save._2)
@@ -153,13 +144,15 @@ class Controller extends ControllerInterface {
   }
 
   def set(square: (Int, Int)): Unit = {
-    if (!moves.exists(_._2.contains(square))) {
+    if (options.contains(square)) {
+      if (currentPlayer.isBot) SetCommand(square).doStep()
+      else undoManager.doStep(SetCommand(square))
+      if (gameOver) gameStatus = GAME_OVER
+      publishChanges()
+    } else {
       gameStatus = ILLEGAL
       highlight()
-    } else if (currentPlayer.isBot) SetCommand(square).doStep()
-    else undoManager.doStep(SetCommand(square))
-    if (gameOver) gameStatus = GAME_OVER
-    publishChanges()
+    }
     if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()
   }
 
@@ -185,8 +178,9 @@ class Controller extends ControllerInterface {
   }
 
   def highlight(): Unit = {
-    Http().singleRequest(Post(s"$boardModuleURL/changehighlight/?value=${currentPlayer.value}"))
-    notifyObservers()
+    val result = Http().singleRequest(Post(s"$boardModuleURL/changehighlight/?value=${currentPlayer.value}"))
+    Await.result(result, Duration.Inf)
+    publishChanges()
   }
 
   def suggestions: String = {

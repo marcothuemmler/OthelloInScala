@@ -64,14 +64,7 @@ trait BoardModuleHttpService {
     path("boardmodule" / "set") {
       entity(as[String]) { content =>
         val boardJson = Json.parse(content)
-        val size = (boardJson \ "size").as[Int]
-        var board = (new CreateBoardStrategy).createNewBoard(size)
-        for {
-          index <- 0 until size * size
-          row = (boardJson \\ "row") (index).as[Int]
-          col = (boardJson \\ "col") (index).as[Int]
-          value = (boardJson \\ "value") (index).as[Int]
-        } board = board.flipLine((row, col), (row, col))(value)
+        val board = (new CreateBoardStrategy).fill(boardJson)
         controller.setBoard(board)
         complete(StatusCodes.OK)
       }

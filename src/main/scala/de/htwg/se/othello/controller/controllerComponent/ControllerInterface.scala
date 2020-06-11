@@ -33,7 +33,7 @@ trait ControllerInterface extends Observable {
   def undo(): Unit
   def redo(): Unit
   def highlight(): Unit
-  def save(): Unit
-  def load(): Unit
+  def save(dir: String): Unit
+  def load(dir: String): Unit
 
 }

@@ -3,9 +3,9 @@ package de.htwg.se.othello.model.fileIOComponent.fileIoJsonImpl
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.model.Player
-import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
+import de.htwg.se.othello.model.boardComponent.BoardInterface
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import play.api.libs.json.{JsObject, JsValue, Json}
 
 import scala.io.Source
@@ -15,50 +15,29 @@ class FileIO extends FileIOInterface {
 
   val injector: Injector = Guice.createInjector(new OthelloModule)
 
-  def load: Try[(BoardInterface, Player, String)] = Try {
-    val source = Source.fromFile("savegame.json")
-    val json: JsValue = Json.parse (source.getLines.mkString)
-    source.close ()
-    val size = (json \ "board" \ "size").as[Int]
-    var board: BoardInterface = injector.instance[BoardFactory].create(size)
-    for {
-      index <- 0 until size * size
-      row = (json \\ "row") (index).as[Int]
-      col = (json \\ "col") (index).as[Int]
-      value = (json \\ "value") (index).as[Int]
-    } board = board.flipLine((row, col), (row, col))(value)
+  def load(dir: String): Try[(BoardInterface, Player, String)] = Try {
+    val source = Source.fromFile(dir)
+    val json: JsValue = Json.parse(source.getLines.mkString)
+    val jsonBoard = (json \ "board").as[JsValue]
+    val board = (new CreateBoardStrategy).fill(jsonBoard)
     val name = (json \ "player" \ "name").as[String]
     val color = (json \ "player" \ "value").as[Int]
     val difficulty = (json \ "difficulty").as[String]
+    source.close()
     (board, Player(name, color), difficulty)
   }
 
-  override def save(board: BoardInterface, player: Player, difficulty: String): Unit = {
+  override def save(dir: String)(implicit board: BoardInterface, player: Player, difficulty: String): Unit = {
     import java.io._
-    val pw = new PrintWriter(new File("savegame.json"))
+    val pw = new PrintWriter(new File(dir))
     pw.write(Json.prettyPrint(stateToJson(board, player, difficulty)))
     pw.close()
   }
 
   def stateToJson(board: BoardInterface, player: Player, difficulty: String): JsObject = {
     Json.obj(
-      "board" -> Json.obj(
-        "size" -> board.size,
-        "squares" -> Json.toJson(
-          for {
-            row <- 0 until board.size
-            col <- 0 until board.size
-          } yield Json.obj(
-            "value" -> board.valueOf(row, col),
-            "row" -> row,
-            "col" -> col
-          )
-        )
-      ),
-      "player" -> Json.obj(
-        "name" -> player.name,
-        "value" -> player.value,
-      ),
+      "board" -> board.toJson,
+      "player" -> player.toJson,
       "difficulty" -> difficulty
     )
   }

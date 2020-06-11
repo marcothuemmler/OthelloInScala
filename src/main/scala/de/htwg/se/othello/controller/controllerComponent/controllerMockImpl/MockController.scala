@@ -57,7 +57,7 @@ class MockController extends ControllerInterface {
 
   override def highlight(): Unit = ()
 
-  override def save(): Unit = ()
+  override def save(dir: String): Unit = ()
 
-  override def load(): Unit = ()
+  override def load(dir: String): Unit = ()
 }
