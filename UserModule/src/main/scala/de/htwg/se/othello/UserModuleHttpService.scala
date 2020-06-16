@@ -41,16 +41,24 @@ trait UserModuleHttpService {
       path("usermodule" / "getplayers") {
         complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.playersToJson)))
       } ~
-    path("usermodule" / "setcurrentplayer") {
-      parameters(Symbol("name"), Symbol("value").as[Int], Symbol("isBot").as[Boolean]) { (name, value, isBot) =>
-        val player = if (isBot) {
-          new Bot(name, value)
-        } else {
-          Player(name, value)
+      path("usermodule" / "setcurrentplayer") {
+        parameters(Symbol("name"), Symbol("value").as[Int], Symbol("isBot").as[Boolean]) { (name, value, isBot) =>
+          val player = if (isBot) {
+            new Bot(name, value)
+          } else {
+            Player(name, value)
+          }
+          controller.setCurrentPlayer(player)
+          complete(StatusCodes.OK)
         }
-        controller.setCurrentPlayer(player)
-        complete(StatusCodes.OK)
+      } ~
+      path("usermodule" / "save") {
+        controller.save()
+        complete("")
+      } ~
+      path("usermodule" / "load") {
+        controller.load()
+        complete("")
       }
-    }
   }
 }

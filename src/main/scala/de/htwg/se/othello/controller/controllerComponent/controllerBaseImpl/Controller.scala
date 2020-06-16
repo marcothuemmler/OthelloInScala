@@ -115,7 +115,10 @@ class Controller extends ControllerInterface {
     }
   }
 
-  def save(dir: String): Unit = fileIo.save(dir)
+  def save(dir: String): Unit = {
+    fileIo.save(dir)
+    responseString(Http().singleRequest(Post(s"$userModuleURL/save")))
+  }
 
   def load(dir: String): Unit = {
     fileIo.load(dir) match {
@@ -126,6 +129,7 @@ class Controller extends ControllerInterface {
         gameStatus = LOAD_SUCCESS
       case _ => gameStatus = LOAD_FAIL
     }
+    responseString(Http().singleRequest(Post(s"$userModuleURL/load")))
     publishChanges()
   }
 
