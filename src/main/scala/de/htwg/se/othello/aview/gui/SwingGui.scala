@@ -4,22 +4,23 @@ import java.awt.event.KeyEvent
 
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.util.Observer
-import javax.swing.KeyStroke
+import javax.swing.{KeyStroke, UIManager}
 
 import scala.swing.event.Key.{Modifier, Modifiers}
 import scala.swing.event.{ButtonClicked, Key}
-import scala.swing.{Action, ButtonGroup, MainFrame, Menu, MenuBar, MenuItem, RadioMenuItem, Separator}
+import scala.swing.{Action, ButtonGroup, FileChooser, MainFrame, Menu, MenuBar, MenuItem, RadioMenuItem, Separator}
 
 class SwingGui(controller: ControllerInterface) extends Observer {
 
   controller.add(this)
 
   val modifier: Modifiers = {
-    if (System.getProperty("os.name").startsWith("Mac")) Modifier.Meta
-    else Modifier.Control
+    if (sys.props("os.name") contains "Mac") Modifier.Meta else Modifier.Control
   }
 
   lazy val tablePanel = new TablePanel(controller)
+
+  UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName)
 
   lazy val mainFrame: MainFrame = new MainFrame {
     title = "Othello"
@@ -28,6 +29,19 @@ class SwingGui(controller: ControllerInterface) extends Observer {
     centerOnScreen
     resizable = false
     visible = true
+  }
+
+  val chooser = new FileChooser
+  def loadFile(): Unit = {
+    chooser.showOpenDialog(mainFrame)
+    val file = chooser.selectedFile.getAbsolutePath
+    controller.load(file)
+  }
+
+  def saveFile(): Unit = {
+    chooser.showSaveDialog(mainFrame)
+    val file = chooser.selectedFile.getAbsolutePath
+    controller.save(file)
   }
 
   def menus: MenuBar = new MenuBar {
@@ -39,11 +53,11 @@ class SwingGui(controller: ControllerInterface) extends Observer {
       })
       contents += new MenuItem(new Action("Save") {
         accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_F, modifier))
-        override def apply: Unit = controller.save()
+        override def apply: Unit = saveFile()
       })
       contents += new MenuItem(new Action("Load") {
         accelerator = Some(KeyStroke.getKeyStroke(KeyEvent.VK_L, modifier))
-        override def apply: Unit = controller.load()
+        override def apply: Unit = loadFile()
       })
       contents += new Separator
       contents += new MenuItem(new Action("Quit") {
