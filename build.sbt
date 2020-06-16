@@ -7,10 +7,8 @@ ThisBuild / trapExit := false
 ThisBuild / libraryDependencies := Seq(
   "org.scalactic" %% "scalactic" % "3.1.1",
   "org.scalatest" %% "scalatest" % "3.1.1" % "test",
-  "org.scala-lang.modules" %% "scala-swing" % "2.1.1",
   "com.google.inject" % "guice" % "4.2.3",
   "net.codingwell" %% "scala-guice" % "4.2.7",
-  "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
   "com.typesafe.play" %% "play-json" % "2.9.0",
   "com.google.inject.extensions" % "guice-assistedinject" % "4.2.3",
   "com.typesafe.akka" %% "akka-http" % "10.1.12",
@@ -28,7 +26,12 @@ lazy val OthelloMainModule = project.in(file("."))
     name := "Othello In Scala",
     assemblyJarName in assembly := "Othello.jar",
     test in assembly := {},
+    libraryDependencies ++= Seq(
+      "org.scala-lang.modules" %% "scala-swing" % "2.1.1",
+      "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
+    ),
     assemblyMergeStrategy in assembly := {
+      case PathList(ps @ _*) if ps.last endsWith ".proto" => MergeStrategy.first
       case PathList("javax", "servlet", _*)              => MergeStrategy.first
       case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
       case "application.conf"                            => MergeStrategy.concat
@@ -47,6 +50,7 @@ lazy val UserModule = project
     assemblyJarName in assembly := "UserModule.jar",
     test in assembly := {},
     assemblyMergeStrategy in assembly := {
+      case PathList(ps @ _*) if ps.last endsWith ".proto" => MergeStrategy.first
       case PathList("javax", "servlet", _*)              => MergeStrategy.first
       case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
       case "application.conf"                            => MergeStrategy.concat
@@ -64,6 +68,7 @@ lazy val BoardModule = project
     assemblyJarName in assembly := "BoardModule.jar",
     test in assembly := {},
     assemblyMergeStrategy in assembly := {
+      case PathList(ps @ _*) if ps.last endsWith ".proto" => MergeStrategy.first
       case PathList("javax", "servlet", _*)              => MergeStrategy.first
       case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
       case "application.conf"                            => MergeStrategy.concat

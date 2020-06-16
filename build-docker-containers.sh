@@ -3,6 +3,9 @@
 # Exit on error
 set -ex
 
+# Check if docker daemon is running
+docker info > /dev/null 2>&1
+
 # Compile jar files
 sbt ';clean;assembly'
 
@@ -12,4 +15,4 @@ DOCKER_BUILDKIT=1 docker build --target boardmodule -t boardmodule .
 DOCKER_BUILDKIT=1 docker build --target usermodule -t usermodule .
 
 # Run docker containers in detached mode
-docker-compose up -d
+COMPOSE_PROJECT_NAME=othelloinscala docker-compose up -d

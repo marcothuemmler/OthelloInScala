@@ -1,6 +1,5 @@
 package de.htwg.se.othello
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -11,7 +10,6 @@ import play.api.libs.json.Json
 trait BoardModuleHttpService {
 
   val controller: BoardControllerInterface
-  implicit val system: ActorSystem
 
   val route: Route = ignoreTrailingSlash {
     pathSingleSlash {
@@ -66,14 +64,7 @@ trait BoardModuleHttpService {
     path("boardmodule" / "set") {
       entity(as[String]) { content =>
         val boardJson = Json.parse(content)
-        val size = (boardJson \ "size").as[Int]
-        var board = (new CreateBoardStrategy).createNewBoard(size)
-        for {
-          index <- 0 until size * size
-          row = (boardJson \\ "row") (index).as[Int]
-          col = (boardJson \\ "col") (index).as[Int]
-          value = (boardJson \\ "value") (index).as[Int]
-        } board = board.flipLine((row, col), (row, col))(value)
+        val board = (new CreateBoardStrategy).fill(boardJson)
         controller.setBoard(board)
         complete(StatusCodes.OK)
       }

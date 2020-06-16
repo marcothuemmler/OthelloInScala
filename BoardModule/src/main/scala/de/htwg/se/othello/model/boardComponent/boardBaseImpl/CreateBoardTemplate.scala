@@ -4,6 +4,7 @@ import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.BoardModule
 import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
+import play.api.libs.json.JsValue
 
 trait CreateBoardTemplate {
 
@@ -16,6 +17,8 @@ trait CreateBoardTemplate {
   def prepare(board: BoardInterface): BoardInterface = board
 
   def fill(board: BoardInterface): BoardInterface
+
+  def fill(json: JsValue): BoardInterface
 
   def postProcess(board: BoardInterface): BoardInterface = board
 }
