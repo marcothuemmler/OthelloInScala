@@ -4,9 +4,9 @@ import de.htwg.se.othello.model.Player
 
 trait Dao {
 
-  def create(player:Player)
-  def read()
-  def update(player:Player)
-  def delete(player:Player)
+  def create(player:Player): Unit
+  def read(): Player
+  def update(player:Player): Unit
+  def delete(player:Player): Unit
 
 }

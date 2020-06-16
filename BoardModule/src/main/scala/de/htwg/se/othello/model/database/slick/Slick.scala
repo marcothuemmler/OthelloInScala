@@ -1,6 +1,6 @@
 package de.htwg.se.othello.model.database.slick
 
-import de.htwg.se.othello.model.Player
+import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.database.Dao
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.MySQLProfile.api._
@@ -11,18 +11,18 @@ case class Slick() extends Dao {
     url = "jdbc:mysql://127.0.0.1:3306/othello?serverTimezone=UTC",
     driver = "com.mysql.cj.jdbc.Driver",
     user = "root",
-    password = "othello",
+    password = "othello"
   )
 
-  val schema = TableQuery[PlayerTable].schema
+  val schema = TableQuery[TestTable].schema
 
   db.run(DBIO.seq(schema.createIfNotExists))
 
-  override def create(player: Player): Unit = ???
+  override def read(board: BoardInterface): Unit = ???
 
-  override def read(): Player = ???
+  override def create(board: BoardInterface): Unit = ???
 
-  override def update(player: Player): Unit = ???
+  override def update(board: BoardInterface): Unit = ???
 
-  override def delete(player: Player): Unit = ???
+  override def delete(board: BoardInterface): Unit = ???
 }
