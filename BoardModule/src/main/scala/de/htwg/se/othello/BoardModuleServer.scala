@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.BoardController
+import de.htwg.se.othello.model.database.slick.Slick
 
 import scala.concurrent.Future
 
@@ -19,6 +20,8 @@ object BoardModuleServer {
 
     implicit val actorSystem: ActorSystem = ActorSystem("board-server")
     implicit val controller: BoardController = new BoardController
+
+    Slick()
 
     val server = new BoardRestServer()
     server.startServer("0.0.0.0", 8081)
