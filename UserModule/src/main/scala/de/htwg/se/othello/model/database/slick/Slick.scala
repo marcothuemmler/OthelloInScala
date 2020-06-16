@@ -5,6 +5,9 @@ import de.htwg.se.othello.model.database.Dao
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.MySQLProfile.api._
 
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+
 case class Slick() extends Dao {
 
   val db = Database.forURL(
@@ -14,15 +17,24 @@ case class Slick() extends Dao {
     password = "othello",
   )
 
-  val schema = TableQuery[PlayerTable].schema
+  val playerTable = TableQuery[PlayerTable]
+  val schema = playerTable.schema
 
   db.run(DBIO.seq(schema.createIfNotExists))
 
-  override def create(player: Player): Unit = ???
+  override def save(players: Vector[Player]): Unit = {
+    players.foreach { player =>
+      Await.ready(db.run((playerTable += (player.name, player.value, player.isBot))), Duration.Inf)
+    }
+  }
 
-  override def read(): Player = ???
+  override def load(): Vector[Player] = {
+    val tableQuery = playerTable.take(1).result.head
+    val queryResult = db.run(tableQuery)
+   // val x = queryResult.
+    //new Player(queryResult.)
+    val x: Vector[Player] = Vector(new Player(1))
+    x
+  }
 
-  override def update(player: Player): Unit = ???
-
-  override def delete(player: Player): Unit = ???
 }

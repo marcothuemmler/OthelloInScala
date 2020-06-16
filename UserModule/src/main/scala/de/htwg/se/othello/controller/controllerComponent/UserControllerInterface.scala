@@ -12,4 +12,6 @@ trait UserControllerInterface {
   def playerToJson: JsObject
   def nextPlayerToJson: JsObject
   def playersToJson: JsObject
+  def save(): Unit
+  def load(): Unit
 }

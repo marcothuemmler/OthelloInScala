@@ -19,8 +19,6 @@ object UserModuleServer {
 
   def main(args: Array[String]): Unit = {
 
-    Slick()
-
     val injector = Guice.createInjector(new UserModule)
     implicit val controller: UserControllerInterface = injector.instance[UserControllerInterface]
 
