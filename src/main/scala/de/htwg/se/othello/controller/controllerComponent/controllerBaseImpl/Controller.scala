@@ -84,9 +84,13 @@ class Controller extends ControllerInterface {
   }
 
   def newGame: Future[Unit] = {
+    createBoard(size)
+  }
+
+  def createBoard(newSize: Int): Future[Unit] = {
     undoManager.redoStack = Nil
     undoManager.undoStack = Nil
-    responseString(Http().singleRequest(Post(s"$boardModuleURL/create/?size=$size")))
+    responseString(Http().singleRequest(Post(s"$boardModuleURL/create/?size=$newSize")))
     responseString(Http().singleRequest(Post(s"$userModuleURL/resetplayer")))
     gameStatus = IDLE
     notifyObservers()

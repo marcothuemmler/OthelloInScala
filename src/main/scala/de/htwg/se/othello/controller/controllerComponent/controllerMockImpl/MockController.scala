@@ -41,6 +41,8 @@ class MockController extends ControllerInterface {
 
   override def newGame: Future[Unit] = Future(())(ExecutionContext.global)
 
+  override def createBoard(newSize: Int): Future[Unit] = Future(())(ExecutionContext.global)
+
   override def illegalAction(): Unit = ()
 
   override def resizeBoard(op: String): Unit = ()

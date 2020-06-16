@@ -27,6 +27,7 @@ trait ControllerInterface extends Observable {
   def newGame: Future[Unit]
   def illegalAction(): Unit
   def resizeBoard(op: String): Unit
+  def createBoard(newSize: Int): Future[Unit]
   def setupPlayers: String => Unit
   def setDifficulty(value: String): Unit
   def set(square: (Int, Int)): Unit
