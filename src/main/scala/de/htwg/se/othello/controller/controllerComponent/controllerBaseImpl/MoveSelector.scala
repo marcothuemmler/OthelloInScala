@@ -64,7 +64,7 @@ abstract class MoveSelector(controller: Controller) {
   def simulate(b: BoardInterface, p: Int, toSquare: (Int, Int)): BoardInterface = {
     var newBoard = b
     b.moves(p).filter(o => o._2.contains(toSquare)).keys.foreach(fromSquare =>
-      newBoard = b.flipLine(fromSquare, toSquare)(p))
+      newBoard = newBoard.flipLine(fromSquare, toSquare)(p))
     newBoard
   }
 }

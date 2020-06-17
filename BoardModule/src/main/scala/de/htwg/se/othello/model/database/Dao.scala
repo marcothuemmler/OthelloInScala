@@ -4,9 +4,7 @@ import de.htwg.se.othello.model.boardComponent.BoardInterface
 
 trait Dao {
 
-  def create(board:BoardInterface)
-  def read(board:BoardInterface)
-  def update(board:BoardInterface)
-  def delete(board:BoardInterface)
+  def save(board:BoardInterface)
+  def load(): BoardInterface
 
 }

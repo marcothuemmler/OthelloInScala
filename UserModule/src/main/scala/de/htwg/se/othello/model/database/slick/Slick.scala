@@ -37,9 +37,9 @@ case class Slick() extends Dao {
     val x = Await.result(queryResult, Duration.Inf)
     val currentPlayer = x.filter(pl => pl._4).head
     val otherPlayer = x.filter(pl => !pl._4).head
-    Vector(currentPlayer, otherPlayer).map({
-      case (name, value, isBot, _)
-      => if (isBot) new Bot(name, value) else Player(name, value)
-    })
+    Vector(currentPlayer, otherPlayer).map {
+      case (name, value, isBot, _) =>
+        if (isBot) new Bot(name, value) else Player(name, value)
+    }
   }
 }

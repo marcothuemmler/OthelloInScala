@@ -48,4 +48,10 @@ class BoardController extends BoardControllerInterface {
   def movesToJson(implicit value: Int): JsValue = {
     Json.toJson(moves.map(e => Json.obj("key" -> e._1, "value" -> e._2)))
   }
+
+  def save(): Unit = dao.save(board)
+
+  def load(): Unit = {
+    board = dao.load()
+  }
 }
