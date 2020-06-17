@@ -41,7 +41,8 @@ class SwingGui(controller: ControllerInterface) extends Observer {
   def saveFile(): Unit = {
     chooser.showSaveDialog(mainFrame)
     val file = chooser.selectedFile.getAbsolutePath
-    controller.save(file)
+    if (file != null)
+      controller.save(file)
   }
 
   def menus: MenuBar = new MenuBar {

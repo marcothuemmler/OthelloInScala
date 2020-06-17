@@ -128,12 +128,13 @@ class Controller extends ControllerInterface {
     fileIo.load(dir) match {
       case scala.util.Success(save) =>
         setBoard(save._1)
-        setCurrentPlayer(save._2)
+        //setCurrentPlayer(save._2)
+        responseString(Http().singleRequest(Post(s"$userModuleURL/load")))
         difficulty = save._3
         gameStatus = LOAD_SUCCESS
       case _ => gameStatus = LOAD_FAIL
     }
-    responseString(Http().singleRequest(Post(s"$userModuleURL/load")))
+    //responseString(Http().singleRequest(Post(s"$userModuleURL/load")))
     publishChanges()
   }
 
