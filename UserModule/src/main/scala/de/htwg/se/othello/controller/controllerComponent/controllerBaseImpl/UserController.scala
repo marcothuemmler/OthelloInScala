@@ -39,7 +39,7 @@ class UserController extends UserControllerInterface {
   def playersToJson: JsObject = Json.obj("players" -> players.map(p => p.toJson))
 
   override def save(): Unit = {
-    dao.save(players)
+    dao.save(player, players.filter(p => p.name != player.name).head)
   }
 
   override def load(): Unit = {
