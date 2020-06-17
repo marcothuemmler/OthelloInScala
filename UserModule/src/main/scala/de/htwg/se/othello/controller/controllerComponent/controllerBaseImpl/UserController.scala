@@ -41,7 +41,8 @@ class UserController extends UserControllerInterface {
   override def save(): Unit = dao.save(player, nextPlayer)
 
   override def load(): Unit = {
-    players = dao.load()
-    player = players(0)
+    val loadedPlayers = dao.load()
+    player = loadedPlayers(0)
+    players = loadedPlayers.sortBy(_.value)
   }
 }
