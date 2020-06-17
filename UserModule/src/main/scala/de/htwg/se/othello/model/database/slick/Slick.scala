@@ -1,7 +1,7 @@
 package de.htwg.se.othello.model.database.slick
 
-import de.htwg.se.othello.model._
 import de.htwg.se.othello.model.database.Dao
+import de.htwg.se.othello.model.{Bot, Player}
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.MySQLProfile.api._
 
@@ -23,17 +23,10 @@ case class Slick() extends Dao {
   db.run(DBIO.seq(schema.createIfNotExists))
 
   def save(currentPlayer: Player, otherPlayer: Player): Unit = {
-    try {
-      Await.result(db.run(DBIO.seq(
-        playerTable.insertOrUpdate(currentPlayer.name, currentPlayer.value, currentPlayer.isBot, true),
-        playerTable insertOrUpdate  (otherPlayer.name, otherPlayer.value, otherPlayer.isBot, false))
-      ), Duration.Inf)
-    }
-    catch {
-      case err: Exception =>
-        println("Error in database", err)
-
-    }
+    Await.result(db.run(DBIO.seq(
+      playerTable.insertOrUpdate(currentPlayer.name, currentPlayer.value, currentPlayer.isBot, true),
+      playerTable insertOrUpdate(otherPlayer.name, otherPlayer.value, otherPlayer.isBot, false))
+    ), Duration.Inf)
   }
 
   def load(): Vector[Player] = {
@@ -44,8 +37,9 @@ case class Slick() extends Dao {
     val x = Await.result(queryResult, Duration.Inf)
     val currentPlayer = x.filter(pl => pl._4).head
     val otherPlayer = x.filter(pl => !pl._4).head
-    Vector(currentPlayer, otherPlayer).map({case (_, value, isBot, _)
-    =>
-      if (isBot) new Bot(value) else new Player(value)})
+    Vector(currentPlayer, otherPlayer).map({
+      case (name, value, isBot, _)
+      => if (isBot) new Bot(name, value) else Player(name, value)
+    })
   }
 }

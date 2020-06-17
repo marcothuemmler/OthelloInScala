@@ -5,7 +5,6 @@ import akka.http.scaladsl.Http
 import com.google.inject.Guice
 import de.htwg.se.othello.controller.controllerComponent.UserControllerInterface
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
-import de.htwg.se.othello.model.database.slick.Slick
 
 import scala.concurrent.Future
 
@@ -23,7 +22,6 @@ object UserModuleServer {
     implicit val controller: UserControllerInterface = injector.instance[UserControllerInterface]
 
     implicit val actorSystem: ActorSystem = ActorSystem("user-server")
-    Slick()
     val server = new UserModuleServer()
     server.startServer("0.0.0.0", 8082)
   }

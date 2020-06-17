@@ -4,8 +4,8 @@ import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.UserModule
 import de.htwg.se.othello.controller.controllerComponent.UserControllerInterface
 import de.htwg.se.othello.model.database.Dao
-import de.htwg.se.othello.model.database.slick.Slick
 import de.htwg.se.othello.model.{Bot, Player}
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import play.api.libs.json.{JsObject, Json}
 
 class UserController extends UserControllerInterface {
@@ -14,7 +14,7 @@ class UserController extends UserControllerInterface {
   var player: Player = players(0)
 
   val injector: Injector = Guice.createInjector(new UserModule)
-  val dao: Dao = Slick()
+  val dao: Dao = injector.instance[Dao]
 
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 
@@ -38,9 +38,7 @@ class UserController extends UserControllerInterface {
 
   def playersToJson: JsObject = Json.obj("players" -> players.map(p => p.toJson))
 
-  override def save(): Unit = {
-    dao.save(player, players.filter(p => p.name != player.name).head)
-  }
+  override def save(): Unit = dao.save(player, nextPlayer)
 
   override def load(): Unit = {
     players = dao.load()
