@@ -14,7 +14,7 @@ case class Slick() extends Dao {
     url = "jdbc:mysql://127.0.0.1:3306/othello?serverTimezone=UTC",
     driver = "com.mysql.cj.jdbc.Driver",
     user = "root",
-    password = "othello",
+    password = "othello1",
   )
 
   val playerTable = TableQuery[PlayerTable]
@@ -25,8 +25,8 @@ case class Slick() extends Dao {
   def save(currentPlayer: Player, otherPlayer: Player): Unit = {
     try {
       Await.result(db.run(DBIO.seq(
-        playerTable.insertOrUpdate(currentPlayer.name, currentPlayer.value, currentPlayer.isBot),
-        playerTable insertOrUpdate  (otherPlayer.name, otherPlayer.value, otherPlayer.isBot))
+        playerTable.insertOrUpdate(currentPlayer.name, currentPlayer.value, currentPlayer.isBot, true),
+        playerTable insertOrUpdate  (otherPlayer.name, otherPlayer.value, otherPlayer.isBot, false))
       ), Duration.Inf)
     }
     catch {
@@ -38,28 +38,14 @@ case class Slick() extends Dao {
 
   def load(): Vector[Player] = {
     val tableQuery = playerTable.take(2)
-//
-//    var test = Await.result(db.run(tableQuery.result.map(pl => {
-//
-//      val name = pl.head._1
-//      val value = pl.head._2
-//      val isBot = pl.head._3
-//      println(name)
-//      if (isBot) new Bot(value) else new Player(value)
-//    })(ExecutionContext.global)), Duration.Inf)
-//
-//
+
     val queryResult = db.run(tableQuery.result)
 
-    val x = Await.result(queryResult, Duration.Inf).map({case (name, value, isBot)
+    val x = Await.result(queryResult, Duration.Inf)
+    val currentPlayer = x.filter(pl => pl._4).head
+    val otherPlayer = x.filter(pl => !pl._4).head
+    Vector(currentPlayer, otherPlayer).map({case (_, value, isBot, _)
     =>
       if (isBot) new Bot(value) else new Player(value)})
-    x.toVector
-//    val tableQuery = playerTable.take(1).result.head
-//    val queryResult = Await.result(db.run(tableQuery), Duration.Inf)
-//    val player = new Player(queryResult._2)
-//    val x: Vector[Player] = Vector(player)
-    //x
   }
-
 }
