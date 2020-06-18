@@ -13,6 +13,7 @@ import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import de.htwg.se.othello.model.boardComponent.BoardInterface
+import de.htwg.se.othello.model.databaseComponent.daoSlickImpl.GameDao
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
@@ -28,6 +29,7 @@ class Controller extends ControllerInterface {
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.instance[FileIOInterface]
+  val dao: GameDao = injector.instance[GameDao]
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
   implicit var difficulty: String = "Normal"
@@ -115,20 +117,32 @@ class Controller extends ControllerInterface {
     }
   }
 
-  def save(dir: String): Unit = {
-    fileIo.save(dir)
-    responseString(Http().singleRequest(Post(s"$userModuleURL/save")))
-    responseString(Http().singleRequest(Post(s"$boardModuleURL/save")))
+  def save(dirOption: Option[String]): Unit = {
+    dirOption match {
+      case Some(dir) => fileIo.save(dir)
+      case None =>
+        dao.save(difficulty)
+        responseString(Http().singleRequest(Post(s"$userModuleURL/save")))
+        responseString(Http().singleRequest(Post(s"$boardModuleURL/save")))
+    }
   }
 
-  def load(dir: String): Unit = {
-    fileIo.load(dir) match {
-      case scala.util.Success(save) =>
+  def load(dirOption: Option[String]): Unit = {
+    dirOption match {
+      case Some(dir) =>
+        fileIo.load(dir) match {
+          case scala.util.Success((board, player, difficulty)) =>
+            setBoard(board)
+            setCurrentPlayer(player)
+            this.difficulty = difficulty
+            gameStatus = LOAD_SUCCESS
+          case _ => gameStatus = LOAD_FAIL
+        }
+      case None =>
+        difficulty = dao.load()
         responseString(Http().singleRequest(Post(s"$userModuleURL/load")))
         responseString(Http().singleRequest(Post(s"$boardModuleURL/load")))
-        difficulty = save._3
         gameStatus = LOAD_SUCCESS
-      case _ => gameStatus = LOAD_FAIL
     }
     publishChanges()
   }

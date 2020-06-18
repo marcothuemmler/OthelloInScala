@@ -1,7 +1,5 @@
 package de.htwg.se.othello.model.fileIOComponent.fileIoJsonImpl
 
-import com.google.inject.{Guice, Injector}
-import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
@@ -12,8 +10,6 @@ import scala.io.Source
 import scala.util.Try
 
 class FileIO extends FileIOInterface {
-
-  val injector: Injector = Guice.createInjector(new OthelloModule)
 
   def load(dir: String): Try[(BoardInterface, Player, String)] = Try {
     val source = Source.fromFile(dir)

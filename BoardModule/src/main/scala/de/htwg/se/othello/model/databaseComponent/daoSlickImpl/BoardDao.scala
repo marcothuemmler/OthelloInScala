@@ -1,6 +1,6 @@
-package de.htwg.se.othello.model.database.slick
+package de.htwg.se.othello.model.databaseComponent.daoSlickImpl
 
-import de.htwg.se.othello.model.database.Dao
+import de.htwg.se.othello.model.databaseComponent.BoardDaoInterface
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import play.api.libs.json.Json
@@ -10,7 +10,7 @@ import slick.jdbc.MySQLProfile.api._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-case class Slick() extends Dao {
+class BoardDao extends BoardDaoInterface {
 
   val db = Database.forURL(
     url = "jdbc:mysql://127.0.0.1:3306/othello?serverTimezone=UTC",
@@ -31,8 +31,7 @@ case class Slick() extends Dao {
   }
 
   override def load(): BoardInterface = {
-    val id: Int = Await.result(db.run(boardTable.length.result), Duration.Inf)
-    val tableQuery = boardTable.take(id).sortBy(_.id)
+    val tableQuery = boardTable.take(1).sortBy(_.id)
 
     val queryResult = db.run(tableQuery.result)
     val boardJson = Await.result(queryResult, Duration.Inf).reverse.map {

@@ -19,6 +19,7 @@ class SwingGui(controller: ControllerInterface) extends Observer {
   }
 
   lazy val tablePanel = new TablePanel(controller)
+  var saveToDb: Boolean = true
 
   UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName)
 
@@ -33,16 +34,21 @@ class SwingGui(controller: ControllerInterface) extends Observer {
 
   val chooser = new FileChooser
   def loadFile(): Unit = {
-    chooser.showOpenDialog(mainFrame)
-    val file = chooser.selectedFile.getAbsolutePath
-    controller.load(file)
+    if (saveToDb) controller.load(None)
+    else {
+      chooser.showOpenDialog(mainFrame)
+      val file = Option(chooser.selectedFile)
+      if (file.isDefined) controller.load(file.map(_.getAbsolutePath))
+    }
   }
 
   def saveFile(): Unit = {
-    chooser.showSaveDialog(mainFrame)
-    val file = chooser.selectedFile.getAbsolutePath
-    if (file != null)
-      controller.save(file)
+    if (saveToDb) controller.save(None)
+    else {
+      chooser.showSaveDialog(mainFrame)
+      val file = Option(chooser.selectedFile)
+      if (file.isDefined) controller.save(file.map(_.getAbsolutePath))
+    }
   }
 
   def menus: MenuBar = new MenuBar {
@@ -142,7 +148,24 @@ class SwingGui(controller: ControllerInterface) extends Observer {
             if (e.source == hard) controller.setDifficulty("d")
         }
       }
+      contents += new Menu("Storage Method") {
+        val toFile: RadioMenuItem = new RadioMenuItem("Local storage")
+        val toDB: RadioMenuItem = new RadioMenuItem("Database")
+        contents ++= Seq(toFile, toDB)
+        listenTo(toFile, toDB)
+        toFile.selected = !saveToDb
+        toDB.selected = saveToDb
+        reactions += {
+          case e: ButtonClicked if e.source == toFile => saveToDb(false)
+          case e: ButtonClicked if e.source == toDB => saveToDb(true)
+        }
+      }
     }
+  }
+
+  def saveToDb(isEnabled: Boolean): Unit = {
+    saveToDb = isEnabled
+    update
   }
 
   def update: Boolean = {

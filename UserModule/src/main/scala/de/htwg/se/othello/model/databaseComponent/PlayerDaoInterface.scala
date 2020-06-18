@@ -1,8 +1,8 @@
-package de.htwg.se.othello.model.database
+package de.htwg.se.othello.model.databaseComponent
 
 import de.htwg.se.othello.model.Player
 
-trait Dao {
+trait PlayerDaoInterface {
 
   def save(currentPlayer: Player, otherPlayer: Player): Unit
   def load(): Vector[Player]

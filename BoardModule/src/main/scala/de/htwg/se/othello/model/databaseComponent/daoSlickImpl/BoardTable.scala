@@ -1,4 +1,4 @@
-package de.htwg.se.othello.model.database.slick
+package de.htwg.se.othello.model.databaseComponent.daoSlickImpl
 
 import slick.jdbc.MySQLProfile.api._
 

@@ -31,7 +31,7 @@ class FileIO extends FileIOInterface {
   }
 
   def save(dir: String)(implicit board: BoardInterface, player: Player, difficulty: String): Unit = {
-    import java.io._
+    import java.io.{File, PrintWriter}
     val pw = new PrintWriter(new File(dir))
     val prettyPrinter = new PrettyPrinter(120, 4)
     val stateXml = prettyPrinter.format(stateToXml(board, player, difficulty))

@@ -3,7 +3,7 @@ package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.UserModule
 import de.htwg.se.othello.controller.controllerComponent.UserControllerInterface
-import de.htwg.se.othello.model.database.Dao
+import de.htwg.se.othello.model.databaseComponent.PlayerDaoInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import play.api.libs.json.{JsObject, Json}
@@ -14,7 +14,7 @@ class UserController extends UserControllerInterface {
   var player: Player = players(0)
 
   val injector: Injector = Guice.createInjector(new UserModule)
-  val dao: Dao = injector.instance[Dao]
+  val dao: PlayerDaoInterface = injector.instance[PlayerDaoInterface]
 
   def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
 

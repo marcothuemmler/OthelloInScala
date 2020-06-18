@@ -1,6 +1,6 @@
-package de.htwg.se.othello.model.database.slick
+package de.htwg.se.othello.model.databaseComponent.daoSlickImpl
 
-import de.htwg.se.othello.model.database.Dao
+import de.htwg.se.othello.model.databaseComponent.PlayerDaoInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.MySQLProfile.api._
@@ -8,7 +8,7 @@ import slick.jdbc.MySQLProfile.api._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-case class Slick() extends Dao {
+class PlayerDao extends PlayerDaoInterface {
 
   val db = Database.forURL(
     url = "jdbc:mysql://127.0.0.1:3306/othello?serverTimezone=UTC",

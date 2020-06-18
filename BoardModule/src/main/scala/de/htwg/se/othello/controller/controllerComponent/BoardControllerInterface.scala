@@ -17,7 +17,7 @@ trait BoardControllerInterface {
   def boardToHtml: String
   def toJson: JsObject
   def movesToJson(implicit value: Int): JsValue
-  def save()
-  def load()
+  def save(): Unit
+  def load(): Unit
 
 }
