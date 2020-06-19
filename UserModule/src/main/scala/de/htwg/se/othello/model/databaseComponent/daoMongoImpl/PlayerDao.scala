@@ -1,6 +1,6 @@
 package de.htwg.se.othello.model.databaseComponent.daoMongoImpl
 
-import de.htwg.se.othello.model.{Bot, Player}
+import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.databaseComponent.PlayerDaoInterface
 import org.mongodb.scala.{Document, MongoClient, MongoCollection, MongoDatabase, Observer}
 import org.mongodb.scala.model.Filters.equal
@@ -42,13 +42,8 @@ class PlayerDao extends PlayerDaoInterface {
     documents.map(document => {
 
       val playerJson = Json.parse(document.toJson)
-
-      val name = (playerJson \ "name").as[String]
-      val value = (playerJson \ "value").as[Int]
-      val isBot = (playerJson \ "isBot").as[Boolean]
+      val player = Player.fromJson(playerJson)
       val index = if ((playerJson \ "currentPlayer").as[Boolean]) 0 else 1
-
-      val player = if (isBot) new Bot(name, value) else Player(name, value)
 
       (index, player)
 

@@ -50,13 +50,8 @@ class UserModuleHttpServiceSpec extends AnyFreeSpec with Matchers with Scalatest
         status.isSuccess() should be (true)
       }
     }
-    "setting the current player as human player" in {
-      Post("/usermodule/setcurrentplayer/?name=Otto&value=1&isBot=false") ~> route ~> check {
-        status.isSuccess() should be (true)
-      }
-    }
-    "setting the current player as bot" in {
-      Post("/usermodule/setcurrentplayer/?name=Zuckerberg&value=2&isBot=true") ~> route ~> check {
+    "setting the current player" in {
+      Post("/usermodule/setcurrentplayer/", controller.playerToJson.toString) ~> route ~> check {
         status.isSuccess() should be (true)
       }
     }

@@ -3,9 +3,9 @@ package de.htwg.se.othello
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.StatusCodes
 import de.htwg.se.othello.controller.controllerComponent.UserControllerInterface
-import de.htwg.se.othello.model.{Bot, Player}
+import de.htwg.se.othello.model.Player
 import play.api.libs.json.Json
 
 trait UserModuleHttpService {
@@ -42,12 +42,8 @@ trait UserModuleHttpService {
         complete(HttpEntity(ContentTypes.`application/json`, Json.stringify(controller.playersToJson)))
       } ~
       path("usermodule" / "setcurrentplayer") {
-        parameters(Symbol("name"), Symbol("value").as[Int], Symbol("isBot").as[Boolean]) { (name, value, isBot) =>
-          val player = if (isBot) {
-            new Bot(name, value)
-          } else {
-            Player(name, value)
-          }
+        entity(as[String]) { content =>
+          val player = Player.fromJson(Json.parse(content))
           controller.setCurrentPlayer(player)
           complete(StatusCodes.OK)
         }

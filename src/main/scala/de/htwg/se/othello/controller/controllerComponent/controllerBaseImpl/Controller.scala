@@ -4,7 +4,7 @@ import java.net.URLEncoder
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.client.RequestBuilding._
+import akka.http.scaladsl.client.RequestBuilding.{Get, Post}
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import com.google.inject.{Guice, Injector}
@@ -15,13 +15,13 @@ import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.databaseComponent.GameDaoInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
-import de.htwg.se.othello.model.{Bot, Player}
+import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.util.UndoManager
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
+import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 
 class Controller extends ControllerInterface {
 
@@ -93,7 +93,7 @@ class Controller extends ControllerInterface {
     responseString(Http().singleRequest(Post(s"$userModuleURL/resetplayer")))
     gameStatus = IDLE
     notifyObservers()
-    Future(selectAndSet())(ExecutionContext.global)
+    Future(selectAndSet())
   }
 
   implicit def getBoard: BoardInterface = {
@@ -109,13 +109,7 @@ class Controller extends ControllerInterface {
 
   def playerFromHttpResponse(response: Future[HttpResponse]): Player = {
     val playerJson = Json.parse(responseString(response))
-    val name = (playerJson \ "name").as[String]
-    val color = (playerJson \ "value").as[Int]
-    if ((playerJson \ "isBot").as[Boolean]) {
-      new Bot(name, color)
-    } else {
-      Player(name, color)
-    }
+    Player.fromJson(playerJson)
   }
 
   def save(dirOption: Option[String]): Unit = {
@@ -149,11 +143,7 @@ class Controller extends ControllerInterface {
   }
 
   def setCurrentPlayer(player: Player): Unit = {
-    val playerJson = player.toJson
-    val name = (playerJson \ "name").as[String]
-    val color = (playerJson \ "value").as[Int]
-    val isBot = (playerJson \ "isBot").as[Boolean]
-    val result = Http().singleRequest(Post(s"$userModuleURL/setcurrentplayer/?name=$name&value=$color&isBot=$isBot"))
+    val result = Http().singleRequest(Post(s"$userModuleURL/setcurrentplayer", player.toJson.toString))
     Await.result(result, Duration.Inf)
   }
 
