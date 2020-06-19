@@ -21,7 +21,6 @@ object BoardModuleServer {
     val injector = Guice.createInjector(new BoardModule)
     implicit val actorSystem: ActorSystem = ActorSystem("board-server")
     implicit val controller: BoardControllerInterface = injector.instance[BoardControllerInterface]
-
     val server = new BoardModuleServer()
     server.startServer("0.0.0.0", 8081)
   }

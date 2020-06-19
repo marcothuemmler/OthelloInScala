@@ -22,7 +22,6 @@ object UserModuleServer {
     implicit val controller: UserControllerInterface = injector.instance[UserControllerInterface]
 
     implicit val actorSystem: ActorSystem = ActorSystem("user-server")
-
     val server = new UserModuleServer()
     server.startServer("0.0.0.0", 8082)
   }

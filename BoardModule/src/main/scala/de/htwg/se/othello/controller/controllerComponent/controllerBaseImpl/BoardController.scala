@@ -1,13 +1,19 @@
 package de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl
 
+import com.google.inject.{Guice, Injector}
+import de.htwg.se.othello.BoardModule
 import de.htwg.se.othello.controller.controllerComponent.BoardControllerInterface
 import de.htwg.se.othello.model.boardComponent.BoardInterface
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
+import de.htwg.se.othello.model.databaseComponent.BoardDaoInterface
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import play.api.libs.json.{JsObject, JsValue, Json}
 
 class BoardController extends BoardControllerInterface {
 
   var board: BoardInterface = (new CreateBoardStrategy).createNewBoard(8)
+  val injector: Injector = Guice.createInjector(new BoardModule)
+  val dao: BoardDaoInterface = injector.instance[BoardDaoInterface]
 
   def size: Int = board.size
 
@@ -42,4 +48,8 @@ class BoardController extends BoardControllerInterface {
   def movesToJson(implicit value: Int): JsValue = {
     Json.toJson(moves.map(e => Json.obj("key" -> e._1, "value" -> e._2)))
   }
+
+  def save(): Unit = dao.save(board)
+
+  def load(): Unit = board = dao.load()
 }

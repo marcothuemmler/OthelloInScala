@@ -33,11 +33,11 @@ trait OthelloHttpService {
         gridtoHtml
       } ~
       path("othello" / "save") {
-        controller.save("savegame.xml")
+        controller.save(None)
         gridtoHtml
       } ~
       path("othello" / "load") {
-        controller.load("savegame.xml")
+        controller.load(None)
         gridtoHtml
       } ~
       path("othello" / "board" / "increase") {

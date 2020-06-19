@@ -73,6 +73,14 @@ trait BoardModuleHttpService {
       parameter(Symbol("value").as[Int]) { value =>
         complete(HttpEntity(ContentTypes.`application/json`, controller.count(value).toString))
       }
-    }
+    } ~
+    path("boardmodule" / "save") {
+      controller.save()
+      complete(StatusCodes.OK)
+    } ~
+      path("boardmodule" / "load") {
+        controller.load()
+        complete(StatusCodes.OK)
+      }
   }
 }
