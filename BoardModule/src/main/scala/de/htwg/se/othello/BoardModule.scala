@@ -7,7 +7,7 @@ import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Boar
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.databaseComponent.BoardDaoInterface
-import de.htwg.se.othello.model.databaseComponent.daoSlickImpl.BoardDao
+import de.htwg.se.othello.model.databaseComponent.daoMongoImpl.BoardDao
 import net.codingwell.scalaguice.ScalaModule
 
 class BoardModule extends AbstractModule with ScalaModule {
