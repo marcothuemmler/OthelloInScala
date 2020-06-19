@@ -67,6 +67,7 @@ class Controller extends ControllerInterface {
 
   def setupPlayers: String => Unit = input => {
     responseString(Http().singleRequest(Post(s"$userModuleURL/setupplayers/$input")))
+    notifyObservers()
   }
 
   def moveSelector: MoveSelector = difficulty match {
