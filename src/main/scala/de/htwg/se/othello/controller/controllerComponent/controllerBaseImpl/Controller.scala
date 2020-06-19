@@ -13,7 +13,7 @@ import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import de.htwg.se.othello.model.boardComponent.BoardInterface
-import de.htwg.se.othello.model.databaseComponent.daoSlickImpl.GameDao
+import de.htwg.se.othello.model.databaseComponent.GameDaoInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.util.UndoManager
@@ -29,7 +29,7 @@ class Controller extends ControllerInterface {
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   val injector: Injector = Guice.createInjector(new OthelloModule)
   val fileIo: FileIOInterface = injector.instance[FileIOInterface]
-  val dao: GameDao = injector.instance[GameDao]
+  val dao: GameDaoInterface = injector.instance[GameDaoInterface]
   private val undoManager = new UndoManager
   var gameStatus: GameStatus = IDLE
   implicit var difficulty: String = "Normal"

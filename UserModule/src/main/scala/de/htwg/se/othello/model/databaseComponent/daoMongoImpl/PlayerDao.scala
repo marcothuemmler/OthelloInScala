@@ -3,7 +3,7 @@ package de.htwg.se.othello.model.databaseComponent.daoMongoImpl
 import de.htwg.se.othello.model.{Bot, Player}
 import de.htwg.se.othello.model.databaseComponent.PlayerDaoInterface
 import org.mongodb.scala.{Document, MongoClient, MongoCollection, MongoDatabase, Observer}
-import org.mongodb.scala.model.Filters._
+import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.ReplaceOptions
 import org.mongodb.scala.result.UpdateResult
 import play.api.libs.json.{JsBoolean, Json}
