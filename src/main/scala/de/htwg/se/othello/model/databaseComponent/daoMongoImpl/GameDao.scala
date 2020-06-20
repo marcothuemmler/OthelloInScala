@@ -11,7 +11,9 @@ import scala.concurrent.duration.Duration
 
 class GameDao extends GameDaoInterface {
 
-  val mongoClient: MongoClient = MongoClient()
+  val dbUrl: String = if (sys.env.contains("DOCKER_ENV")) "mongo" else "localhost"
+
+  val mongoClient: MongoClient = MongoClient(s"mongodb://$dbUrl")
 
   val database: MongoDatabase = mongoClient.getDatabase("othello")
 

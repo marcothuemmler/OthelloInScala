@@ -13,6 +13,7 @@ sbt ';clean;assembly'
 DOCKER_BUILDKIT=1 docker build --target othello-root -t othello-root .
 DOCKER_BUILDKIT=1 docker build --target boardmodule -t boardmodule .
 DOCKER_BUILDKIT=1 docker build --target usermodule -t usermodule .
+DOCKER_BUILDKIT=1 docker build --target othello-mongodb -t othello-mongodb .
 
 # Run docker containers in detached mode
 COMPOSE_PROJECT_NAME=othelloinscala docker-compose up -d

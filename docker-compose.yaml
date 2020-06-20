@@ -10,6 +10,7 @@ services:
     depends_on:
       - boardmodule
       - usermodule
+      - mongo
   boardmodule:
     image: boardmodule:latest
     hostname: boardmodule
@@ -17,6 +18,8 @@ services:
     tty: true
     ports:
       - "8081:8081"
+    depends_on:
+      - mongo
   usermodule:
     image: usermodule:latest
     hostname: usermodule
@@ -24,3 +27,11 @@ services:
     tty: true
     ports:
       - "8082:8082"
+    depends_on:
+      - mongo
+  mongo:
+    image: othello-mongodb:latest
+    hostname: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
