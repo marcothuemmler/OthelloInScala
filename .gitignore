@@ -21,7 +21,6 @@ pom.xml
 .history
 .lib/
 dist/*
-target/
 lib_managed/
 src_managed/
 project/target/
@@ -35,3 +34,6 @@ project/.sbtserver
 # Scala
 *.class
 *.log
+
+# Docker
+/.env

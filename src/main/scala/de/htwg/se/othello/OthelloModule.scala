@@ -7,7 +7,7 @@ import de.htwg.se.othello.controller.controllerComponent.controllerBaseImpl.Cont
 import de.htwg.se.othello.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.othello.model.boardComponent.{BoardFactory, BoardInterface}
 import de.htwg.se.othello.model.databaseComponent.GameDaoInterface
-import de.htwg.se.othello.model.databaseComponent.daoMongoImpl.GameDao
+import de.htwg.se.othello.model.databaseComponent.daoSlickImpl.GameDao
 import de.htwg.se.othello.model.fileIOComponent.{FileIOInterface, fileIoXmlImpl}
 import net.codingwell.scalaguice.ScalaModule
 

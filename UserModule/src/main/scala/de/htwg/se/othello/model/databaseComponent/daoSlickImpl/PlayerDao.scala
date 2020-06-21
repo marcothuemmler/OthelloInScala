@@ -10,11 +10,13 @@ import scala.concurrent.duration.Duration
 
 class PlayerDao extends PlayerDaoInterface {
 
+  val dbUrl: String = if (sys.env.contains("DOCKER_ENV")) "mysql" else "localhost"
+
   val db = Database.forURL(
-    url = "jdbc:mysql://127.0.0.1:3306/othello?serverTimezone=UTC",
+    url = s"jdbc:mysql://$dbUrl:3306/othello?serverTimezone=UTC",
     driver = "com.mysql.cj.jdbc.Driver",
     user = "root",
-    password = "othello1",
+    password = "othello1"
   )
 
   val playerTable = TableQuery[PlayerTable]

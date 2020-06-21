@@ -10,28 +10,38 @@ services:
     depends_on:
       - boardmodule
       - usermodule
-      - mongo
+    command: ./wait-for mysql:3306 -t 60 -- java -jar Othello.jar
   boardmodule:
     image: boardmodule:latest
     hostname: boardmodule
     container_name: boardmodule
-    tty: true
     ports:
       - "8081:8081"
+    command: ./wait-for mysql:3306 -t 60 -- java -jar BoardModule.jar
     depends_on:
-      - mongo
+      - mysql
   usermodule:
     image: usermodule:latest
     hostname: usermodule
     container_name: usermodule
-    tty: true
     ports:
       - "8082:8082"
     depends_on:
-      - mongo
-  mongo:
-    image: othello-mongodb:latest
-    hostname: mongo
-    container_name: mongo
+      - mysql
+    command: ./wait-for mysql:3306 -t 60 -- java -jar UserModule.jar
+#  mongo:
+#    image: othello-mongodb:latest
+#    hostname: mongo
+#    container_name: mongo
+#    ports:
+#      - "27017:27017"
+  mysql:
+    image: othello-mysql:latest
+    hostname: mysql
+    container_name: othello-mysql
+    # Database and root password are read from .env file
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
     ports:
-      - "27017:27017"
+      - "3306:3306"
