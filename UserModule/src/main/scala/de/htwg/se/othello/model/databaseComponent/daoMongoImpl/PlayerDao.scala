@@ -26,18 +26,14 @@ class PlayerDao extends PlayerDaoInterface {
 
     val insertCurrentObservable = collection.replaceOne(equal("currentPlayer", true), current, ReplaceOptions().upsert(true))
     val insertOtherObservable = collection.replaceOne(equal("currentPlayer", false), other, ReplaceOptions().upsert(true))
+    val observer = new Observer[UpdateResult] {
+      override def onNext(result: UpdateResult): Unit = println(s"inserted: $result")
+      override def onError(e: Throwable): Unit = println(s"failed: $e")
+      override def onComplete(): Unit = println("completed")
+    }
 
-    // TODO: only one observer
-    insertCurrentObservable.subscribe(new Observer[UpdateResult] {
-      override def onNext(result: UpdateResult): Unit = println(s"inserted: $result")
-      override def onError(e: Throwable): Unit = println(s"failed: $e")
-      override def onComplete(): Unit = println("completed")
-    })
-    insertOtherObservable.subscribe(new Observer[UpdateResult] {
-      override def onNext(result: UpdateResult): Unit = println(s"inserted: $result")
-      override def onError(e: Throwable): Unit = println(s"failed: $e")
-      override def onComplete(): Unit = println("completed")
-    })
+    insertCurrentObservable.subscribe(observer)
+    insertOtherObservable.subscribe(observer)
   }
 
   override def load(): Vector[Player] = {
