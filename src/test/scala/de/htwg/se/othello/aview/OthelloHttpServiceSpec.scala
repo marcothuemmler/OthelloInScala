@@ -12,7 +12,7 @@ class OthelloHttpServiceSpec extends AnyFreeSpec with Matchers with ScalatestRou
   "The OthelloHttpService should support" - {
     "returning a HTML representation of the board in the '/othello' path" in {
       Get("/othello") ~> route ~> check {
-        responseAs[String] should equal("<h1>HTWG Othello</h1>boardHtml")
+        responseAs[String] should equal("<h1>HTWG Othello</h1>" + controller.boardToHtml)
       }
     }
     "starting a new game" in {
@@ -62,6 +62,36 @@ class OthelloHttpServiceSpec extends AnyFreeSpec with Matchers with ScalatestRou
     }
     "setting a square" in {
       Post("/othello/c4") ~> route ~> check {
+        status.isSuccess() should equal(true)
+      }
+    }
+    "setting the difficulty to easy" in {
+      Post("/othello/difficulty/e") ~> route ~> check {
+        status.isSuccess() should equal(true)
+      }
+    }
+    "setting the difficulty to normal" in {
+      Post("/othello/difficulty/m") ~> route ~> check {
+        status.isSuccess() should equal(true)
+      }
+    }
+    "setting the difficulty to hard" in {
+      Post("/othello/difficulty/d") ~> route ~> check {
+        status.isSuccess() should equal(true)
+      }
+    }
+    "changing the amount of players to 2" in {
+      Post("/othello/players/2") ~> route ~> check {
+        status.isSuccess() should equal(true)
+      }
+    }
+    "changing the amount of players to 1" in {
+      Post("/othello/players/1") ~> route ~> check {
+        status.isSuccess() should equal(true)
+      }
+    }
+    "changing the amount of players to 0" in {
+      Post("/othello/players/0") ~> route ~> check {
         status.isSuccess() should equal(true)
       }
     }

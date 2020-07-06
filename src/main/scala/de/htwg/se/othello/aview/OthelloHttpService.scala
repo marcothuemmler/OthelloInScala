@@ -52,6 +52,14 @@ trait OthelloHttpService {
         controller.resizeBoard(".")
         gridtoHtml
       } ~
+      path("othello" / "difficulty" / Segment) {command => {
+        controller.setDifficulty(command)
+        gridtoHtml
+      }} ~
+      path("othello" / "players" / Segment) {command => {
+        controller.setupPlayers(command)
+        gridtoHtml
+      }} ~
       path("othello" / Segment) { command => {
         processInputLine(command)
         gridtoHtml
