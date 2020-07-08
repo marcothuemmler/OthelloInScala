@@ -11,13 +11,13 @@ class MockController extends Controller {
 
   var board: BoardInterface = new CreateBoardStrategy().createNewBoard(8)
 
-  var current: Player = Player("John", 1)
+  var players = Seq(Player("John", 1), Player("Bob", 2))
 
-  var next: Player = Player("Bob", 2)
+  var player: Player = players.head
 
-  override def currentPlayer: Player = current
+  override def currentPlayer: Player = player
 
-  override def nextPlayer: Player = next
+  override def nextPlayer: Player = if (currentPlayer == players.head) players(1) else players.head
 
   override def size: Int = board.size
 
@@ -41,17 +41,15 @@ class MockController extends Controller {
 
   override def setupPlayers: String => Unit = _ => ()
 
-  override def highlight(): Unit = board.changeHighlight(currentPlayer.value)
+  override def highlight(): Unit = board = board.changeHighlight(currentPlayer.value)
 
   override def save(dirOption: Option[String]): Unit = super.save(Some("savegame.xml"))
 
   override def load(dirOption: Option[String]): Unit = super.load(Some("savegame.xml"))
 
-  override def setCurrentPlayer(player: Player): Unit = {
-    val temp = current
-    current = player
-    next = temp
-  }
+  override def setCurrentPlayer(player: Player): Unit = this.player = player
+
+  override def getPlayer(isFirstPlayer: Boolean): Player = if (isFirstPlayer) players.head else players(1)
 
   def createBoard(size: Int): Unit = board = new CreateBoardStrategy().createNewBoard(size)
 
