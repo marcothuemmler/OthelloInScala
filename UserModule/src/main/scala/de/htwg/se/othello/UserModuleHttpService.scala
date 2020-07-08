@@ -50,11 +50,11 @@ trait UserModuleHttpService {
       } ~
       path("usermodule" / "save") {
         controller.save()
-        complete("")
+        complete(StatusCodes.OK)
       } ~
       path("usermodule" / "load") {
         controller.load()
-        complete("")
+        complete(StatusCodes.OK)
       }
   }
 }
