@@ -7,6 +7,8 @@ import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 class GameDao extends GameDaoInterface {
 
@@ -15,8 +17,8 @@ class GameDao extends GameDaoInterface {
   val db = Database.forURL(
     url = s"jdbc:mysql://$dbUrl:3306/othello?serverTimezone=UTC",
     driver = "com.mysql.cj.jdbc.Driver",
-    user = "root",
-    password = "othello1"
+    user = sys.env.getOrElse("MYSQL_USER", "root"),
+    password = sys.env.getOrElse("MYSQL_ROOT_PASSWORD", "othello1")
   )
 
   val gameTable = TableQuery[GameTable]
@@ -32,5 +34,10 @@ class GameDao extends GameDaoInterface {
     result.map({case (_, difficulty) => difficulty}).head
   }
 
-  override def save(difficulty: String): Unit = db.run(gameTable += (1, difficulty))
+  override def save(difficulty: String): Unit = {
+    db.run(gameTable.insertOrUpdate(1, difficulty)) onComplete {
+      case Success(_) => println("Difficulty saved successfully")
+      case Failure(error) => println("An error occurred: " + error)
+    }
+  }
 }

@@ -9,6 +9,8 @@ import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 class BoardDao extends BoardDaoInterface {
 
@@ -17,8 +19,8 @@ class BoardDao extends BoardDaoInterface {
   val db = Database.forURL(
     url = s"jdbc:mysql://$dbUrl:3306/othello?serverTimezone=UTC",
     driver = "com.mysql.cj.jdbc.Driver",
-    user = "root",
-    password = "othello1"
+    user = sys.env.getOrElse("MYSQL_USER", "root"),
+    password = sys.env.getOrElse("MYSQL_ROOT_PASSWORD", "othello1")
   )
 
   val boardTable = TableQuery[BoardTable]
@@ -27,16 +29,18 @@ class BoardDao extends BoardDaoInterface {
   db.run(DBIO.seq(schema.createIfNotExists))
 
   override def save(board: BoardInterface): Unit = {
-    val myArray: Array[Byte] = board.toJson.toString.getBytes
-    val id: Int = 1
-    db.run(DBIO.seq(boardTable.insertOrUpdate(id, myArray)))
+    val myArray = board.toJson.toString.getBytes
+    db.run(DBIO.seq(boardTable.insertOrUpdate(1, myArray))) onComplete {
+      case Success(_) => println("Board saved successfully")
+      case Failure(error) => println("An error occurred: " + error)
+    }
   }
 
   override def load(): BoardInterface = {
-    val tableQuery = boardTable.take(1).sortBy(_.id)
+    val tableQuery = boardTable.take(1)
 
     val queryResult = db.run(tableQuery.result)
-    val boardJson = Await.result(queryResult, Duration.Inf).reverse.map {
+    val boardJson = Await.result(queryResult, Duration.Inf).map {
       case (_, boardJson) => Json.parse(boardJson)
     }.head
     (new CreateBoardStrategy).fill(boardJson)

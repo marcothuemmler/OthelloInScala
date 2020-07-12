@@ -6,7 +6,9 @@ import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success}
 
 class PlayerDao extends PlayerDaoInterface {
 
@@ -15,8 +17,8 @@ class PlayerDao extends PlayerDaoInterface {
   val db = Database.forURL(
     url = s"jdbc:mysql://$dbUrl:3306/othello?serverTimezone=UTC",
     driver = "com.mysql.cj.jdbc.Driver",
-    user = "root",
-    password = "othello1"
+    user = sys.env.getOrElse("MYSQL_USER", "root"),
+    password = sys.env.getOrElse("MYSQL_ROOT_PASSWORD", "othello1")
   )
 
   val playerTable = TableQuery[PlayerTable]
@@ -25,10 +27,13 @@ class PlayerDao extends PlayerDaoInterface {
   db.run(DBIO.seq(schema.createIfNotExists))
 
   def save(currentPlayer: Player, otherPlayer: Player): Unit = {
-    Await.result(db.run(DBIO.seq(
+    db.run(DBIO.seq(
       playerTable.insertOrUpdate(currentPlayer.name, currentPlayer.value, currentPlayer.isBot, true),
       playerTable insertOrUpdate(otherPlayer.name, otherPlayer.value, otherPlayer.isBot, false))
-    ), Duration.Inf)
+    ) onComplete {
+      case Success(_) => println("Players saved successfully")
+      case Failure(error) => println("An error occurred: " + error)
+    }
   }
 
   def load(): Vector[Player] = {
@@ -36,12 +41,12 @@ class PlayerDao extends PlayerDaoInterface {
 
     val queryResult = db.run(tableQuery.result)
 
-    val x = Await.result(queryResult, Duration.Inf)
-    val currentPlayer = x.filter(pl => pl._4).head
-    val otherPlayer = x.filter(pl => !pl._4).head
-    Vector(currentPlayer, otherPlayer).map {
-      case (name, value, isBot, _) =>
-        if (isBot) new Bot(name, value) else Player(name, value)
-    }
+    Await.result(queryResult, Duration.Inf).map {
+      case (name, value, isBot, isCurrentPlayer) =>
+        (isCurrentPlayer.compare(true),
+          if (isBot) new Bot(name, value) else Player(name, value))
+    }.sortBy { case (index, _) => index }
+      .map { case (_, player) => player }
+      .toVector
   }
 }
