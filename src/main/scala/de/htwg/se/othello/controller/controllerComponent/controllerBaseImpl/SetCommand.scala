@@ -23,7 +23,7 @@ case class SetCommand(toSquare: (Int, Int))(implicit val controller: Controller)
   override def redoStep(): Unit = step()
 
   def step(): Unit = {
-    val new_memento = (board.deHighlight, player)
+    val new_memento = (controller.getBoard, controller.currentPlayer)
     controller.setBoard(memento._1)
     controller.setCurrentPlayer(memento._2)
     memento = new_memento

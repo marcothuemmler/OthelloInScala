@@ -71,9 +71,9 @@ trait OthelloHttpService {
   }
 
   def processInputLine: String => Unit = {
-    input => input.toList match {
+    input => input.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)").toList match {
       case col :: row :: Nil =>
-        val square = (col.toUpper.toInt - 65, row.asDigit - 1)
+        val square = (col.charAt(0).toUpper - 65, row.toInt- 1)
         controller.set(square)
       case _ =>
     }
