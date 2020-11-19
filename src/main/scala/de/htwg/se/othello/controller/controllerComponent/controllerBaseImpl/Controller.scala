@@ -102,6 +102,11 @@ class Controller extends ControllerInterface {
     (new CreateBoardStrategy).fill(boardJson)
   }
 
+  def boardJson: String = {
+    val response = Http().singleRequest(Get(s"$boardModuleURL/boardjson"))
+    responseString(response)
+  }
+
   implicit def currentPlayer: Player = {
     val response = Http().singleRequest(Get(s"$userModuleURL/getcurrentplayer"))
     playerFromHttpResponse(response)

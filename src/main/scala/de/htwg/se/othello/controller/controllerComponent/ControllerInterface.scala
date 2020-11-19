@@ -35,5 +35,6 @@ trait ControllerInterface extends Observable {
   def highlight(): Unit
   def save(dirOption: Option[String]): Unit
   def load(dirOption: Option[String]): Unit
+  def boardJson: String
 
 }
