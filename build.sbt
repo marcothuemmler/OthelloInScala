@@ -38,6 +38,7 @@ lazy val OthelloMainModule = project.in(file("."))
       case "application.conf"                            => MergeStrategy.concat
       case "module-info.class"                           => MergeStrategy.concat
       case "CHANGELOG.adoc"                              => MergeStrategy.concat
+      case PathList("META-INF", "MANIFEST.MF")           => MergeStrategy.first
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
@@ -57,6 +58,7 @@ lazy val UserModule = project
       case "application.conf"                            => MergeStrategy.concat
       case "module-info.class"                           => MergeStrategy.concat
       case "CHANGELOG.adoc"                              => MergeStrategy.concat
+      case PathList("META-INF", "MANIFEST.MF")           => MergeStrategy.first
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
@@ -75,6 +77,7 @@ lazy val BoardModule = project
       case "application.conf"                            => MergeStrategy.concat
       case "module-info.class"                           => MergeStrategy.concat
       case "CHANGELOG.adoc"                              => MergeStrategy.concat
+      case PathList("META-INF", "MANIFEST.MF")           => MergeStrategy.first
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
