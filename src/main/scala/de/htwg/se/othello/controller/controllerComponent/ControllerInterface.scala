@@ -2,11 +2,11 @@ package de.htwg.se.othello.controller.controllerComponent
 
 import de.htwg.se.othello.controller.controllerComponent.GameStatus.GameStatus
 import de.htwg.se.othello.model.Player
-import de.htwg.se.othello.util.Observable
 
 import scala.concurrent.Future
+import scala.swing.Publisher
 
-trait ControllerInterface extends Observable {
+trait ControllerInterface extends Publisher {
 
   var gameStatus: GameStatus
   var difficulty: String

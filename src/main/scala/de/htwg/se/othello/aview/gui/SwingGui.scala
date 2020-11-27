@@ -3,16 +3,15 @@ package de.htwg.se.othello.aview.gui
 import java.awt.event.KeyEvent
 
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
-import de.htwg.se.othello.util.Observer
 import javax.swing.{KeyStroke, UIManager}
 
 import scala.swing.event.Key.{Modifier, Modifiers}
 import scala.swing.event.{ButtonClicked, Key}
-import scala.swing.{Action, ButtonGroup, FileChooser, MainFrame, Menu, MenuBar, MenuItem, RadioMenuItem, Separator}
+import scala.swing.{Action, ButtonGroup, FileChooser, Frame, MainFrame, Menu, MenuBar, MenuItem, RadioMenuItem, Separator}
 
-class SwingGui(controller: ControllerInterface) extends Observer {
+class SwingGui(controller: ControllerInterface) extends Frame {
 
-  controller.add(this)
+  listenTo(controller)
 
   val modifier: Modifiers = {
     if (sys.props("os.name") contains "Mac") Modifier.Meta else Modifier.Control
@@ -167,6 +166,11 @@ class SwingGui(controller: ControllerInterface) extends Observer {
     saveToDb = isEnabled
     update
   }
+
+  reactions += {
+    case _ => update
+  }
+
 
   def update: Boolean = {
     tablePanel.redraw()

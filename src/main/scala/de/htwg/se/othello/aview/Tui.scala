@@ -1,12 +1,13 @@
 package de.htwg.se.othello.aview
 
-import de.htwg.se.othello.controller.controllerComponent.{ControllerInterface, GameStatus}
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.util.Observer
+import de.htwg.se.othello.controller.controllerComponent.{ControllerInterface, GameStatus}
 
-class Tui(controller: ControllerInterface) extends Observer {
+import scala.swing.Reactor
 
-  controller.add(this)
+class Tui(controller: ControllerInterface) extends Reactor {
+
+  listenTo(controller)
 
   def processInputLine: String => Unit = {
     case "q" => sys.exit
@@ -26,6 +27,10 @@ class Tui(controller: ControllerInterface) extends Observer {
         controller.set(square)
       case _ => controller.illegalAction()
     }
+  }
+
+  reactions += {
+    case _ => update
   }
 
   def update: Boolean = {
