@@ -11,12 +11,12 @@ import com.google.inject.{Guice, Injector}
 import de.htwg.se.othello.OthelloModule
 import de.htwg.se.othello.controller.controllerComponent.ControllerInterface
 import de.htwg.se.othello.controller.controllerComponent.GameStatus._
-import de.htwg.se.othello.controller.controllerComponent.controllerMockImpl.{BoardChanged, CurrentPlayerChanged, DifficultyChanged, GameStatusChanged, ModeChanged}
-import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
+import de.htwg.se.othello.controller.controllerComponent.controllerMockImpl._
+import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.model.boardComponent.BoardInterface
+import de.htwg.se.othello.model.boardComponent.boardBaseImpl.CreateBoardStrategy
 import de.htwg.se.othello.model.databaseComponent.GameDaoInterface
 import de.htwg.se.othello.model.fileIOComponent.FileIOInterface
-import de.htwg.se.othello.model.Player
 import de.htwg.se.othello.util.UndoManager
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import play.api.libs.json.{JsValue, Json}
@@ -48,7 +48,7 @@ class Controller extends ControllerInterface {
     val param = URLEncoder.encode(op, "UTF8")
     responseString(Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param")))
     responseString(Http().singleRequest(Post(s"$userModuleURL/resetplayer")))
-    publish(new BoardChanged)
+    publish(new BoardSizeChanged(op))
   }
 
   def size: Int = {
@@ -65,10 +65,6 @@ class Controller extends ControllerInterface {
     publish(new GameStatusChanged(status))
     gameStatus = IDLE
   }
-//  def publishChanges(): Unit = {
-//    notifyObservers()
-//    gameStatus = IDLE
-//  }
 
   def setupPlayers: String => Unit = input => {
     responseString(Http().singleRequest(Post(s"$userModuleURL/setupplayers/$input")))
@@ -87,8 +83,7 @@ class Controller extends ControllerInterface {
       case "m" => "Normal"
       case "d" => "Hard"
     }
-    gameStatus = DIFFICULTY_CHANGED
-    publish(new DifficultyChanged(value))
+    publish(new DifficultyChanged(difficulty))
     publishGameStatusChanges(DIFFICULTY_CHANGED)
   }
 
@@ -97,8 +92,8 @@ class Controller extends ControllerInterface {
     undoManager.undoStack = Nil
     responseString(Http().singleRequest(Post(s"$boardModuleURL/create/?size=$size")))
     responseString(Http().singleRequest(Post(s"$userModuleURL/resetplayer")))
-    gameStatus = IDLE
-    publish(new BoardChanged())
+    publishGameStatusChanges(IDLE)
+    publish(new NewGameCreated())
     Future(selectAndSet())
   }
 
@@ -167,13 +162,15 @@ class Controller extends ControllerInterface {
   }
 
   def set(square: (Int, Int)): Unit = {
-    if (options.contains(square)) {
-      if (currentPlayer.isBot) SetCommand(square).doStep()
-      else undoManager.doStep(SetCommand(square))
+    val possibleMoves = options
+    if (possibleMoves.contains(square)) {
+      val command = SetCommand(square)
+      if (currentPlayer.isBot) command.doStep()
+      else undoManager.doStep(command)
+      publish(new CellsChanged(Json.toJson(command.changingCells)))
       if (gameOver) publishGameStatusChanges(GAME_OVER)
       publish(new BoardChanged())
     } else {
-      publishGameStatusChanges(ILLEGAL)
       highlight()
     }
     if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()
@@ -200,9 +197,11 @@ class Controller extends ControllerInterface {
   }
 
   def highlight(): Unit = {
-    val result = Http().singleRequest(Post(s"$boardModuleURL/changehighlight/?value=${currentPlayer.value}"))
+    val currentPLayer = currentPlayer.value
+    val result = Http().singleRequest(Post(s"$boardModuleURL/changehighlight/?value=${currentPLayer}"))
     Await.result(result, Duration.Inf)
-    publish(new BoardChanged())
+    publish(new BoardHighlightChanged(currentPLayer, Json.toJson(options)))
+    publishGameStatusChanges(ILLEGAL)
   }
 
   def suggestions: String = {
