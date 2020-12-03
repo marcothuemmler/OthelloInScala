@@ -61,6 +61,9 @@ class Controller extends ControllerInterface {
   }
 
   def publishGameStatusChanges(status: GameStatus): Unit = {
+
+    if (status == IDLE)
+      publish(new GameStatusChanged(gameStatus, status))
     gameStatus = status
     publish(new GameStatusChanged(status))
     gameStatus = IDLE
@@ -200,7 +203,7 @@ class Controller extends ControllerInterface {
     val currentPLayer = currentPlayer.value
     val result = Http().singleRequest(Post(s"$boardModuleURL/changehighlight/?value=${currentPLayer}"))
     Await.result(result, Duration.Inf)
-    publish(new BoardHighlightChanged(currentPLayer, Json.toJson(options)))
+    publish(new BoardHighlightChanged(currentPLayer, options))
     publishGameStatusChanges(ILLEGAL)
   }
 
