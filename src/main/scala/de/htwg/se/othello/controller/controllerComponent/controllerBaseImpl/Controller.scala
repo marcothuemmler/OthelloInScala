@@ -48,7 +48,7 @@ class Controller extends ControllerInterface {
     val param = URLEncoder.encode(op, "UTF8")
     responseString(Http().singleRequest(Post(s"$boardModuleURL/resize/?op=$param")))
     responseString(Http().singleRequest(Post(s"$userModuleURL/resetplayer")))
-    publish(new BoardSizeChanged(op))
+    publish(new BoardChanged)
   }
 
   def size: Int = {
@@ -96,7 +96,7 @@ class Controller extends ControllerInterface {
     responseString(Http().singleRequest(Post(s"$boardModuleURL/create/?size=$size")))
     responseString(Http().singleRequest(Post(s"$userModuleURL/resetplayer")))
     publishGameStatusChanges(IDLE)
-    publish(new NewGameCreated())
+    publish(new BoardChanged)
     Future(selectAndSet())
   }
 
@@ -106,9 +106,10 @@ class Controller extends ControllerInterface {
     (new CreateBoardStrategy).fill(boardJson)
   }
 
-  def boardJson: String = {
+  def boardJson: JsValue = {
     val response = Http().singleRequest(Get(s"$boardModuleURL/boardjson"))
-    responseString(response)
+    val responseBody = response.flatMap(r => Unmarshal(r.entity).to[String])
+    Json.parse(Await.result(responseBody, Duration.Inf))
   }
 
   implicit def currentPlayer: Player = {
@@ -156,7 +157,7 @@ class Controller extends ControllerInterface {
   def setCurrentPlayer(player: Player): Unit = {
     val result = Http().singleRequest(Post(s"$userModuleURL/setcurrentplayer", player.toJson.toString))
     Await.result(result, Duration.Inf)
-    publish(new CurrentPlayerChanged(player.value))
+    publish(new CurrentPlayerChanged(player.toJson))
   }
 
   def setBoard(board: BoardInterface): Unit = {
@@ -165,16 +166,14 @@ class Controller extends ControllerInterface {
   }
 
   def set(square: (Int, Int)): Unit = {
-    val possibleMoves = options
-    if (possibleMoves.contains(square)) {
-      val command = SetCommand(square)
-      if (currentPlayer.isBot) command.doStep()
-      else undoManager.doStep(command)
-      publish(new CellsChanged(Json.toJson(command.changingCells)))
+    if (options.contains(square)) {
+      if (currentPlayer.isBot) SetCommand(square).doStep()
+      else undoManager.doStep(SetCommand(square))
       if (gameOver) publishGameStatusChanges(GAME_OVER)
-      publish(new BoardChanged())
+      publish(new BoardChanged)
     } else {
       highlight()
+      publishGameStatusChanges(ILLEGAL)
     }
     if (!gameOver && moves.isEmpty) omitPlayer() else selectAndSet()
   }
@@ -191,20 +190,18 @@ class Controller extends ControllerInterface {
 
   def undo(): Unit = {
     undoManager.undoStep()
-    publish(new BoardChanged())
+    publish(new BoardChanged)
   }
 
   def redo(): Unit = {
     undoManager.redoStep()
-    publish(new BoardChanged())
+    publish(new BoardChanged)
   }
 
   def highlight(): Unit = {
-    val currentPLayer = currentPlayer.value
-    val result = Http().singleRequest(Post(s"$boardModuleURL/changehighlight/?value=${currentPLayer}"))
+    val result = Http().singleRequest(Post(s"$boardModuleURL/changehighlight/?value=${currentPlayer.value}"))
     Await.result(result, Duration.Inf)
-    publish(new BoardHighlightChanged(currentPLayer, options))
-    publishGameStatusChanges(ILLEGAL)
+    publish(new BoardChanged)
   }
 
   def suggestions: String = {

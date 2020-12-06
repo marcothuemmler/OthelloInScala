@@ -11,23 +11,13 @@ case class SetCommand(toSquare: (Int, Int))(implicit val controller: Controller)
   var board: BoardInterface = controller.getBoard
   val moves: Map[(Int, Int), Seq[(Int, Int)]] = controller.moves.filter(_._2.contains(toSquare))
   var memento: (BoardInterface, Player) = (board.deHighlight, player)
-  var changingCells: Seq[(Int, Int)] = Seq()
 
   override def doStep(): Unit = {
-    moves.keys.foreach(fromSquare => flipLine(fromSquare))
-    //controller.highlight()
+    moves.keys.foreach(fromSquare => board = board.flipLine(fromSquare, toSquare))
     controller.setBoard(board.deHighlight)
     controller.setCurrentPlayer(controller.nextPlayer)
   }
 
-  def flipLine(fromSquare: (Int, Int)): Unit = {
-    var curr = fromSquare
-    while (curr != toSquare) {
-      changingCells = changingCells :+ curr
-      curr = (curr._1 - curr._1.compare(toSquare._1), curr._2 - curr._2.compare(toSquare._2))
-    }
-    board = board.flipLine(fromSquare, toSquare)
-  }
   override def undoStep(): Unit = step()
 
   override def redoStep(): Unit = step()

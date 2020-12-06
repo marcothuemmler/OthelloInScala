@@ -2,6 +2,7 @@ package de.htwg.se.othello.controller.controllerComponent
 
 import de.htwg.se.othello.controller.controllerComponent.GameStatus.GameStatus
 import de.htwg.se.othello.model.Player
+import play.api.libs.json.JsValue
 
 import scala.concurrent.Future
 import scala.swing.Publisher
@@ -35,6 +36,6 @@ trait ControllerInterface extends Publisher {
   def highlight(): Unit
   def save(dirOption: Option[String]): Unit
   def load(dirOption: Option[String]): Unit
-  def boardJson: String
+  def boardJson: JsValue
 
 }
