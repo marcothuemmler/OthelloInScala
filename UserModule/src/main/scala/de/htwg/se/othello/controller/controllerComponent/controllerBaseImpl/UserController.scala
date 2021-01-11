@@ -16,7 +16,7 @@ class UserController extends UserControllerInterface {
   val injector: Injector = Guice.createInjector(new UserModule)
   val dao: PlayerDaoInterface = injector.instance[PlayerDaoInterface]
 
-  def nextPlayer: Player = if (player == players(0)) players(1) else players(0)
+  def nextPlayer: Player = if (player.value == 1) players(1) else players(0)
 
   def playerCount: Int = players.count(o => !o.isBot)
 
@@ -24,6 +24,12 @@ class UserController extends UserControllerInterface {
     case "0" => players = Vector(new Bot(1), new Bot(2))
     case "1" => players = Vector(new Player(1), new Bot(2))
     case "2" => players = Vector(new Player(1), new Player(2))
+  }
+
+  def setPlayerName(index: Int, name: String): Unit = {
+    val newPlayer = Player(name, index + 1)
+    if (player == players(index)) player = newPlayer
+    players = players.updated(index, newPlayer)
   }
 
   def resetPlayer(): Unit = player = players(0)

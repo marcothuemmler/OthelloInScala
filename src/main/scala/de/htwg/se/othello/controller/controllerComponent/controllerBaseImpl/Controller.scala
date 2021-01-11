@@ -74,6 +74,10 @@ class Controller extends ControllerInterface {
     publish(new ModeChanged(input))
   }
 
+  def setPlayerName(index: Int, name: String): Unit = {
+    responseString(Http().singleRequest(Post(s"$userModuleURL/setplayername/?index=$index&name=$name")))
+  }
+
   def moveSelector: MoveSelector = difficulty match {
     case "Easy" => new EasyBot
     case "Normal" => new MediumBot

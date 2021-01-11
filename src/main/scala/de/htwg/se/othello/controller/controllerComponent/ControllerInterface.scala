@@ -37,5 +37,6 @@ trait ControllerInterface extends Publisher {
   def save(dirOption: Option[String]): Unit
   def load(dirOption: Option[String]): Unit
   def boardJson: JsValue
+  def setPlayerName(index: Int, name: String): Unit
 
 }

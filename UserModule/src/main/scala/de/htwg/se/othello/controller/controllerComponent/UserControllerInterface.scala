@@ -12,6 +12,7 @@ trait UserControllerInterface {
   def playerToJson: JsObject
   def nextPlayerToJson: JsObject
   def playersToJson: JsObject
+  def setPlayerName(index: Int, name: String): Unit
   def save(): Unit
   def load(): Unit
 }

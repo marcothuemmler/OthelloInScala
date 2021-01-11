@@ -48,6 +48,12 @@ trait UserModuleHttpService {
           complete(StatusCodes.OK)
         }
       } ~
+      path("usermodule" / "setplayername") {
+        parameter(Symbol("index").as[Int], Symbol("name")) { (index, name) =>
+          controller.setPlayerName(index, name)
+          complete(StatusCodes.OK)
+        }
+      } ~
       path("usermodule" / "save") {
         controller.save()
         complete(StatusCodes.OK)
